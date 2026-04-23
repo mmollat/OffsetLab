@@ -14,7 +14,7 @@ export default function Fitment() {
   function update(key: string, value: string) {
     const newParams = new URLSearchParams(params.toString());
     newParams.set(key, value);
-    router.push("/fitment?" + newParams.toString());
+    router.push(("/fitment?" + newParams.toString()) as never);
   }
 
   return (
