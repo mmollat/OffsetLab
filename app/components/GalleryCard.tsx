@@ -3,14 +3,16 @@ import type { GalleryBuild } from "../data/gallery";
 export default function GalleryCard({ build }: { build: GalleryBuild }) {
   return (
     <article className="overflow-hidden rounded-3xl border border-white/10 bg-[#11141a] shadow-2xl shadow-black/30">
-      <div className="relative h-64 overflow-hidden bg-white/[0.04] md:h-72">
+      <div className="relative flex h-64 items-center justify-center overflow-hidden bg-black md:h-72">
         <img
           src={build.imageUrl}
           alt={build.label}
-          className="h-full w-full object-cover transition duration-500 hover:scale-[1.03]"
+          className="max-h-full max-w-full object-contain transition duration-500 hover:scale-[1.02]"
           referrerPolicy="no-referrer"
+          loading="lazy"
         />
-        <div className="absolute left-4 top-4 rounded-full border border-emerald-400/30 bg-emerald-400/15 px-3 py-1 text-xs font-semibold text-emerald-300">
+
+        <div className="absolute left-4 top-4 rounded-full border border-emerald-400/30 bg-black/70 px-3 py-1 text-xs font-semibold text-emerald-300 backdrop-blur">
           {build.match}
         </div>
       </div>
