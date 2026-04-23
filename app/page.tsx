@@ -19,7 +19,7 @@ export default function Home() {
         </p>
 
         <p className="mt-4 max-w-2xl text-sm leading-6 text-white/50 md:text-base">
-          Get wheel, offset, and tire recommendations based on your Tesla model,
+          Get wheel, offset, and tire recommendations based on your vehicle,
           trim, and the look you want — from OEM+ to aggressive daily fitment.
         </p>
 
@@ -38,29 +38,45 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-14 grid w-full max-w-4xl gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left">
-            <p className="text-sm font-semibold text-white">OEM+</p>
-            <p className="mt-2 text-sm text-white/60">
-              Clean upgrade, near-stock behavior, minimal compromise.
-            </p>
-          </div>
+        <div className="mt-14 grid w-full max-w-5xl gap-4 md:grid-cols-3">
+          <InfoCard title="OEM+" text="Clean upgrade, near-stock behavior, minimal compromise." />
+          <InfoCard title="Flush" text="Balanced stance, daily-friendly, filled out properly." />
+          <InfoCard title="Aggressive" text="Wider stance, tighter fitment, stronger visual impact." />
+        </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left">
-            <p className="text-sm font-semibold text-white">Flush</p>
-            <p className="mt-2 text-sm text-white/60">
-              Balanced stance, daily-friendly, filled out properly.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left">
-            <p className="text-sm font-semibold text-white">Aggressive</p>
-            <p className="mt-2 text-sm text-white/60">
-              Wider stance, tighter fitment, stronger visual impact.
-            </p>
+        <div className="mt-10 w-full max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-left">
+          <p className="text-xs uppercase tracking-[0.25em] text-white/35">Current Coverage</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <BrandPill label="Tesla" active />
+            <BrandPill label="BMW" />
+            <BrandPill label="Toyota" />
+            <BrandPill label="Porsche" />
           </div>
         </div>
       </section>
     </main>
+  );
+}
+
+function InfoCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left">
+      <p className="text-sm font-semibold text-white">{title}</p>
+      <p className="mt-2 text-sm text-white/60">{text}</p>
+    </div>
+  );
+}
+
+function BrandPill({ label, active = false }: { label: string; active?: boolean }) {
+  return (
+    <div
+      className={`rounded-full border px-4 py-2 text-sm ${
+        active
+          ? "border-white/30 bg-white/[0.06] text-white"
+          : "border-white/10 bg-white/[0.02] text-white/55"
+      }`}
+    >
+      {label}{!active ? " • Coming Soon" : ""}
+    </div>
   );
 }

@@ -1,10 +1,29 @@
+import type { Metadata } from "next";
+import "./globals.css";
 import SiteHeader from "./components/SiteHeader";
-import type { ReactNode } from "react";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export const metadata: Metadata = {
+  title: "Offset Lab",
+  description: "Precision fitment. No guesswork.",
+  icons: {
+    icon: "/logos/offset-lab-app-icon.png",
+    apple: "/logos/offset-lab-app-icon.png",
+  },
+  openGraph: {
+    title: "Offset Lab",
+    description: "Precision fitment. No guesswork.",
+    images: ["/logos/offset-lab-primary-logo.png"],
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html>
-      <body style={{ background: "#000", color: "#fff" }}>
+    <html lang="en">
+      <body className="bg-black text-white antialiased">
         <SiteHeader />
         {children}
       </body>
