@@ -17,10 +17,16 @@ export default function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-2 md:gap-3">
-          <Link href="/fitment" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:bg-white/5">
+          <Link
+            href="/fitment"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 transition hover:border-white/25 hover:bg-white/5"
+          >
             Fitment
           </Link>
-          <Link href="/compare" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:bg-white/5">
+          <Link
+            href="/compare"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 transition hover:border-white/25 hover:bg-white/5"
+          >
             Compare
           </Link>
         </nav>
