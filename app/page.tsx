@@ -1,42 +1,37 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/app/components/Card';
+import { SiteHeader } from '@/app/components/SiteHeader';
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-background px-6 py-10 text-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <header className="flex items-center justify-between">
+    <main className="min-h-screen bg-background text-white">
+      <SiteHeader />
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10">
+        <section className="grid items-center gap-8 md:grid-cols-[1.2fr_0.8fr] md:py-8">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-accent">Offset Lab</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-6xl">Precision fitment. No guesswork.</h1>
-            <p className="mt-4 max-w-2xl text-base text-muted md:text-lg">
+            <Image
+              src="/logos/offset-lab-primary-logo.png"
+              alt="Offset Lab"
+              width={900}
+              height={370}
+              priority
+              className="h-auto w-full max-w-3xl"
+            />
+            <p className="mt-6 max-w-2xl text-base text-muted md:text-lg">
               Tesla Model 3 enthusiast-first fitment recommendations with poke, clearance, and tire math built in.
             </p>
-          </div>
-        </header>
-
-        <section className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
-          <Card className="p-8">
-            <div className="flex flex-col gap-6">
-              <div>
-                <p className="text-sm uppercase tracking-[0.25em] text-muted">MVP</p>
-                <h2 className="mt-2 text-2xl font-semibold">Start fitment search</h2>
-                <p className="mt-3 max-w-xl text-muted">
-                  Pick your trim, style, and suspension. Offset Lab returns a recommendation, fitment metrics, and warnings.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/fitment" className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:opacity-90">
-                  Start Fitment
-                </Link>
-                <Link href="/compare" className="rounded-2xl border border-border bg-surface2 px-5 py-3 text-sm font-semibold text-white transition hover:border-white/40">
-                  Compare Setup
-                </Link>
-              </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/fitment" className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:opacity-90">
+                Start Fitment
+              </Link>
+              <Link href="/compare" className="rounded-2xl border border-border bg-surface2 px-5 py-3 text-sm font-semibold text-white transition hover:border-white/40">
+                Compare Setup
+              </Link>
             </div>
-          </Card>
+          </div>
 
           <Card className="p-8">
             <p className="text-sm uppercase tracking-[0.25em] text-muted">Included</p>
@@ -53,6 +48,19 @@ export default function HomePage() {
               ))}
             </div>
           </Card>
+        </section>
+
+        <section className="grid gap-6 md:grid-cols-3">
+          {[
+            ['OEM+', 'Close to stock. Clean upgrade.'],
+            ['Flush', 'Balanced stance. Daily-friendly.'],
+            ['Aggressive', 'Wider stance. Tighter fitment.'],
+          ].map(([title, desc]) => (
+            <Card key={title} className="p-6">
+              <p className="text-lg font-semibold text-white">{title}</p>
+              <p className="mt-2 text-sm text-muted">{desc}</p>
+            </Card>
+          ))}
         </section>
       </div>
     </main>

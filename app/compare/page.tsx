@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Card } from '@/app/components/Card';
+import { SiteHeader } from '@/app/components/SiteHeader';
 import { MetricRow } from '@/app/components/MetricRow';
 import { calculateCustomFitment, getVehicleOptions } from '@/app/lib';
 
@@ -38,10 +39,11 @@ export default function ComparePage() {
   const numberFieldClass = 'w-full rounded-2xl border border-border bg-surface2 px-4 py-3 text-sm text-white';
 
   return (
-    <main className="min-h-screen bg-background px-6 py-8 text-white">
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[380px_1fr]">
+    <main className="min-h-screen bg-background text-white">
+      <SiteHeader />
+      <div className="mx-auto px-6 py-8 grid max-w-7xl gap-6 lg:grid-cols-[380px_1fr]">
         <Card className="h-fit p-6">
-          <p className="text-sm uppercase tracking-[0.25em] text-muted">Offset Lab</p>
+          <p className="text-sm uppercase tracking-[0.25em] text-muted">Precision fitment. No guesswork.</p>
           <h1 className="mt-2 text-2xl font-semibold">Compare setup</h1>
           <p className="mt-3 text-sm text-muted">Enter a custom setup and compare it against the OEM baseline.</p>
 
