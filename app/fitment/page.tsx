@@ -13,6 +13,7 @@ import {
   StyleKey,
   modelSlug,
 } from "../data/fitment";
+import FitmentGallery from "../components/FitmentGallery";
 
 function scoreColor(score: number) {
   if (score >= 8) return "text-red-400";
@@ -272,6 +273,8 @@ export default function FitmentPage() {
             <p className="mt-5 text-sm text-white/45">offsetlabfitment.com</p>
           </div>
         </section>
+
+        <FitmentGallery model={model} trim={safeTrim} style={style} />
       </div>
     </main>
   );
