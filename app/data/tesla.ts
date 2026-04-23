@@ -1,4 +1,5 @@
 export const teslaModels = ["Model 3", "Model Y"] as const;
+export const models = teslaModels;
 
 export type TeslaModelKey = (typeof teslaModels)[number];
 export type StyleKey = "oemplus" | "flush" | "aggressive";
