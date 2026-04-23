@@ -1,36 +1,10 @@
-import Image from "next/image";
+
 import Link from "next/link";
 
 export default function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/logos/offset-lab-secondary-logo.png"
-            alt="Offset Lab"
-            width={220}
-            height={52}
-            priority
-            className="h-8 w-auto md:h-10"
-          />
-        </Link>
-
-        <nav className="flex items-center gap-2 md:gap-3">
-          <Link
-            href="/fitment"
-            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 transition hover:border-white/25 hover:bg-white/5"
-          >
-            Fitment
-          </Link>
-          <Link
-            href="/compare"
-            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 transition hover:border-white/25 hover:bg-white/5"
-          >
-            Compare
-          </Link>
-        </nav>
-      </div>
+    <header style={{padding:20, borderBottom:"1px solid #222"}}>
+      <Link href="/">Offset Lab</Link>
     </header>
   );
 }
