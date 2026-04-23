@@ -1,9 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { models, trims, TeslaModelKey } from "../data/tesla";
 
-export default function Fitment() {
+function FitmentContent() {
   const router = useRouter();
   const params = useSearchParams();
 
@@ -54,5 +55,13 @@ export default function Fitment() {
         Copy Link
       </button>
     </main>
+  );
+}
+
+export default function FitmentPage() {
+  return (
+    <Suspense fallback={<main style={{ padding: 20 }}>Loading fitment...</main>}>
+      <FitmentContent />
+    </Suspense>
   );
 }
