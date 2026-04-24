@@ -73,17 +73,19 @@ export default function FitmentPage() {
           .from("build_submissions")
           .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
           .eq("status", "approved")
-          .eq("model", model);
+          .eq("model", model)
+          .eq("trim", safeTrim);
 
         if (error || !data) {
           setApprovedBuilds([]);
           return;
         }
 
-        const normalizedStyle = style.toLowerCase().replace(/\s+/g, "");
+        const normalize = (value: string) => value.toLowerCase().replace(/\s+/g, "").replace("oem+", "oemplus");
+        const normalizedStyle = normalize(style);
         const filtered = data.filter((row) => {
-          const rowStyle = String(row.fitment_style || "").toLowerCase().replace(/\s+/g, "");
-          return rowStyle === normalizedStyle || rowStyle === normalizedStyle.replace("oemplus", "oem+");
+          const rowStyle = normalize(String(row.fitment_style || ""));
+          return rowStyle === normalizedStyle;
         });
 
         const mapped = filtered
@@ -111,7 +113,7 @@ export default function FitmentPage() {
     }
 
     loadApprovedBuilds();
-  }, [model, style]);
+  }, [model, safeTrim, style]);
 
   async function copyLink() {
     await navigator.clipboard.writeText(window.location.href);
