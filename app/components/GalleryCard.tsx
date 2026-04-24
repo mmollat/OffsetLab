@@ -5,12 +5,12 @@ export default function GalleryCard({ build }: { build: GalleryBuild }) {
 
   return (
     <article className="overflow-hidden rounded-3xl border border-white/10 bg-[#11141a] shadow-2xl shadow-black/30">
-      <div className="relative h-72 overflow-hidden bg-black">
+      <div className="relative h-[26rem] overflow-hidden bg-black">
         {showImage ? (
           <img
             src={build.imageUrl}
             alt={build.label}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
             onError={(e) => {
               e.currentTarget.style.display = "none";
               const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
