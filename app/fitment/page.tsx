@@ -68,39 +68,44 @@ export default function FitmentPage() {
 
   useEffect(() => {
     async function loadApprovedBuilds() {
-      const { data, error } = await supabase
-        .from("build_submissions")
-        .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
-        .eq("status", "approved")
-        .eq("model", model);
+      try {
+        const { data, error } = await supabase
+          .from("build_submissions")
+          .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
+          .eq("status", "approved")
+          .eq("model", model);
 
-      if (error || !data) {
+        if (error || !data) {
+          setApprovedBuilds([]);
+          return;
+        }
+
+        const normalizedStyle = style.toLowerCase().replace(/\s+/g, "");
+        const filtered = data.filter((row) => {
+          const rowStyle = String(row.fitment_style || "").toLowerCase().replace(/\s+/g, "");
+          return rowStyle === normalizedStyle || rowStyle === normalizedStyle.replace("oemplus", "oem+");
+        });
+
+        const mapped = filtered
+          .filter((row) => row && row.image_url)
+          .map((row) => ({
+            label: `${String(row.model || "")} ${String(row.trim || "")}`.trim(),
+            imageUrl: String(row.image_url || ""),
+            sourceName: row.instagram_handle ? `@${String(row.instagram_handle).replace(/^@/, "")}` : "Offset Lab Community",
+            sourceUrl: row.instagram_handle ? `https://instagram.com/${String(row.instagram_handle).replace(/^@/, "")}` : "#",
+            wheel: `${String(row.front_wheel || "")}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${String(row.rear_wheel)}` : ""}`,
+            tire: `${String(row.front_tire || "")}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${String(row.rear_tire)}` : ""}`,
+            note: String(row.notes || "Approved community build"),
+            match: "Approved Build",
+            verified: true,
+            imageStatus: "verified",
+          }));
+
+        setApprovedBuilds(mapped);
+      } catch (err) {
+        console.error("Approved build load failed:", err);
         setApprovedBuilds([]);
-        return;
       }
-
-      const normalizedStyle = style.toLowerCase().replace(/\s+/g, "");
-      const filtered = data.filter((row) => {
-        const rowStyle = String(row.fitment_style || "").toLowerCase().replace(/\s+/g, "");
-        return rowStyle === normalizedStyle || rowStyle === normalizedStyle.replace("oemplus", "oem+");
-      });
-
-      const mapped = filtered
-        .filter((row) => row && row.image_url)
-        .map((row) => ({
-          label: `${String(row.model || "")} ${String(row.trim || "")}`.trim(),
-          imageUrl: String(row.image_url || ""),
-          sourceName: row.instagram_handle ? `@${String(row.instagram_handle).replace(/^@/, "")}` : "Offset Lab Community",
-          sourceUrl: row.instagram_handle ? `https://instagram.com/${String(row.instagram_handle).replace(/^@/, "")}` : "#",
-          wheel: `${String(row.front_wheel || "")}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${String(row.rear_wheel)}` : ""}`,
-          tire: `${String(row.front_tire || "")}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${String(row.rear_tire)}` : ""}`,
-          note: String(row.notes || "Approved community build"),
-          match: "Approved Build",
-          verified: true,
-          imageStatus: "verified",
-        }));
-
-      setApprovedBuilds(mapped);
     }
 
     loadApprovedBuilds();
