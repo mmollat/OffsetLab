@@ -31,7 +31,7 @@ type SquareOverride = {
   note?: string;
 };
 
-const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, SquareOverride>>>> = {
+const squareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, SquareOverride>>>> = {
   "Model 3": {
     oemplus: {
       front: "19x8.5 +40",
@@ -52,7 +52,7 @@ const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, Sq
       rear: "20x9 +25",
       frontTire: "245/35R20",
       rearTire: "245/35R20",
-      note: "Square aggressive alternative using the front spec at all four corners.",
+      note: "Square aggressive Tesla setup prioritizing balance and rotation over rear stagger.",
     },
   },
   "Model Y": {
@@ -75,7 +75,7 @@ const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, Sq
       rear: "21x9.5 +30",
       frontTire: "275/35R21",
       rearTire: "275/35R21",
-      note: "Square aggressive alternative using the front spec at all four corners.",
+      note: "Square aggressive Tesla setup prioritizing balance and rotation over rear stagger.",
     },
   },
   "Model S": {
@@ -91,7 +91,7 @@ const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, Sq
       rear: "21x10 +30",
       frontTire: "275/35R21",
       rearTire: "275/35R21",
-      note: "Square aggressive alternative using the front spec at all four corners.",
+      note: "Square aggressive alternative for more balanced handling and tire rotation.",
     },
   },
   "Model X": {
@@ -107,7 +107,53 @@ const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, Sq
       rear: "22x10.5 +28",
       frontTire: "285/35R22",
       rearTire: "285/35R22",
-      note: "Square aggressive alternative using the front spec at all four corners.",
+      note: "Square aggressive alternative for more balanced handling and tire rotation.",
+    },
+  },
+  "M3": {
+    oemplus: {
+      front: "19x9.5 ET20",
+      rear: "19x9.5 ET20",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "BMW M3 OEM+ square setup with factory-like balance and easy rotation.",
+    },
+    flush: {
+      front: "20x10 ET15",
+      rear: "20x10 ET15",
+      frontTire: "285/30R20",
+      rearTire: "285/30R20",
+      note: "BMW M3 square street setup. Popular for track-minded owners who still want a strong visual stance.",
+    },
+    aggressive: {
+      front: "20x10 ET12",
+      rear: "20x10 ET12",
+      frontTire: "285/30R20",
+      rearTire: "285/30R20",
+      note: "BMW M3 aggressive square setup prioritizing front-end bite, rotation, and balance.",
+    },
+  },
+  "M4": {
+    oemplus: {
+      front: "19x9.5 ET20",
+      rear: "19x9.5 ET20",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "BMW M4 OEM+ square setup with factory-like balance and easy rotation.",
+    },
+    flush: {
+      front: "20x10 ET15",
+      rear: "20x10 ET15",
+      frontTire: "285/30R20",
+      rearTire: "285/30R20",
+      note: "BMW M4 square street setup. Popular for track-minded owners who still want a strong visual stance.",
+    },
+    aggressive: {
+      front: "20x10 ET12",
+      rear: "20x10 ET12",
+      frontTire: "285/30R20",
+      rearTire: "285/30R20",
+      note: "BMW M4 aggressive square setup prioritizing front-end bite, rotation, and balance.",
     },
   },
 };
@@ -178,7 +224,7 @@ export default function FitmentPage() {
   const displayedFitment = useMemo(() => {
     if (configuration !== "square") return current;
 
-    const override = teslaSquareOverrides[safeModel]?.[style];
+    const override = squareOverrides[safeModel]?.[style];
     const squareWheel = override?.front ?? current.front;
     const squareRearWheel = override?.rear ?? squareWheel;
     const squareTire = override?.frontTire ?? current.frontTire;
@@ -196,7 +242,7 @@ export default function FitmentPage() {
       pokeRear: current.pokeFront,
       innerRear: current.innerFront,
       verdict: `${current.verdict} ${note}`,
-      warnings: Array.from(new Set([...current.warnings, "Square setup uses the front wheel/tire spec on all four corners unless a platform-specific square preset is defined."])),
+      warnings: Array.from(new Set([...current.warnings, "Square setup selected with platform-aware same-size front/rear specs."])),
       alternate: current.alternate,
     };
   }, [configuration, current, safeModel, style]);
