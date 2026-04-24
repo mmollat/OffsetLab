@@ -98,7 +98,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Setup", "Clean upgrade with near-stock drivability", "19x8.5 +35", "19x8.5 +35", "245/40R19", "245/40R19", "+7mm", "+7mm", "-1mm", "-1mm", "+0.3%", 4, 9, "Low", "Clean OEM+ fitment with minimal compromise. Great for a daily-driven Model 3 Performance.", low, "19x9 +35 / 255/40R19"),
         flush: p("Flush Daily Setup", "Balanced stance with strong daily usability", "19x9.5 +30", "19x9.5 +30", "265/35R19", "265/35R19", "+18mm", "+18mm", "-8mm", "-8mm", "+0.5%", 7, 8, "Low / Moderate", "Strong daily fitment that fills the car out properly without going overboard.", ["Watch front clearance on lower ride heights"], "20x9 +30 / 245-255/35R20"),
-        aggressive: p("Aggressive Daily Setup", "Wider stance with tighter fitment", "20x9 +25", "20x10.5 +38", "245/35R20", "285/30R20", "+22mm", "+28mm", "-6mm", "-10mm", "+0.8%", 8, 7, "Moderate", "Strong aggressive stance with manageable clearance. Ideal for coilovers or mild drop.", ["Front clearance tighter at full lock", "Lowered setups may require slight camber awareness"], "19x9.5 +25 square / 275/35R19"),
+        aggressive: p("Aggressive Daily Setup", "Wider stance with tighter fitment", "20x9 +26", "20x10.5 +38", "245/35R20", "285/30R20", "+22mm", "+28mm", "-6mm", "-10mm", "+0.8%", 8, 7, "Moderate", "Strong aggressive stance with manageable clearance. Ideal for coilovers or mild drop.", ["Front clearance tighter at full lock", "Lowered setups may require slight camber awareness"], "19x9.5 +25 square / 275/35R19"),
       },
     },
     {
