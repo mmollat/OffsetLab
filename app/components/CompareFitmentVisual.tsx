@@ -32,8 +32,8 @@ export default function CompareFitmentVisual({
   }
 
   const result = compareWheelFitment(oem, selected);
-  const maxVisual = 40;
-  const outerPx = Math.max(-maxVisual, Math.min(maxVisual, result.outerChangeMm * 1.1));
+  const maxShift = 44;
+  const shiftPx = Math.max(-maxShift, Math.min(maxShift, result.outerChangeMm * 1.15));
 
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
@@ -47,7 +47,7 @@ export default function CompareFitmentVisual({
         </div>
 
         <div className="rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm text-blue-300">
-          Front axle
+          Front axle cross-section
         </div>
       </div>
 
@@ -61,31 +61,33 @@ export default function CompareFitmentVisual({
         <SpecHeader color="blue" title={selectedLabel} wheel={selectedFront} />
       </div>
 
-      <div className="mt-6 grid gap-3 md:hidden">
-        <Metric label="Inner Clearance" value={formatSigned(result.innerClearanceChangeMm)} helper="Negative = closer to suspension" tone="orange" />
-        <Metric label="Outer / Poke" value={formatSigned(result.outerChangeMm)} helper="More positive = sticks out more" tone="blue" />
-      </div>
-
       <div className="mt-8 rounded-3xl border border-white/10 bg-black/30 p-4 md:p-6">
-        <div className="relative mx-auto h-[360px] max-w-[680px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] md:h-[400px]">
-          <div className="absolute left-1/2 top-8 h-[300px] w-10 -translate-x-1/2 rounded-full bg-white/15 md:top-10 md:h-[320px]" />
-          <div className="absolute left-1/2 top-0 h-full border-l border-dashed border-white/20" />
+        <div className="relative mx-auto h-[420px] max-w-[760px] overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),rgba(255,255,255,0.015)_45%,rgba(0,0,0,0.25)_100%)]">
+          <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 border-l border-dashed border-white/20" />
 
-          <div className="absolute inset-x-6 top-5 hidden items-start justify-between md:flex">
-            <FloatingPill label="Inner Clearance" value={formatSigned(result.innerClearanceChangeMm)} tone="orange" />
-            <FloatingPill label="Outer / Poke" value={formatSigned(result.outerChangeMm)} tone="blue" />
+          <div className="absolute left-1/2 top-[78px] z-20 h-[220px] w-[92px] -translate-x-1/2 rounded-[28px] border border-white/15 bg-white/10 shadow-[0_0_30px_rgba(255,255,255,0.08)]">
+            <div className="absolute inset-x-3 top-4 h-[28px] rounded-full border border-white/15 bg-white/10" />
+            <div className="absolute inset-x-3 bottom-4 h-[28px] rounded-full border border-white/15 bg-white/10" />
+            <div className="absolute left-1/2 top-1/2 h-[78px] w-[78px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/15 bg-black/30" />
           </div>
 
-          <div className="absolute inset-x-0 top-[112px] md:top-[122px]">
-            <div className="relative mx-auto h-[190px] w-[250px] md:h-[210px] md:w-[320px]">
-              <WheelSilhouette color="orange" size="oem" shiftPx={0} />
-              <WheelSilhouette color="blue" size="selected" shiftPx={outerPx / 2} />
-            </div>
+          <div className="absolute left-1/2 top-[95px] z-10 h-[182px] w-[250px] -translate-x-1/2 rounded-[32px] border border-orange-400/30 bg-orange-500/8" />
+          <WheelProfile color="orange" widthPx={132} heightPx={206} shiftPx={0} label="OEM" />
+
+          <div
+            className="absolute left-1/2 top-[82px] z-30 h-[208px] w-[310px] rounded-[38px] border border-blue-400/25 bg-blue-500/8"
+            style={{ transform: `translateX(calc(-50% + ${shiftPx}px))` }}
+          />
+          <WheelProfile color="blue" widthPx={160} heightPx={238} shiftPx={shiftPx} label={selectedLabel} />
+
+          <div className="absolute left-4 top-4 right-4 z-40 grid gap-3 md:grid-cols-2">
+            <FloatingPill label="Inner Clearance" value={formatSigned(result.innerClearanceChangeMm)} tone="orange" align="left" />
+            <FloatingPill label="Outer / Poke" value={formatSigned(result.outerChangeMm)} tone="blue" align="right" />
           </div>
 
-          <div className="absolute bottom-5 left-1/2 w-[220px] -translate-x-1/2 rounded-2xl border border-white/10 bg-black/70 px-5 py-3 text-center md:w-auto">
-            <p className="text-xs uppercase tracking-wide text-white/35">Section Width Change</p>
-            <p className="mt-1 text-2xl font-bold">{formatSigned(result.widthChangeMm)}</p>
+          <div className="absolute bottom-4 left-4 right-4 z-40 grid gap-3 md:grid-cols-2">
+            <FloatingPill label="Width Change" value={formatSigned(result.widthChangeMm)} tone="neutral" align="left" />
+            <FloatingPill label="Track Change" value={formatSigned(result.trackChangeMm)} tone="neutral" align="right" />
           </div>
         </div>
       </div>
@@ -111,34 +113,47 @@ export default function CompareFitmentVisual({
   );
 }
 
-function WheelSilhouette({
+function WheelProfile({
   color,
-  size,
+  widthPx,
+  heightPx,
   shiftPx,
+  label,
 }: {
   color: "orange" | "blue";
-  size: "oem" | "selected";
+  widthPx: number;
+  heightPx: number;
   shiftPx: number;
+  label: string;
 }) {
   const isOrange = color === "orange";
   const border = isOrange ? "border-orange-500/90" : "border-blue-500/90";
-  const bg = isOrange ? "bg-orange-500/10" : "bg-blue-500/10";
-  const spoke = isOrange ? "bg-orange-400/35" : "bg-blue-400/35";
-  const ring = size === "oem" ? "h-[170px] w-[110px] md:h-[190px] md:w-[120px]" : "h-[220px] w-[150px] md:h-[250px] md:w-[170px]";
-  const top = size === "oem" ? "top-[18px]" : "top-0";
+  const fill = isOrange ? "bg-orange-500/12" : "bg-blue-500/12";
+  const accent = isOrange ? "bg-orange-400/30" : "bg-blue-400/30";
+  const text = isOrange ? "text-orange-200" : "text-blue-200";
 
   return (
     <div
-      className={`absolute left-1/2 ${top} ${ring} rounded-[2.8rem] border-4 ${border} ${bg} shadow-[0_0_40px_rgba(0,0,0,0.2)]`}
-      style={{ transform: `translateX(calc(-50% + ${shiftPx}px))` }}
+      className={`absolute left-1/2 top-[84px] z-30 rounded-[34px] border-[3px] ${border} ${fill} shadow-[0_0_35px_rgba(0,0,0,0.25)]`}
+      style={{
+        width: `${widthPx}px`,
+        height: `${heightPx}px`,
+        transform: `translateX(calc(-50% + ${shiftPx}px))`,
+      }}
     >
-      <div className="absolute inset-[10px] rounded-[2.2rem] border border-white/10" />
-      <div className={`absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 ${spoke}`} />
-      <div className={`absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 rotate-[28deg] ${spoke}`} />
-      <div className={`absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 -rotate-[28deg] ${spoke}`} />
-      <div className={`absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 rotate-[55deg] ${spoke}`} />
-      <div className={`absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 -rotate-[55deg] ${spoke}`} />
-      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/40" />
+      <div className="absolute inset-y-[12px] left-[12px] w-[18px] rounded-full border border-white/10 bg-black/20" />
+      <div className="absolute inset-y-[12px] right-[12px] w-[18px] rounded-full border border-white/10 bg-black/20" />
+
+      <div className={`absolute left-[36px] right-[36px] top-[26px] h-[16px] rounded-full ${accent}`} />
+      <div className={`absolute left-[36px] right-[36px] bottom-[26px] h-[16px] rounded-full ${accent}`} />
+      <div className={`absolute left-[44px] right-[44px] top-[50%] h-[2px] -translate-y-1/2 ${accent}`} />
+
+      <div className="absolute inset-x-[34px] top-[56px] bottom-[56px] rounded-[24px] border border-white/10 bg-black/20" />
+      <div className="absolute left-1/2 top-1/2 h-[54px] w-[54px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/15 bg-black/40" />
+
+      <div className={`absolute left-1/2 top-3 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.22em] ${text}`}>
+        {label}
+      </div>
     </div>
   );
 }
@@ -147,17 +162,22 @@ function FloatingPill({
   label,
   value,
   tone,
+  align,
 }: {
   label: string;
   value: string;
-  tone: "orange" | "blue";
+  tone: "orange" | "blue" | "neutral";
+  align: "left" | "right";
 }) {
-  const toneClasses = tone === "orange"
-    ? "border-orange-400/20 bg-orange-400/10 text-orange-300"
-    : "border-blue-400/20 bg-blue-400/10 text-blue-300";
+  const toneClasses =
+    tone === "orange"
+      ? "border-orange-400/20 bg-orange-400/10 text-orange-300"
+      : tone === "blue"
+      ? "border-blue-400/20 bg-blue-400/10 text-blue-300"
+      : "border-white/10 bg-black/50 text-white";
 
   return (
-    <div className={`rounded-2xl border px-4 py-3 ${toneClasses}`}>
+    <div className={`rounded-2xl border px-4 py-3 ${toneClasses} ${align === "right" ? "justify-self-end" : "justify-self-start"}`}>
       <p className="text-xs uppercase tracking-wide">{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
     </div>
