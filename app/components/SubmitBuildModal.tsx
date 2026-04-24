@@ -93,8 +93,8 @@ export default function SubmitBuildModal({ open, onClose, defaults }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0b0d11] p-6 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
+      <div className="my-6 w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0b0d11] p-6 text-white max-h-[90vh] overflow-y-auto">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Submit Your Build</h2>
           <button onClick={onClose} className="text-white/60 hover:text-white">Close</button>
