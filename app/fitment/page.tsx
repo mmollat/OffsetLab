@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "../components/GalleryCard";
 import TrustStrip from "../components/TrustStrip";
 import SubmitBuildModal from "../components/SubmitBuildModal";
+import { supabase } from "../lib/supabase";
 import { galleryExamples } from "../data/gallery";
 import {
   getTrimData,
@@ -36,6 +37,7 @@ export default function FitmentPage() {
   const [style, setStyle] = useState<StyleKey>("aggressive");
   const [copied, setCopied] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
+  const [approvedBuilds, setApprovedBuilds] = useState<any[]>([]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -53,7 +55,7 @@ export default function FitmentPage() {
   const safeTrim = trims.includes(trim) ? trim : trims[0];
   const trimData = useMemo(() => getTrimData(model, safeTrim), [model, safeTrim]);
   const current = trimData.presets[style];
-  const builds = galleryExamples[model]?.[style] ?? [];
+  const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[model]?.[style] ?? [];
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -63,6 +65,39 @@ export default function FitmentPage() {
     params.set("style", style);
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   }, [make, model, safeTrim, style]);
+
+  useEffect(() => {
+    async function loadApprovedBuilds() {
+      const { data, error } = await supabase
+        .from("build_submissions")
+        .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
+        .eq("status", "approved")
+        .eq("model", model)
+        .eq("fitment_style", style);
+
+      if (error || !data) {
+        setApprovedBuilds([]);
+        return;
+      }
+
+      const mapped = data.map((row) => ({
+        label: `${row.model} ${row.trim || ""}`.trim(),
+        imageUrl: row.image_url,
+        sourceName: row.instagram_handle ? `@${row.instagram_handle}` : "Offset Lab Community",
+        sourceUrl: row.instagram_handle ? `https://instagram.com/${row.instagram_handle.replace(/^@/, "")}` : "#",
+        wheel: `${row.front_wheel}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${row.rear_wheel}` : ""}`,
+        tire: `${row.front_tire}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${row.rear_tire}` : ""}`,
+        note: row.notes || "Approved community build",
+        match: "Approved Build",
+        verified: true,
+        imageStatus: "verified",
+      }));
+
+      setApprovedBuilds(mapped);
+    }
+
+    loadApprovedBuilds();
+  }, [model, style]);
 
   async function copyLink() {
     await navigator.clipboard.writeText(window.location.href);
