@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import CompareFitmentVisual from "../components/CompareFitmentVisual";
 import { getTrimData, getTrims, modelOptions, ModelKey, StyleKey } from "../data/fitment";
 
 export default function ComparePage() {
@@ -31,6 +32,15 @@ export default function ComparePage() {
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <Card title="OEM" a={`Front: ${trimData.baseline.front}`} b={`Rear: ${trimData.baseline.rear}`} c={trimData.baseline.tire} />
           <Card title="Recommended" a={`Front: ${current.front}`} b={`Rear: ${current.rear}`} c={`${current.frontTire} / ${current.rearTire}`} />
+        </div>
+        <div className="mt-6">
+          <CompareFitmentVisual
+            oemFront={trimData.baseline.front}
+            selectedFront={current.front}
+            oemRear={trimData.baseline.rear}
+            selectedRear={current.rear}
+            selectedLabel={current.title}
+          />
         </div>
         <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <p className="text-sm uppercase tracking-wide text-white/40">Summary</p>
