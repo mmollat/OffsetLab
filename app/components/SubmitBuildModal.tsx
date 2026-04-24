@@ -85,8 +85,10 @@ export default function SubmitBuildModal({ open, onClose, defaults }: Props) {
 
       if (insertError) throw insertError;
       setSuccess(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Submission failed");
+    } catch (err: any) {
+      const detailed = err?.message || err?.error_description || err?.details || JSON.stringify(err);
+      setError(detailed || "Submission failed");
+      console.error("Submit build failed:", err);
     } finally {
       setLoading(false);
     }
