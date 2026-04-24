@@ -208,6 +208,15 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
         aggressive: p("Aggressive Performance", "Wide, more committed fitment on a tight chassis", "19x10 ET20", "19x11 ET25", "275/35R19", "295/30R19", "+21mm", "+18mm", "-3mm", "-4mm", "+0.4%", 9, 6, "Moderate / High", "Aggressive E9X fitment can look excellent, but this chassis is less forgiving than F80 or G8X.", ["Tighter fenders, less forgiving platform", "Expect alignment and clearance awareness"], "18x10 ET25 / 18x11 ET25"),
       },
     },
+    {
+      trim: "E46 M3",
+      baseline: { front: "19x8 ET47", rear: "19x9.5 ET27", tire: "225/40R19 / 255/35R19", boltPattern: "5x120", centerBore: "72.6" },
+      presets: {
+        oemplus: p("OEM+ Daily", "Factory-style fitment for the classic E46 platform", "19x8 ET47", "19x9.5 ET27", "225/40R19", "255/35R19", "+0mm", "+0mm", "OEM", "OEM", "OEM", 5, 9, "Low", "OEM+ E46 fitment keeps the car classic, balanced, and low-risk for daily use.", ["Very low rub risk", "Keeps the original balance intact"], "18x8.5 ET35 / 18x9.5 ET27"),
+        flush: p("Flush Street", "Filled-out E46 fitment without going too far", "19x9 ET30", "19x10 ET25", "255/35R19", "275/30R19", "+23mm", "+19mm", "-4mm", "-1mm", "+0.1%", 8, 7, "Moderate", "Flush E46 fitment gives the car a stronger stance, but the rear is less forgiving than newer platforms.", ["Rear fender clearance is the main limiting factor", "Lowered cars should be checked carefully"], "18x9 ET30 / 18x10 ET25"),
+        aggressive: p("Aggressive Performance", "Wide fitment on a tight classic chassis", "19x9.5 ET22", "19x10.5 ET22", "265/30R19", "285/30R19", "+31mm", "+18mm", "+3mm", "-4mm", "+0.3%", 9, 5, "High", "Aggressive E46 fitment can look excellent, but rear clearance is tight and this platform is far less forgiving than newer M3s.", ["Rear fender clearance is the main limiter", "May require camber and rolled fenders"], "19x10.5 ET20-22 rear / 285/30R19"),
+      },
+    },
   ],
   "M4": [
     {
