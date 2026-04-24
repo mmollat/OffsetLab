@@ -21,6 +21,8 @@ import {
   StyleKey,
 } from "../data/fitment";
 
+type ConfigurationKey = "staggered" | "square";
+
 function scoreColor(score: number) {
   if (score >= 8) return "text-red-400";
   if (score >= 6) return "text-yellow-300";
@@ -38,6 +40,7 @@ export default function FitmentPage() {
   const [model, setModel] = useState<ModelKey>("Model S");
   const [trim, setTrim] = useState("Plaid");
   const [style, setStyle] = useState<StyleKey>("aggressive");
+  const [configuration, setConfiguration] = useState<ConfigurationKey>("staggered");
   const [copied, setCopied] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
   const [approvedBuilds, setApprovedBuilds] = useState<any[]>([]);
@@ -48,10 +51,12 @@ export default function FitmentPage() {
     const urlModel = normalizeModel(params.get("model"), urlMake);
     const urlStyle = normalizeStyle(params.get("style"));
     const urlTrim = params.get("trim");
+    const urlConfiguration = params.get("configuration");
 
     setMake(urlMake);
     setModel(urlModel);
     setStyle(urlStyle);
+    setConfiguration(urlConfiguration === "square" ? "square" : "staggered");
 
     const availableTrims = getTrims(urlModel);
     setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
@@ -63,6 +68,25 @@ export default function FitmentPage() {
   const safeTrim = trims.includes(trim) ? trim : trims[0];
   const trimData = useMemo(() => getTrimData(safeModel, safeTrim), [safeModel, safeTrim]);
   const current = trimData.presets[style];
+  const displayedFitment = useMemo(() => {
+    if (configuration !== "square") return current;
+
+    const squareWheel = current.front;
+    const squareTire = current.frontTire;
+
+    return {
+      ...current,
+      title: `${current.title} • Square Setup`,
+      subtitle: `${current.subtitle} • Same size front and rear`,
+      rear: squareWheel,
+      rearTire: squareTire,
+      pokeRear: current.pokeFront,
+      innerRear: current.innerFront,
+      verdict: `${current.verdict} Square setup selected: same wheel and tire sizing front and rear for simpler rotation and a more balanced configuration.`,
+      warnings: Array.from(new Set([...current.warnings, "Square setup uses the front wheel/tire spec on all four corners."])),
+      alternate: current.alternate,
+    };
+  }, [configuration, current]);
   const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[safeModel]?.[style] ?? [];
 
   useEffect(() => {
@@ -71,8 +95,9 @@ export default function FitmentPage() {
     params.set("model", modelSlug(safeModel));
     params.set("trim", safeTrim);
     params.set("style", style);
+    params.set("configuration", configuration);
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-  }, [make, safeModel, safeTrim, style]);
+  }, [make, safeModel, safeTrim, style, configuration]);
 
   useEffect(() => {
     async function loadApprovedBuilds() {
@@ -130,7 +155,7 @@ export default function FitmentPage() {
   }
 
   async function shareBuild() {
-    const data = { title: "Offset Lab", text: `${safeModel} ${safeTrim} • ${current.title}`, url: window.location.href };
+    const data = { title: "Offset Lab", text: `${safeModel} ${safeTrim} • ${displayedFitment.title}`, url: window.location.href };
     if (navigator.share) await navigator.share(data);
     else await copyLink();
   }
@@ -141,7 +166,7 @@ export default function FitmentPage() {
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.25em] text-emerald-300/70">Offset Lab Gallery</p>
           <h1 className="mt-2 text-3xl font-bold md:text-5xl">
-            {safeModel} {safeTrim} <span className="text-emerald-400">| {current.title}</span>
+            {safeModel} {safeTrim} <span className="text-emerald-400">| {displayedFitment.title}</span>
           </h1>
           <p className="mt-3 text-white/55">
             Real-world visual references paired with specs, scores, and fitment notes.
@@ -214,10 +239,24 @@ export default function FitmentPage() {
               </div>
             </Panel>
 
-            <Panel title="4. Your Fitment">
+            <Panel title="4. Configuration">
+              <div className="space-y-2">
+                {([
+                  ["staggered", "Staggered", "Front and rear sizes can differ"],
+                  ["square", "Square Setup", "Same size front and rear"],
+                ] as const).map(([key, label, sub]) => (
+                  <button key={key} onClick={() => setConfiguration(key)} className={`w-full rounded-2xl border p-4 text-left transition ${configuration === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}>
+                    <p className="font-semibold">{label}</p>
+                    <p className="mt-1 text-sm text-white/45">{sub}</p>
+                  </button>
+                ))}
+              </div>
+            </Panel>
+
+            <Panel title="5. Your Fitment">
               <div className="space-y-4">
-                <FitLine label="Front" wheel={current.front} tire={current.frontTire} />
-                <FitLine label="Rear" wheel={current.rear} tire={current.rearTire} />
+                <FitLine label="Front" wheel={displayedFitment.front} tire={displayedFitment.frontTire} />
+                <FitLine label="Rear" wheel={displayedFitment.rear} tire={displayedFitment.rearTire} />
               </div>
               <button onClick={copyLink} className="mt-5 w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold hover:bg-white/5">{copied ? "Link Copied" : "Copy Link"}</button>
               <button onClick={shareBuild} className="mt-3 w-full rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-bold text-black hover:bg-emerald-300">Share Build</button>
@@ -225,9 +264,10 @@ export default function FitmentPage() {
 
             <Panel title="Fitment Summary">
               <div className="space-y-3 text-sm text-white/70">
-                <p>Risk: <span className={`rounded-full border px-2 py-1 ${riskPill(current.risk)}`}>{current.risk}</span></p>
-                <p>Visual Aggression: <span className={scoreColor(current.aggression)}>{current.aggression}/10</span></p>
-                <p>Daily Drivability: <span className={scoreColor(current.daily)}>{current.daily}/10</span></p>
+                <p>Risk: <span className={`rounded-full border px-2 py-1 ${riskPill(displayedFitment.risk)}`}>{displayedFitment.risk}</span></p>
+                <p>Visual Aggression: <span className={scoreColor(displayedFitment.aggression)}>{displayedFitment.aggression}/10</span></p>
+                <p>Daily Drivability: <span className={scoreColor(displayedFitment.daily)}>{displayedFitment.daily}/10</span></p>
+                <p>Configuration: {configuration === "square" ? "Square" : "Staggered"}</p>
                 <p>Bolt Pattern: {trimData.baseline.boltPattern}</p>
                 <p>Center Bore: {trimData.baseline.centerBore}</p>
               </div>
@@ -236,14 +276,14 @@ export default function FitmentPage() {
 
           <section>
             <div className="mb-6 grid gap-4 md:grid-cols-3">
-              <Metric label="Front Poke" value={current.pokeFront} />
-              <Metric label="Rear Poke" value={current.pokeRear} />
-              <Metric label="Diameter" value={current.diameter} />
+              <Metric label="Front Poke" value={displayedFitment.pokeFront} />
+              <Metric label="Rear Poke" value={displayedFitment.pokeRear} />
+              <Metric label="Diameter" value={displayedFitment.diameter} />
             </div>
 
             <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
               <p className="text-sm uppercase tracking-wide text-white/40">Verdict</p>
-              <p className="mt-3 text-lg leading-8 text-white/80">{current.verdict}</p>
+              <p className="mt-3 text-lg leading-8 text-white/80">{displayedFitment.verdict}</p>
             </div>
 
             <div className="grid gap-6">
@@ -273,11 +313,11 @@ export default function FitmentPage() {
           make,
           model: safeModel,
           trim: safeTrim,
-          fitmentStyle: style,
-          frontWheel: current.front,
-          rearWheel: current.rear,
-          frontTire: current.frontTire,
-          rearTire: current.rearTire,
+          fitmentStyle: configuration === "square" ? `${style} square` : style,
+          frontWheel: displayedFitment.front,
+          rearWheel: displayedFitment.rear,
+          frontTire: displayedFitment.frontTire,
+          rearTire: displayedFitment.rearTire,
         }}
       />
     </main>
