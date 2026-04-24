@@ -41,7 +41,6 @@ export default function CompareFitmentVisual({
         <div>
           <p className="text-sm uppercase tracking-wide text-white/40">Visual Compare</p>
           <h2 className="mt-2 text-2xl font-bold">OEM vs {selectedLabel}</h2>
-          <p className="mt-2 text-sm text-emerald-300">COMPARE VISUAL TEST MARKER</p>
           <p className="mt-2 text-sm text-white/55">
             Clean front-axle wheel cross-section overlay.
           </p>
