@@ -51,7 +51,7 @@ export default function FitmentPage() {
   const safeTrim = trims.includes(trim) ? trim : trims[0];
   const trimData = useMemo(() => getTrimData(model, safeTrim), [model, safeTrim]);
   const current = trimData.presets[style];
-  const builds = galleryExamples[model][style];
+  const builds = galleryExamples[model]?.[style] ?? [];
 
   useEffect(() => {
     const params = new URLSearchParams();
