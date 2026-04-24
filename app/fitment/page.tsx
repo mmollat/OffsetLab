@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "../components/GalleryCard";
 import TrustStrip from "../components/TrustStrip";
+import SubmitBuildModal from "../components/SubmitBuildModal";
 import { galleryExamples } from "../data/gallery";
 import {
   getTrimData,
@@ -34,6 +35,7 @@ export default function FitmentPage() {
   const [trim, setTrim] = useState("Plaid");
   const [style, setStyle] = useState<StyleKey>("aggressive");
   const [copied, setCopied] = useState(false);
+  const [submitOpen, setSubmitOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -164,7 +166,7 @@ export default function FitmentPage() {
                   <p className="text-xl font-bold">Have a setup like this?</p>
                   <p className="mt-2 text-sm text-white/55">Share your build with the community and get featured.</p>
                 </div>
-                <a href="mailto:submit@offsetlabfitment.com?subject=Offset Lab Build Submission" className="rounded-2xl border border-emerald-400/40 px-5 py-3 text-center font-semibold text-emerald-300 hover:bg-emerald-400/10">Submit Your Build</a>
+                <button onClick={() => setSubmitOpen(true)} className="rounded-2xl border border-emerald-400/40 px-5 py-3 text-center font-semibold text-emerald-300 hover:bg-emerald-400/10">Submit Your Build</button>
               </div>
             </section>
 
@@ -172,6 +174,22 @@ export default function FitmentPage() {
           </section>
         </div>
       </div>
+
+      <SubmitBuildModal
+        open={submitOpen}
+        onClose={() => setSubmitOpen(false)}
+        defaults={{
+          year: "",
+          make,
+          model,
+          trim: safeTrim,
+          fitmentStyle: style,
+          frontWheel: current.front,
+          rearWheel: current.rear,
+          frontTire: current.frontTire,
+          rearTire: current.rearTire,
+        }}
+      />
     </main>
   );
 }
