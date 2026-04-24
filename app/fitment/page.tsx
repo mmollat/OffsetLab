@@ -91,14 +91,16 @@ export default function FitmentPage() {
           .map((row) => ({
             label: `${String(row.model || "")} ${String(row.trim || "")}`.trim(),
             imageUrl: String(row.image_url || ""),
+            imageStatus: "verified" as const,
             sourceName: row.instagram_handle ? `@${String(row.instagram_handle).replace(/^@/, "")}` : "Offset Lab Community",
             sourceUrl: row.instagram_handle ? `https://instagram.com/${String(row.instagram_handle).replace(/^@/, "")}` : "#",
             wheel: `${String(row.front_wheel || "")}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${String(row.rear_wheel)}` : ""}`,
             tire: `${String(row.front_tire || "")}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${String(row.rear_tire)}` : ""}`,
+            suspension: "User submitted build",
             note: String(row.notes || "Approved community build"),
-            match: "Approved Build",
-            verified: true,
-            imageStatus: "verified",
+            verificationNote: "Approved community-submitted build matched to this model and style.",
+            tags: [String(row.model || model), String(style), "Community"],
+            match: "Verified Spec Match" as const,
           }));
 
         setApprovedBuilds(mapped);
