@@ -77,9 +77,15 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     aggressive: [pending("Model X Aggressive Verified Photo Pending", "22x10.5 +28 / 22x11.5 +30", "285/35R22 / 315/30R22", "Aggressive Model X needs a verified wide SUV photo before display.", ["Model X", "Aggressive", "Strict Match"])],
   },
   "M3": {
-    oemplus: [pending("G80 M3 OEM+ Verified Photo Pending", "19x9.5 ET20 / 20x10.5 ET20", "275/35R19 / 285/30R20", "BMW G80 OEM+ should stay close to factory proportions and daily usability.", ["BMW", "M3", "G80", "OEM+", "Strict Match"])],
-    flush: [pending("G80 M3 Flush Verified Photo Pending", "20x10 ET15 / 20x11 ET15", "285/30R20 / 305/30R20", "BMW G80 flush should show a strong filled-out street stance without overdoing it.", ["BMW", "M3", "G80", "Flush", "Strict Match"])],
-    aggressive: [pending("G80 M3 Aggressive Verified Photo Pending", "20x10 ET12 / 20x11 ET12", "285/30R20 / 305/30R20", "BMW G80 aggressive should only show wide, planted fitment when correctly verified.", ["BMW", "M3", "G80", "Aggressive", "Strict Match"])],
+    oemplus: [
+      pending("BMW M3 OEM+ Verified Photo Pending", "See selected trim baseline", "See selected trim baseline", "OEM+ BMW M3 should stay close to factory proportions and daily usability for the selected generation.", ["BMW", "M3", "OEM+", "Strict Match"]),
+    ],
+    flush: [
+      pending("BMW M3 Flush Verified Photo Pending", "See selected trim recommendation", "See selected trim recommendation", "Flush BMW M3 should show a strong filled-out street stance that matches the selected generation.", ["BMW", "M3", "Flush", "Strict Match"]),
+    ],
+    aggressive: [
+      pending("BMW M3 Aggressive Verified Photo Pending", "See selected trim recommendation", "See selected trim recommendation", "Aggressive BMW M3 should only show wide, planted fitment when correctly verified for the selected generation.", ["BMW", "M3", "Aggressive", "Strict Match"]),
+    ],
   },
   "M4": {
     oemplus: [pending("G82/G83 M4 OEM+ Verified Photo Pending", "19x9.5 ET20 / 20x10.5 ET20", "275/35R19 / 285/30R20", "BMW M4 OEM+ should stay close to factory proportions and daily usability.", ["BMW", "M4", "G82", "G83", "OEM+", "Strict Match"])],

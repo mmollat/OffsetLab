@@ -190,6 +190,24 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
         aggressive: p("Aggressive Performance", "Maxed-out street stance with stronger presence", "20x10 ET12", "20x11 ET12", "285/30R20", "305/30R20", "+14mm", "+14mm", "+2mm", "+2mm", "+0.3%", 9, 7, "Moderate", "Aggressive G8X fitment with a wide, planted look. Best with proper ride height and alignment.", ["May require slight camber depending on ride height", "Not the conservative option"], "20x10 ET15 / 20x11 ET12 with 285/30R20 / 305/30R20"),
       },
     },
+    {
+      trim: "F80 M3",
+      baseline: { front: "19x9 ET29", rear: "19x10 ET40", tire: "255/35R19 / 275/35R19", boltPattern: "5x120", centerBore: "72.6" },
+      presets: {
+        oemplus: p("OEM+ Daily", "Factory-like fitment with no drama", "19x9 ET29", "19x10 ET40", "255/35R19", "275/35R19", "+0mm", "+0mm", "OEM", "OEM", "OEM", 5, 9, "Low", "OEM+ F80 fitment keeps the car balanced, clean, and easy to daily.", ["Very low rub risk", "Matches factory intent closely"], "19x9.5 ET25 / 265-275 square"),
+        flush: p("Flush Street", "Most popular clean F80 stance", "19x9.5 ET22", "19x10.5 ET35", "265/35R19", "285/30R19", "+13mm", "+11mm", "-6mm", "-5mm", "+0.1%", 8, 8, "Low / Moderate", "Flush F80 setup with strong visual balance and realistic street usability.", ["Lowered cars should watch front clearance"], "19x10 ET25 / 285 square"),
+        aggressive: p("Aggressive Performance", "Wide, planted fitment with more intent", "19x10 ET20", "19x11 ET35", "275/35R19", "295/30R19", "+15mm", "+13mm", "-4mm", "-5mm", "+0.4%", 9, 7, "Moderate", "Aggressive F80 fitment with more room than E9X and strong street presence.", ["Ride height and camber matter more here", "Not the conservative choice"], "18x10 ET25 / 18x11 ET44 track-oriented setup"),
+      },
+    },
+    {
+      trim: "E9X M3",
+      baseline: { front: "19x8.5 ET29", rear: "19x9.5 ET23", tire: "245/35R19 / 265/35R19", boltPattern: "5x120", centerBore: "72.6" },
+      presets: {
+        oemplus: p("OEM+ Daily", "Factory-style fitment for the tighter E9X platform", "19x8.5 ET29", "19x9.5 ET23", "245/35R19", "265/35R19", "+0mm", "+0mm", "OEM", "OEM", "OEM", 5, 9, "Low", "OEM+ E9X fitment keeps the car clean and avoids unnecessary clearance issues.", ["Very low rub risk", "Best for conservative daily use"], "18x9.5 ET22 / 265 square"),
+        flush: p("Flush Street", "Filled-out street stance for E9X", "19x9.5 ET22", "19x10.5 ET25", "265/35R19", "285/30R19", "+19mm", "+15mm", "-1mm", "-2mm", "+0.2%", 8, 7, "Moderate", "Flush E9X fitment works well visually but the chassis is tighter and less forgiving.", ["Tighter fenders than F80/G80", "Front clearance should be watched carefully"], "18x9.5 ET22 / 18x10.5 ET25"),
+        aggressive: p("Aggressive Performance", "Wide, more committed fitment on a tight chassis", "19x10 ET20", "19x11 ET25", "275/35R19", "295/30R19", "+21mm", "+18mm", "-3mm", "-4mm", "+0.4%", 9, 6, "Moderate / High", "Aggressive E9X fitment can look excellent, but this chassis is less forgiving than F80 or G8X.", ["Tighter fenders, less forgiving platform", "Expect alignment and clearance awareness"], "18x10 ET25 / 18x11 ET25"),
+      },
+    },
   ],
   "M4": [
     {
