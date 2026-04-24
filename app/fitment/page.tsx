@@ -85,18 +85,20 @@ export default function FitmentPage() {
         return rowStyle === normalizedStyle || rowStyle === normalizedStyle.replace("oemplus", "oem+");
       });
 
-      const mapped = filtered.map((row) => ({
-        label: `${row.model} ${row.trim || ""}`.trim(),
-        imageUrl: row.image_url,
-        sourceName: row.instagram_handle ? `@${row.instagram_handle}` : "Offset Lab Community",
-        sourceUrl: row.instagram_handle ? `https://instagram.com/${row.instagram_handle.replace(/^@/, "")}` : "#",
-        wheel: `${row.front_wheel}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${row.rear_wheel}` : ""}`,
-        tire: `${row.front_tire}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${row.rear_tire}` : ""}`,
-        note: row.notes || "Approved community build",
-        match: "Approved Build",
-        verified: true,
-        imageStatus: "verified",
-      }));
+      const mapped = filtered
+        .filter((row) => row && row.image_url)
+        .map((row) => ({
+          label: `${String(row.model || "")} ${String(row.trim || "")}`.trim(),
+          imageUrl: String(row.image_url || ""),
+          sourceName: row.instagram_handle ? `@${String(row.instagram_handle).replace(/^@/, "")}` : "Offset Lab Community",
+          sourceUrl: row.instagram_handle ? `https://instagram.com/${String(row.instagram_handle).replace(/^@/, "")}` : "#",
+          wheel: `${String(row.front_wheel || "")}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${String(row.rear_wheel)}` : ""}`,
+          tire: `${String(row.front_tire || "")}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${String(row.rear_tire)}` : ""}`,
+          note: String(row.notes || "Approved community build"),
+          match: "Approved Build",
+          verified: true,
+          imageStatus: "verified",
+        }));
 
       setApprovedBuilds(mapped);
     }
