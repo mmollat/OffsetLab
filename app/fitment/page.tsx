@@ -7,15 +7,18 @@ import SubmitBuildModal from "../components/SubmitBuildModal";
 import { supabase } from "../lib/supabase";
 import { galleryExamples } from "../data/gallery";
 import {
+  getDefaultModelForMake,
+  getModelsForMake,
   getTrimData,
   getTrims,
   makes,
-  modelOptions,
+  MakeKey,
   ModelKey,
+  modelSlug,
+  normalizeMake,
   normalizeModel,
   normalizeStyle,
   StyleKey,
-  modelSlug,
 } from "../data/fitment";
 
 function scoreColor(score: number) {
@@ -31,7 +34,7 @@ function riskPill(risk: string) {
 }
 
 export default function FitmentPage() {
-  const [make, setMake] = useState("Tesla");
+  const [make, setMake] = useState<MakeKey>("Tesla");
   const [model, setModel] = useState<ModelKey>("Model S");
   const [trim, setTrim] = useState("Plaid");
   const [style, setStyle] = useState<StyleKey>("aggressive");
@@ -41,30 +44,35 @@ export default function FitmentPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const urlModel = normalizeModel(params.get("model"));
+    const urlMake = normalizeMake(params.get("make"));
+    const urlModel = normalizeModel(params.get("model"), urlMake);
     const urlStyle = normalizeStyle(params.get("style"));
     const urlTrim = params.get("trim");
-    setMake("Tesla");
+
+    setMake(urlMake);
     setModel(urlModel);
     setStyle(urlStyle);
+
     const availableTrims = getTrims(urlModel);
     setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
   }, []);
 
-  const trims = useMemo(() => getTrims(model), [model]);
+  const availableModels = useMemo(() => getModelsForMake(make), [make]);
+  const safeModel = availableModels.includes(model) ? model : getDefaultModelForMake(make);
+  const trims = useMemo(() => getTrims(safeModel), [safeModel]);
   const safeTrim = trims.includes(trim) ? trim : trims[0];
-  const trimData = useMemo(() => getTrimData(model, safeTrim), [model, safeTrim]);
+  const trimData = useMemo(() => getTrimData(safeModel, safeTrim), [safeModel, safeTrim]);
   const current = trimData.presets[style];
-  const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[model]?.[style] ?? [];
+  const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[safeModel]?.[style] ?? [];
 
   useEffect(() => {
     const params = new URLSearchParams();
     params.set("make", make.toLowerCase());
-    params.set("model", modelSlug(model));
+    params.set("model", modelSlug(safeModel));
     params.set("trim", safeTrim);
     params.set("style", style);
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-  }, [make, model, safeTrim, style]);
+  }, [make, safeModel, safeTrim, style]);
 
   useEffect(() => {
     async function loadApprovedBuilds() {
@@ -73,7 +81,7 @@ export default function FitmentPage() {
           .from("build_submissions")
           .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
           .eq("status", "approved")
-          .eq("model", model)
+          .eq("model", safeModel)
           .eq("trim", safeTrim);
 
         if (error || !data) {
@@ -101,7 +109,7 @@ export default function FitmentPage() {
             suspension: "User submitted build",
             note: String(row.notes || "Approved community build"),
             verificationNote: "Approved community-submitted build matched to this model and style.",
-            tags: [String(row.model || model), String(style), "Community"],
+            tags: [String(row.model || safeModel), String(style), "Community"],
             match: "Verified Spec Match" as const,
           }));
 
@@ -113,7 +121,7 @@ export default function FitmentPage() {
     }
 
     loadApprovedBuilds();
-  }, [model, safeTrim, style]);
+  }, [safeModel, safeTrim, style]);
 
   async function copyLink() {
     await navigator.clipboard.writeText(window.location.href);
@@ -122,7 +130,7 @@ export default function FitmentPage() {
   }
 
   async function shareBuild() {
-    const data = { title: "Offset Lab", text: `${model} ${safeTrim} • ${current.title}`, url: window.location.href };
+    const data = { title: "Offset Lab", text: `${safeModel} ${safeTrim} • ${current.title}`, url: window.location.href };
     if (navigator.share) await navigator.share(data);
     else await copyLink();
   }
@@ -133,7 +141,7 @@ export default function FitmentPage() {
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.25em] text-emerald-300/70">Offset Lab Gallery</p>
           <h1 className="mt-2 text-3xl font-bold md:text-5xl">
-            {model} {safeTrim} <span className="text-emerald-400">| {current.title}</span>
+            {safeModel} {safeTrim} <span className="text-emerald-400">| {current.title}</span>
           </h1>
           <p className="mt-3 text-white/55">
             Real-world visual references paired with specs, scores, and fitment notes.
@@ -145,9 +153,20 @@ export default function FitmentPage() {
             <Panel title="1. Select Make">
               <div className="flex flex-wrap gap-2">
                 {makes.map((item) => (
-                  <button key={item.label} disabled={!item.active} onClick={() => item.active && setMake(item.label)}
-                    className={`rounded-xl border px-3 py-2 text-sm ${item.active ? "border-emerald-400/40 bg-emerald-400/10 text-white" : "border-white/10 bg-white/[0.02] text-white/45"}`}>
-                    {item.label}{!item.active ? " • Soon" : ""}
+                  <button
+                    key={item.label}
+                    disabled={!item.active}
+                    onClick={() => {
+                      if (!item.active) return;
+                      setMake(item.label);
+                      const nextModel = getDefaultModelForMake(item.label);
+                      setModel(nextModel);
+                      setTrim(getTrims(nextModel)[0]);
+                    }}
+                    className={`rounded-xl border px-3 py-2 text-sm ${item.active ? "border-emerald-400/40 bg-emerald-400/10 text-white" : "border-white/10 bg-white/[0.02] text-white/45"}`}
+                  >
+                    {item.label}
+                    {!item.active ? " • Soon" : ""}
                   </button>
                 ))}
               </div>
@@ -155,18 +174,38 @@ export default function FitmentPage() {
 
             <Panel title="2. Select Vehicle">
               <div className="space-y-3">
-                <select value={model} onChange={(e) => { const next = e.target.value as ModelKey; setModel(next); setTrim(getTrims(next)[0]); }} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none">
-                  {modelOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+                <select
+                  value={safeModel}
+                  onChange={(e) => {
+                    const next = e.target.value as ModelKey;
+                    setModel(next);
+                    setTrim(getTrims(next)[0]);
+                  }}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
+                >
+                  {availableModels.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
                 <select value={safeTrim} onChange={(e) => setTrim(e.target.value)} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none">
-                  {trims.map((item) => <option key={item} value={item}>{item}</option>)}
+                  {trims.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
               </div>
             </Panel>
 
             <Panel title="3. Select Style">
               <div className="space-y-2">
-                {([["oemplus", "OEM+", "Subtle & Clean"], ["flush", "Flush", "Balanced stance"], ["aggressive", "Aggressive", "Max fitment"]] as const).map(([key, label, sub]) => (
+                {([
+                  ["oemplus", "OEM+", "Subtle & Clean"],
+                  ["flush", "Flush", "Balanced stance"],
+                  ["aggressive", "Aggressive", "Max fitment"],
+                ] as const).map(([key, label, sub]) => (
                   <button key={key} onClick={() => setStyle(key)} className={`w-full rounded-2xl border p-4 text-left transition ${style === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}>
                     <p className="font-semibold">{label}</p>
                     <p className="mt-1 text-sm text-white/45">{sub}</p>
@@ -232,7 +271,7 @@ export default function FitmentPage() {
         defaults={{
           year: "",
           make,
-          model,
+          model: safeModel,
           trim: safeTrim,
           fitmentStyle: style,
           frontWheel: current.front,
@@ -246,13 +285,29 @@ export default function FitmentPage() {
 }
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"><p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/80">{title}</p>{children}</div>;
+  return (
+    <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+      <p className="mb-4 text-sm uppercase tracking-wide text-white/40">{title}</p>
+      {children}
+    </section>
+  );
 }
 
 function FitLine({ label, wheel, tire }: { label: string; wheel: string; tire: string }) {
-  return <div className="border-b border-white/10 pb-3 last:border-b-0"><p className="text-xs uppercase tracking-wide text-white/35">{label}</p><p className="mt-1 text-lg font-bold">{wheel}</p><p className="text-sm text-white/60">{tire}</p></div>;
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+      <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>
+      <p className="mt-2 font-semibold text-white">{wheel}</p>
+      <p className="mt-1 text-sm text-white/55">{tire}</p>
+    </div>
+  );
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"><p className="text-xs uppercase tracking-wide text-white/35">{label}</p><p className="mt-2 text-2xl font-bold">{value}</p></div>;
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>
+      <p className="mt-2 text-2xl font-bold">{value}</p>
+    </div>
+  );
 }
