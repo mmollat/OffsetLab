@@ -32,7 +32,9 @@ type SquareOverride = {
   note?: string;
 };
 
-const squareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, SquareOverride>>>> = {
+type GoalOverrideMap = Partial<Record<ModelKey, Partial<Record<StyleKey, SquareOverride>>>>;
+
+const squareOverrides: GoalOverrideMap = {
   "Model 3": {
     oemplus: {
       front: "19x8.5 +40",
@@ -159,6 +161,101 @@ const squareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, SquareO
   },
 };
 
+const trackOverrides: GoalOverrideMap = {
+  "Model 3": {
+    oemplus: {
+      front: "19x9.5 +30",
+      rear: "19x9.5 +30",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "Most track-focused Model 3 drivers run square setups for balance and tire rotation.",
+    },
+    flush: {
+      front: "19x9.5 +25",
+      rear: "19x9.5 +25",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "Track-biased square Model 3 setup with strong balance and repeatability.",
+    },
+    aggressive: {
+      front: "18x10 +25",
+      rear: "18x10 +25",
+      frontTire: "295/35R18",
+      rearTire: "295/35R18",
+      note: "Aggressive track-focused Model 3 square setup prioritizing grip, rotation, and consistency.",
+    },
+  },
+  "Model Y": {
+    oemplus: {
+      front: "19x9.5 +35",
+      rear: "19x9.5 +35",
+      frontTire: "275/40R19",
+      rearTire: "275/40R19",
+      note: "Most track-focused Model Y setups stay square for consistency and tire rotation.",
+    },
+    flush: {
+      front: "19x9.5 +35",
+      rear: "19x9.5 +35",
+      frontTire: "275/40R19",
+      rearTire: "275/40R19",
+      note: "Track-biased Model Y square setup focused on consistency and balance.",
+    },
+    aggressive: {
+      front: "20x10 +30",
+      rear: "20x10 +30",
+      frontTire: "285/35R20",
+      rearTire: "285/35R20",
+      note: "Aggressive square Model Y track setup emphasizing front-end support and repeatability.",
+    },
+  },
+  "M3": {
+    oemplus: {
+      front: "19x9.5 ET20",
+      rear: "19x9.5 ET20",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "BMW track setups prioritize rotation and consistency over staggered grip.",
+    },
+    flush: {
+      front: "19x10 ET25",
+      rear: "19x10 ET25",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "Track-biased BMW M3 square setup with neutral handling and rotation flexibility.",
+    },
+    aggressive: {
+      front: "18x10.5 ET20",
+      rear: "18x10.5 ET20",
+      frontTire: "295/35R18",
+      rearTire: "295/35R18",
+      note: "Aggressive BMW M3 square track setup for maximum front-end bite and consistency.",
+    },
+  },
+  "M4": {
+    oemplus: {
+      front: "19x9.5 ET20",
+      rear: "19x9.5 ET20",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "BMW track setups prioritize rotation and consistency over staggered grip.",
+    },
+    flush: {
+      front: "19x10 ET25",
+      rear: "19x10 ET25",
+      frontTire: "275/35R19",
+      rearTire: "275/35R19",
+      note: "Track-biased BMW M4 square setup with neutral handling and rotation flexibility.",
+    },
+    aggressive: {
+      front: "18x10.5 ET20",
+      rear: "18x10.5 ET20",
+      frontTire: "295/35R18",
+      rearTire: "295/35R18",
+      note: "Aggressive BMW M4 square track setup for maximum front-end bite and consistency.",
+    },
+  },
+};
+
 function getRecommendedConfiguration(model: ModelKey, goal: DrivingGoalKey = "street"): ConfigurationKey {
   if (goal === "track") return "square";
   if (model === "Model 3" || model === "Model Y") return "square";
@@ -241,7 +338,7 @@ export default function FitmentPage() {
   const displayedFitment = useMemo(() => {
     if (configuration !== "square") return current;
 
-    const override = squareOverrides[safeModel]?.[style];
+    const override = (goal === "track" ? trackOverrides : squareOverrides)[safeModel]?.[style];
     const squareWheel = override?.front ?? current.front;
     const squareRearWheel = override?.rear ?? squareWheel;
     const squareTire = override?.frontTire ?? current.frontTire;
@@ -261,7 +358,7 @@ export default function FitmentPage() {
       pokeRear: current.pokeFront,
       innerRear: current.innerFront,
       verdict: `${current.verdict} ${note}${goal === "track" ? ` ${getGoalMessage(make)}` : ""}`,
-      warnings: Array.from(new Set([...current.warnings, goal === "track" ? "Track mode favors square setups for balance, rotation, and consistency." : "Square setup selected with platform-aware same-size front/rear specs."])),
+      warnings: Array.from(new Set([...current.warnings, goal === "track" ? "Track mode uses performance-biased square presets where available." : "Square setup selected with platform-aware same-size front/rear specs."])),
       alternate: current.alternate,
     };
   }, [configuration, current, safeModel, style, goal, make]);
