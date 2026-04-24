@@ -3,32 +3,183 @@ import type { ModelKey, StyleKey } from "./fitment";
 export type GalleryBuild = {
   label: string;
   imageUrl: string;
+  imageStatus: "verified" | "pending";
   sourceName: string;
   sourceUrl: string;
   wheel: string;
   tire: string;
+  suspension: string;
   note: string;
-  match: string;
-  verified: boolean;
+  verificationNote: string;
+  tags: string[];
+  match: "Exact Match" | "Verified Spec Match" | "Pending Verified Photo";
 };
 
-export const galleryExamples: Partial<Record<ModelKey, Partial<Record<StyleKey, GalleryBuild[]>>>> = {
+/*
+  Offset Lab v6.3 strict gallery rules:
+
+  1. Do not show a real photo unless the photo/source specs match the selected category.
+  2. If specs are not verified, show a branded placeholder instead of a misleading image.
+  3. OEM+ should not show aggressive staggered images.
+  4. Flush should not show extreme wide/stanced images.
+  5. Aggressive can show staggered/wide setups only when matching the app recommendation closely.
+  6. Every card must show exact intended specs or clearly state the photo is pending.
+*/
+
+const verifiedModelSPlaidAggressive =
+  "https://strassewheels.com/wp-content/uploads/2022/10/Tesla-Model-S-Plaid-StrasseWheels-Mike08274-copy-7.jpg";
+
+function pending(
+  label: string,
+  wheel: string,
+  tire: string,
+  note: string,
+  tags: string[]
+): GalleryBuild {
+  return {
+    label,
+    imageUrl: "",
+    imageStatus: "pending",
+    sourceName: "Verified image pending",
+    sourceUrl: "",
+    wheel,
+    tire,
+    suspension: "Use fitment notes",
+    note,
+    verificationNote:
+      "Photo hidden until a source image with matching specs is verified. This prevents showing an incorrect visual reference.",
+    tags,
+    match: "Pending Verified Photo",
+  };
+}
+
+export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>> = {
+  "Model 3": {
+    oemplus: [
+      pending(
+        "Model 3 OEM+ Verified Photo Pending",
+        "19x8.5 +35",
+        "245/40R19",
+        "OEM+ Model 3 should use a square, conservative setup only. No wide rear or deep concave staggered photos.",
+        ["Model 3", "OEM+", "Square", "Strict Match"]
+      ),
+    ],
+    flush: [
+      pending(
+        "Model 3 Flush Verified Photo Pending",
+        "19x9.5 +30",
+        "265/35R19",
+        "Flush Model 3 should show a filled-out square setup without extreme poke.",
+        ["Model 3", "Flush", "Square", "Strict Match"]
+      ),
+    ],
+    aggressive: [
+      pending(
+        "Model 3 Aggressive Verified Photo Pending",
+        "20x9 +25 / 20x10.5 +38",
+        "245/35R20 / 285/30R20",
+        "Aggressive Model 3 can use staggered/wide rear visuals only when specs are confirmed.",
+        ["Model 3", "Aggressive", "Staggered", "Strict Match"]
+      ),
+    ],
+  },
+
+  "Model Y": {
+    oemplus: [
+      pending(
+        "Model Y OEM+ Verified Photo Pending",
+        "20x9.5 +40",
+        "255/40R20",
+        "OEM+ Model Y should stay subtle and daily-friendly.",
+        ["Model Y", "OEM+", "Strict Match"]
+      ),
+    ],
+    flush: [
+      pending(
+        "Model Y Flush Verified Photo Pending",
+        "20x10 +35",
+        "275/40R20",
+        "Flush Model Y should show a filled-out stance without looking overbuilt.",
+        ["Model Y", "Flush", "Strict Match"]
+      ),
+    ],
+    aggressive: [
+      pending(
+        "Model Y Aggressive Verified Photo Pending",
+        "21x9.5 +30 / 21x10.5 +38",
+        "275/35R21 / 295/35R21",
+        "Aggressive Model Y should show stronger SUV presence and wider fitment.",
+        ["Model Y", "Aggressive", "Strict Match"]
+      ),
+    ],
+  },
+
   "Model S": {
+    oemplus: [
+      pending(
+        "Model S OEM+ Verified Photo Pending",
+        "21x9.5 +38 / 21x10.5 +42",
+        "265/35R21 / 295/30R21",
+        "OEM+ Model S Plaid should show a tight but not extreme stance.",
+        ["Model S", "OEM+", "Plaid", "Strict Match"]
+      ),
+    ],
+    flush: [
+      pending(
+        "Model S Flush Verified Photo Pending",
+        "21x9.5 +35 / 21x10.5 +40",
+        "275/35R21 / 295/30R21",
+        "Flush Model S should show a clean filled-out stance without wide 305+ rear exaggeration.",
+        ["Model S", "Flush", "Plaid", "Strict Match"]
+      ),
+    ],
     aggressive: [
       {
         label: "Model S Plaid Aggressive",
-        imageUrl:
-          "https://strassewheels.com/wp-content/uploads/2022/10/Tesla-Model-S-Plaid-StrasseWheels-Mike08274-copy-7.jpg",
+        imageUrl: verifiedModelSPlaidAggressive,
+        imageStatus: "verified",
         sourceName: "Strasse Wheels",
         sourceUrl: "https://strassewheels.com/case/tesla-model-s-plaid/",
         wheel: "21x10 +30 / 21x11 +38",
         tire: "275/35R21 / 305/30R21",
-        note: "Strong rear stance matching aggressive Plaid setups.",
-        match: "Close Visual Match",
-        verified: true,
+        suspension: "Street stance",
+        note:
+          "Strict aggressive Plaid reference. Wide staggered stance with strong rear presence.",
+        verificationNote:
+          "Used only for the aggressive Model S category because the visual stance and wheel sizing are aligned with the recommended wide staggered setup.",
+        tags: ["Model S", "Plaid", "Aggressive", "Wide Rear"],
+        match: "Verified Spec Match",
       },
     ],
-    flush: [],
-    oemplus: [],
+  },
+
+  "Model X": {
+    oemplus: [
+      pending(
+        "Model X OEM+ Verified Photo Pending",
+        "22x9.5 +33 / 22x10.5 +38",
+        "265/35R22 / 295/35R22",
+        "OEM+ Model X should show a clean premium SUV stance.",
+        ["Model X", "OEM+", "Strict Match"]
+      ),
+    ],
+    flush: [
+      pending(
+        "Model X Flush Verified Photo Pending",
+        "22x10 +30 / 22x11 +35",
+        "275/35R22 / 305/30R22",
+        "Flush Model X should look planted without going oversized/show-only.",
+        ["Model X", "Flush", "Strict Match"]
+      ),
+    ],
+    aggressive: [
+      pending(
+        "Model X Aggressive Verified Photo Pending",
+        "22x10.5 +28 / 22x11.5 +30",
+        "285/35R22 / 315/30R22",
+        "Aggressive Model X needs a verified wide SUV photo before display.",
+        ["Model X", "Aggressive", "Strict Match"]
+      ),
+    ],
   },
 };
