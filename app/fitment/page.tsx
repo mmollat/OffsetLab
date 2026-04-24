@@ -22,6 +22,7 @@ import {
 } from "../data/fitment";
 
 type ConfigurationKey = "staggered" | "square";
+type DrivingGoalKey = "street" | "track";
 
 type SquareOverride = {
   front: string;
@@ -158,13 +159,19 @@ const squareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, SquareO
   },
 };
 
-function getRecommendedConfiguration(model: ModelKey): ConfigurationKey {
+function getRecommendedConfiguration(model: ModelKey, goal: DrivingGoalKey = "street"): ConfigurationKey {
+  if (goal === "track") return "square";
   if (model === "Model 3" || model === "Model Y") return "square";
   return "staggered";
 }
 
-function getConfigurationHint(model: ModelKey, configuration: ConfigurationKey) {
-  const recommended = getRecommendedConfiguration(model);
+function getConfigurationHint(model: ModelKey, configuration: ConfigurationKey, goal: DrivingGoalKey) {
+  const recommended = getRecommendedConfiguration(model, goal);
+
+  if (goal === "track") {
+    if (configuration === "square") return "Track-preferred • Rotation-friendly • Balanced handling";
+    return "Track-optional • More rear traction • Can increase understeer";
+  }
 
   if (configuration === "square") {
     if (recommended === "square") return "Factory default • Rotation-friendly • Balanced handling";
@@ -173,6 +180,12 @@ function getConfigurationHint(model: ModelKey, configuration: ConfigurationKey) 
 
   if (recommended === "staggered") return "Factory default • More rear traction • Stronger stance";
   return "Optional for this platform • More rear traction • Stronger stance";
+}
+
+function getGoalMessage(make: MakeKey) {
+  if (make === "BMW") return "Track setups prioritize rotation and consistency over staggered grip.";
+  if (make === "Tesla") return "Most track drivers run square setups for balance and tire rotation.";
+  return "Track setups prioritize performance, balance, and repeatability.";
 }
 
 function scoreColor(score: number) {
@@ -192,6 +205,7 @@ export default function FitmentPage() {
   const [model, setModel] = useState<ModelKey>("Model S");
   const [trim, setTrim] = useState("Plaid");
   const [style, setStyle] = useState<StyleKey>("aggressive");
+  const [goal, setGoal] = useState<DrivingGoalKey>("street");
   const [configuration, setConfiguration] = useState<ConfigurationKey>("staggered");
   const [copied, setCopied] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
@@ -203,12 +217,15 @@ export default function FitmentPage() {
     const urlModel = normalizeModel(params.get("model"), urlMake);
     const urlStyle = normalizeStyle(params.get("style"));
     const urlTrim = params.get("trim");
+    const urlGoal = params.get("goal");
+    const initialGoal: DrivingGoalKey = urlGoal === "track" ? "track" : "street";
     const urlConfiguration = params.get("configuration");
-    const recommendedConfiguration = getRecommendedConfiguration(urlModel);
+    const recommendedConfiguration = getRecommendedConfiguration(urlModel, initialGoal);
 
     setMake(urlMake);
     setModel(urlModel);
     setStyle(urlStyle);
+    setGoal(initialGoal);
     setConfiguration(urlConfiguration === "square" || urlConfiguration === "staggered" ? (urlConfiguration as ConfigurationKey) : recommendedConfiguration);
 
     const availableTrims = getTrims(urlModel);
@@ -230,22 +247,24 @@ export default function FitmentPage() {
     const squareTire = override?.frontTire ?? current.frontTire;
     const squareRearTire = override?.rearTire ?? squareTire;
     const note = override?.note ?? "Square setup selected: same wheel and tire sizing front and rear for simpler rotation and a more balanced configuration.";
+    const goalPrefix = goal === "track" ? "Track Setup" : "Square Setup";
+    const goalSubtitle = goal === "track" ? "Performance-focused square configuration" : "Same size front and rear";
 
     return {
       ...current,
-      title: `${current.title} • Square Setup`,
-      subtitle: `${current.subtitle} • Same size front and rear`,
+      title: `${current.title} • ${goalPrefix}`,
+      subtitle: `${current.subtitle} • ${goalSubtitle}`,
       front: squareWheel,
       rear: squareRearWheel,
       frontTire: squareTire,
       rearTire: squareRearTire,
       pokeRear: current.pokeFront,
       innerRear: current.innerFront,
-      verdict: `${current.verdict} ${note}`,
-      warnings: Array.from(new Set([...current.warnings, "Square setup selected with platform-aware same-size front/rear specs."])),
+      verdict: `${current.verdict} ${note}${goal === "track" ? ` ${getGoalMessage(make)}` : ""}`,
+      warnings: Array.from(new Set([...current.warnings, goal === "track" ? "Track mode favors square setups for balance, rotation, and consistency." : "Square setup selected with platform-aware same-size front/rear specs."])),
       alternate: current.alternate,
     };
-  }, [configuration, current, safeModel, style]);
+  }, [configuration, current, safeModel, style, goal, make]);
   const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[safeModel]?.[style] ?? [];
 
   useEffect(() => {
@@ -254,9 +273,10 @@ export default function FitmentPage() {
     params.set("model", modelSlug(safeModel));
     params.set("trim", safeTrim);
     params.set("style", style);
+    params.set("goal", goal);
     params.set("configuration", configuration);
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-  }, [make, safeModel, safeTrim, style, configuration]);
+  }, [make, safeModel, safeTrim, style, goal, configuration]);
 
   useEffect(() => {
     async function loadApprovedBuilds() {
@@ -346,7 +366,7 @@ export default function FitmentPage() {
                       const nextModel = getDefaultModelForMake(item.label);
                       setModel(nextModel);
                       setTrim(getTrims(nextModel)[0]);
-                      setConfiguration(getRecommendedConfiguration(nextModel));
+                      setConfiguration(getRecommendedConfiguration(nextModel, goal));
                     }}
                     className={`rounded-xl border px-3 py-2 text-sm ${item.active ? "border-emerald-400/40 bg-emerald-400/10 text-white" : "border-white/10 bg-white/[0.02] text-white/45"}`}
                   >
@@ -365,7 +385,7 @@ export default function FitmentPage() {
                     const next = e.target.value as ModelKey;
                     setModel(next);
                     setTrim(getTrims(next)[0]);
-                    setConfiguration(getRecommendedConfiguration(next));
+                    setConfiguration(getRecommendedConfiguration(next, goal));
                   }}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
                 >
@@ -400,11 +420,33 @@ export default function FitmentPage() {
               </div>
             </Panel>
 
-            <Panel title="4. Configuration">
+            <Panel title="4. Driving Goal">
               <div className="space-y-2">
                 {([
-                  ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered")],
-                  ["square", "Square Setup", getConfigurationHint(safeModel, "square")],
+                  ["street", "Street", "Visual stance + daily usability"],
+                  ["track", "Track", "Performance + balance"],
+                ] as const).map(([key, label, sub]) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setGoal(key);
+                      setConfiguration(getRecommendedConfiguration(safeModel, key));
+                    }}
+                    className={`w-full rounded-2xl border p-4 text-left transition ${goal === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
+                  >
+                    <p className="font-semibold">{label}</p>
+                    <p className="mt-1 text-sm text-white/45">{sub}</p>
+                  </button>
+                ))}
+              </div>
+              {goal === "track" ? <p className="mt-4 text-sm text-emerald-200/80">{getGoalMessage(make)}</p> : null}
+            </Panel>
+
+            <Panel title="5. Configuration">
+              <div className="space-y-2">
+                {([
+                  ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered", goal)],
+                  ["square", "Square Setup", getConfigurationHint(safeModel, "square", goal)],
                 ] as const).map(([key, label, sub]) => (
                   <button key={key} onClick={() => setConfiguration(key)} className={`w-full rounded-2xl border p-4 text-left transition ${configuration === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}>
                     <p className="font-semibold">{label}</p>
@@ -414,7 +456,7 @@ export default function FitmentPage() {
               </div>
             </Panel>
 
-            <Panel title="5. Your Fitment">
+            <Panel title="6. Your Fitment">
               <div className="space-y-4">
                 <FitLine label="Front" wheel={displayedFitment.front} tire={displayedFitment.frontTire} />
                 <FitLine label="Rear" wheel={displayedFitment.rear} tire={displayedFitment.rearTire} />
@@ -428,6 +470,7 @@ export default function FitmentPage() {
                 <p>Risk: <span className={`rounded-full border px-2 py-1 ${riskPill(displayedFitment.risk)}`}>{displayedFitment.risk}</span></p>
                 <p>Visual Aggression: <span className={scoreColor(displayedFitment.aggression)}>{displayedFitment.aggression}/10</span></p>
                 <p>Daily Drivability: <span className={scoreColor(displayedFitment.daily)}>{displayedFitment.daily}/10</span></p>
+                <p>Driving Goal: {goal === "track" ? "Track" : "Street"}</p>
                 <p>Configuration: {configuration === "square" ? "Square" : "Staggered"}</p>
                 <p>Bolt Pattern: {trimData.baseline.boltPattern}</p>
                 <p>Center Bore: {trimData.baseline.centerBore}</p>
@@ -474,7 +517,13 @@ export default function FitmentPage() {
           make,
           model: safeModel,
           trim: safeTrim,
-          fitmentStyle: configuration === "square" ? `${style} square` : style,
+          fitmentStyle: goal === "track"
+            ? configuration === "square"
+              ? `${style} track square`
+              : `${style} track staggered`
+            : configuration === "square"
+              ? `${style} square`
+              : style,
           frontWheel: displayedFitment.front,
           rearWheel: displayedFitment.rear,
           frontTire: displayedFitment.frontTire,
