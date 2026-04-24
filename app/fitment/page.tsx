@@ -23,6 +23,67 @@ import {
 
 type ConfigurationKey = "staggered" | "square";
 
+type SquareOverride = {
+  front: string;
+  rear: string;
+  frontTire: string;
+  rearTire: string;
+  note?: string;
+};
+
+const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, SquareOverride>>>> = {
+  "Model 3": {
+    oemplus: {
+      front: "19x8.5 +40",
+      rear: "19x8.5 +40",
+      frontTire: "235/40R19",
+      rearTire: "235/40R19",
+      note: "Factory-style square Tesla Model 3 setup.",
+    },
+  },
+  "Model Y": {
+    oemplus: {
+      front: "19x9.5 +45",
+      rear: "19x9.5 +45",
+      frontTire: "255/45R19",
+      rearTire: "255/45R19",
+      note: "Factory-style square Tesla Model Y setup.",
+    },
+  },
+  "Model S": {
+    flush: {
+      front: "21x9.5 +35",
+      rear: "21x9.5 +35",
+      frontTire: "265/35R21",
+      rearTire: "265/35R21",
+      note: "Square alternative for owners prioritizing rotation and balance over rear stagger.",
+    },
+    aggressive: {
+      front: "21x10 +30",
+      rear: "21x10 +30",
+      frontTire: "275/35R21",
+      rearTire: "275/35R21",
+      note: "Square aggressive alternative using the front spec at all four corners.",
+    },
+  },
+  "Model X": {
+    flush: {
+      front: "22x10 +30",
+      rear: "22x10 +30",
+      frontTire: "275/35R22",
+      rearTire: "275/35R22",
+      note: "Square alternative for owners prioritizing rotation and balanced fitment.",
+    },
+    aggressive: {
+      front: "22x10.5 +28",
+      rear: "22x10.5 +28",
+      frontTire: "285/35R22",
+      rearTire: "285/35R22",
+      note: "Square aggressive alternative using the front spec at all four corners.",
+    },
+  },
+};
+
 function scoreColor(score: number) {
   if (score >= 8) return "text-red-400";
   if (score >= 6) return "text-yellow-300";
@@ -71,22 +132,28 @@ export default function FitmentPage() {
   const displayedFitment = useMemo(() => {
     if (configuration !== "square") return current;
 
-    const squareWheel = current.front;
-    const squareTire = current.frontTire;
+    const override = teslaSquareOverrides[safeModel]?.[style];
+    const squareWheel = override?.front ?? current.front;
+    const squareRearWheel = override?.rear ?? squareWheel;
+    const squareTire = override?.frontTire ?? current.frontTire;
+    const squareRearTire = override?.rearTire ?? squareTire;
+    const note = override?.note ?? "Square setup selected: same wheel and tire sizing front and rear for simpler rotation and a more balanced configuration.";
 
     return {
       ...current,
       title: `${current.title} • Square Setup`,
       subtitle: `${current.subtitle} • Same size front and rear`,
-      rear: squareWheel,
-      rearTire: squareTire,
+      front: squareWheel,
+      rear: squareRearWheel,
+      frontTire: squareTire,
+      rearTire: squareRearTire,
       pokeRear: current.pokeFront,
       innerRear: current.innerFront,
-      verdict: `${current.verdict} Square setup selected: same wheel and tire sizing front and rear for simpler rotation and a more balanced configuration.`,
-      warnings: Array.from(new Set([...current.warnings, "Square setup uses the front wheel/tire spec on all four corners."])),
+      verdict: `${current.verdict} ${note}`,
+      warnings: Array.from(new Set([...current.warnings, "Square setup uses the front wheel/tire spec on all four corners unless a platform-specific square preset is defined."])),
       alternate: current.alternate,
     };
-  }, [configuration, current]);
+  }, [configuration, current, safeModel, style]);
   const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[safeModel]?.[style] ?? [];
 
   useEffect(() => {
@@ -242,8 +309,8 @@ export default function FitmentPage() {
             <Panel title="4. Configuration">
               <div className="space-y-2">
                 {([
-                  ["staggered", "Staggered", "Front and rear sizes can differ"],
-                  ["square", "Square Setup", "Same size front and rear"],
+                  ["staggered", "Staggered", safeModel === "Model 3" || safeModel === "Model Y" ? "Optional for this platform" : "Front and rear sizes can differ"],
+                  ["square", "Square Setup", safeModel === "Model 3" || safeModel === "Model Y" ? "Factory-style for this platform" : "Same size front and rear"],
                 ] as const).map(([key, label, sub]) => (
                   <button key={key} onClick={() => setConfiguration(key)} className={`w-full rounded-2xl border p-4 text-left transition ${configuration === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}>
                     <p className="font-semibold">{label}</p>
