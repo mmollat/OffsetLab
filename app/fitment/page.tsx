@@ -40,6 +40,20 @@ const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, Sq
       rearTire: "235/40R19",
       note: "Factory-style square Tesla Model 3 setup.",
     },
+    flush: {
+      front: "20x9 +30",
+      rear: "20x9 +30",
+      frontTire: "245/35R20",
+      rearTire: "245/35R20",
+      note: "Square flush alternative for better rotation and balanced handling.",
+    },
+    aggressive: {
+      front: "20x9 +25",
+      rear: "20x9 +25",
+      frontTire: "245/35R20",
+      rearTire: "245/35R20",
+      note: "Square aggressive alternative using the front spec at all four corners.",
+    },
   },
   "Model Y": {
     oemplus: {
@@ -48,6 +62,20 @@ const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, Sq
       frontTire: "255/45R19",
       rearTire: "255/45R19",
       note: "Factory-style square Tesla Model Y setup.",
+    },
+    flush: {
+      front: "20x9.5 +35",
+      rear: "20x9.5 +35",
+      frontTire: "265/40R20",
+      rearTire: "265/40R20",
+      note: "Square flush alternative for better rotation and balanced handling.",
+    },
+    aggressive: {
+      front: "21x9.5 +30",
+      rear: "21x9.5 +30",
+      frontTire: "275/35R21",
+      rearTire: "275/35R21",
+      note: "Square aggressive alternative using the front spec at all four corners.",
     },
   },
   "Model S": {
@@ -84,6 +112,23 @@ const teslaSquareOverrides: Partial<Record<ModelKey, Partial<Record<StyleKey, Sq
   },
 };
 
+function getRecommendedConfiguration(model: ModelKey): ConfigurationKey {
+  if (model === "Model 3" || model === "Model Y") return "square";
+  return "staggered";
+}
+
+function getConfigurationHint(model: ModelKey, configuration: ConfigurationKey) {
+  const recommended = getRecommendedConfiguration(model);
+
+  if (configuration === "square") {
+    if (recommended === "square") return "Factory default • Rotation-friendly • Balanced handling";
+    return "Rotation-friendly • Balanced handling • Popular for track use";
+  }
+
+  if (recommended === "staggered") return "Factory default • More rear traction • Stronger stance";
+  return "Optional for this platform • More rear traction • Stronger stance";
+}
+
 function scoreColor(score: number) {
   if (score >= 8) return "text-red-400";
   if (score >= 6) return "text-yellow-300";
@@ -113,11 +158,12 @@ export default function FitmentPage() {
     const urlStyle = normalizeStyle(params.get("style"));
     const urlTrim = params.get("trim");
     const urlConfiguration = params.get("configuration");
+    const recommendedConfiguration = getRecommendedConfiguration(urlModel);
 
     setMake(urlMake);
     setModel(urlModel);
     setStyle(urlStyle);
-    setConfiguration(urlConfiguration === "square" ? "square" : "staggered");
+    setConfiguration(urlConfiguration === "square" || urlConfiguration === "staggered" ? (urlConfiguration as ConfigurationKey) : recommendedConfiguration);
 
     const availableTrims = getTrims(urlModel);
     setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
@@ -254,6 +300,7 @@ export default function FitmentPage() {
                       const nextModel = getDefaultModelForMake(item.label);
                       setModel(nextModel);
                       setTrim(getTrims(nextModel)[0]);
+                      setConfiguration(getRecommendedConfiguration(nextModel));
                     }}
                     className={`rounded-xl border px-3 py-2 text-sm ${item.active ? "border-emerald-400/40 bg-emerald-400/10 text-white" : "border-white/10 bg-white/[0.02] text-white/45"}`}
                   >
@@ -272,6 +319,7 @@ export default function FitmentPage() {
                     const next = e.target.value as ModelKey;
                     setModel(next);
                     setTrim(getTrims(next)[0]);
+                    setConfiguration(getRecommendedConfiguration(next));
                   }}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
                 >
@@ -309,8 +357,8 @@ export default function FitmentPage() {
             <Panel title="4. Configuration">
               <div className="space-y-2">
                 {([
-                  ["staggered", "Staggered", safeModel === "Model 3" || safeModel === "Model Y" ? "Optional for this platform" : "Front and rear sizes can differ"],
-                  ["square", "Square Setup", safeModel === "Model 3" || safeModel === "Model Y" ? "Factory-style for this platform" : "Same size front and rear"],
+                  ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered")],
+                  ["square", "Square Setup", getConfigurationHint(safeModel, "square")],
                 ] as const).map(([key, label, sub]) => (
                   <button key={key} onClick={() => setConfiguration(key)} className={`w-full rounded-2xl border p-4 text-left transition ${configuration === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}>
                     <p className="font-semibold">{label}</p>
