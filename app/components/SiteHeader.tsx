@@ -8,7 +8,7 @@ export default function SiteHeader() {
         <Link href="/" className="flex items-center gap-3">
 <Image
 
-            src="/logos/offset-lab-secondary-logov2.png"
+            src="/logos/offset-lab-secondary-logo.png"
 
             alt="Offset Lab"
 
