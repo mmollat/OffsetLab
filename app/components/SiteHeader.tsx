@@ -15,9 +15,29 @@ export default function SiteHeader() {
             className="h-8 w-auto md:h-10"
           />
         </Link>
+
         <nav className="flex items-center gap-2 md:gap-3">
-          <Link href="/fitment" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10">Fitment</Link>
-          <Link href="/compare" className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10">Compare</Link>
+          <Link
+            href="/fitment"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10"
+          >
+            Fitment
+          </Link>
+
+          <Link
+            href="/compare"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10"
+          >
+            Compare
+          </Link>
+
+          {/* 🔥 NEW */}
+          <Link
+            href="/gallery"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10"
+          >
+            Gallery
+          </Link>
         </nav>
       </div>
     </header>
