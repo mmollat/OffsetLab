@@ -44,7 +44,7 @@ function sourceBadge(build: GalleryBuild) {
 
 function sourceBadgeClass(build: GalleryBuild) {
   if (build.sourceType === "community") {
-    return "border-emerald-400/40 bg-emerald-400/10 text-emerald-300";
+    return "border-red-500/40 bg-red-500/10 text-red-400";
   }
 
   if (build.sourceType === "wheelBrand") {
@@ -173,7 +173,7 @@ export default function GalleryPage() {
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
       <div className="mx-auto max-w-7xl">
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-emerald-300/70">
+          <p className="text-xs uppercase tracking-[0.25em] text-red-400/70">
             Real Build References
           </p>
 
@@ -207,7 +207,7 @@ export default function GalleryPage() {
                   }}
                   className={`rounded-2xl border px-5 py-3 font-semibold transition ${
                     make === item.label
-                      ? "border-emerald-400/60 bg-emerald-400/15 text-emerald-200"
+                      ? "border-red-500/60 bg-red-500/15 text-red-300"
                       : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
                   }`}
                 >
@@ -245,7 +245,7 @@ export default function GalleryPage() {
             {builds.map((build, index) => (
               <article
                 key={`${build.model}-${build.style}-${build.label}-${index}`}
-                className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/20 transition hover:border-emerald-400/30 hover:bg-white/[0.055]"
+                className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/20 transition hover:border-red-500/30 hover:bg-white/[0.055]"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-black">
                   <img
@@ -268,7 +268,7 @@ export default function GalleryPage() {
                 </div>
 
                 <div className="p-5">
-                  <p className="text-sm text-emerald-300">{build.model}</p>
+                  <p className="text-sm text-red-400">{build.model}</p>
 
                   <h2 className="mt-2 text-xl font-bold leading-tight">
                     {build.label}
@@ -287,7 +287,7 @@ export default function GalleryPage() {
                   ) : null}
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">
+                    <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs text-red-400">
                       {build.match}
                     </span>
 
