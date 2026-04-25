@@ -37,10 +37,10 @@ type GoalOverrideMap = Partial<Record<ModelKey, Partial<Record<StyleKey, SquareO
 const squareOverrides: GoalOverrideMap = {
   "Model 3": {
     oemplus: {
-      front: "19x8.5 +40",
-      rear: "19x8.5 +40",
-      frontTire: "235/40R19",
-      rearTire: "235/40R19",
+      front: "20x8.5 +35",
+      rear: "20x8.5 +35",
+      frontTire: "235/35R20",
+      rearTire: "235/35R20",
       note: "Factory-style square Tesla Model 3 setup.",
     },
     flush: {
@@ -60,10 +60,10 @@ const squareOverrides: GoalOverrideMap = {
   },
   "Model Y": {
     oemplus: {
-      front: "19x9.5 +45",
-      rear: "19x9.5 +45",
-      frontTire: "255/45R19",
-      rearTire: "255/45R19",
+      front: "21x9.5 +40",
+      rear: "21x9.5 +40",
+      frontTire: "255/35R21",
+      rearTire: "255/35R21",
       note: "Factory-style square Tesla Model Y setup.",
     },
     flush: {
