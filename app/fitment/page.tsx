@@ -2,19 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "../components/GalleryCard";
-import TrustStrip from "../components/TrustStrip";
-import SubmitBuildModal from "../components/SubmitBuildModal";
 import { supabase } from "../lib/supabase";
 import { galleryExamples } from "../data/gallery";
 import {
   getDefaultModelForMake,
   getModelsForMake,
-  getTrimData,
   getTrims,
   makes,
   MakeKey,
   ModelKey,
-  modelSlug,
   normalizeMake,
   normalizeModel,
   normalizeStyle,
@@ -41,10 +37,14 @@ export default function FitmentPage() {
   }, []);
 
   const availableModels = useMemo(() => getModelsForMake(make), [make]);
-  const safeModel = availableModels.includes(model) ? model : getDefaultModelForMake(make);
+  const safeModel = availableModels.includes(model)
+    ? model
+    : getDefaultModelForMake(make);
+
   const trims = useMemo(() => getTrims(safeModel), [safeModel]);
   const safeTrim = trims.includes(trim) ? trim : trims[0];
 
+  // 🔥 Load Supabase builds (exact match)
   useEffect(() => {
     async function loadApprovedBuilds() {
       const { data } = await supabase
@@ -94,15 +94,38 @@ export default function FitmentPage() {
     loadApprovedBuilds();
   }, [safeModel, safeTrim, style, goal, configuration]);
 
-  // 🔥 FIXED SECTION
+  // 🔥 SOURCE PRIORITY
   const sourceRank: Record<string, number> = {
     official: 1,
     wheelBrand: 2,
     community: 3,
   };
 
-  const referenceBuilds = galleryExamples[safeModel]?.[style] ?? [];
-  const communityBuilds = approvedBuilds;
+  const configurationTag =
+    configuration === "square" ? "Square" : "Staggered";
+
+  // 🔥 FIXED: FILTER REFERENCE BUILDS CORRECTLY
+  const referenceBuilds = (galleryExamples[safeModel]?.[style] ?? []).filter(
+    (build) => {
+      const matchesModel =
+        build.tags?.includes(safeModel) ||
+        build.label.toLowerCase().includes(safeModel.toLowerCase());
+
+      const matchesConfig =
+        build.tags?.includes(configurationTag) ||
+        build.match === "Pending Verified Photo";
+
+      return matchesModel && matchesConfig;
+    }
+  );
+
+  // 🔥 FILTER COMMUNITY BUILDS
+  const communityBuilds = approvedBuilds.filter((build) => {
+    return (
+      build.tags?.includes(safeModel) ||
+      build.label.toLowerCase().includes(safeModel.toLowerCase())
+    );
+  });
 
   const rawBuilds = [...referenceBuilds, ...communityBuilds];
 
