@@ -103,25 +103,57 @@ export default function CompareFitmentVisual({
           <rect x={centerX - 30} y="180" width="60" height="160" rx="6" fill="#666" />
           <rect x={centerX - 60} y="220" width="120" height="80" rx="8" fill="#888" />
 
+          {/* OEM tire outline */}
+          <rect
+            x={oemLeft - 18}
+            y="88"
+            width={oemRight - oemLeft + 36}
+            height="344"
+            rx="46"
+            fill="rgba(249,115,22,0.025)"
+            stroke="#f97316"
+            strokeWidth="3"
+            strokeDasharray="8 6"
+          />
+
+          {/* OEM wheel outline */}
           <rect
             x={oemLeft}
-            y="105"
+            y="125"
             width={oemRight - oemLeft}
-            height="310"
-            rx="18"
+            height="270"
+            rx="20"
             fill="none"
             stroke="#f97316"
             strokeWidth="3"
             strokeDasharray="8 6"
           />
 
-          <path
-            d={`M ${selectedLeft} 92 L ${selectedRight} 92 L ${selectedRight} 428 L ${selectedLeft} 428 Z`}
-            fill="rgba(59,130,246,0.06)"
+          {/* Selected tire shape */}
+          <rect
+            x={selectedLeft - 24}
+            y="78"
+            width={selectedRight - selectedLeft + 48}
+            height="364"
+            rx="54"
+            fill="rgba(59,130,246,0.08)"
+            stroke="#3b82f6"
+            strokeWidth="5"
+          />
+
+          {/* Selected wheel barrel */}
+          <rect
+            x={selectedLeft}
+            y="105"
+            width={selectedRight - selectedLeft}
+            height="310"
+            rx="24"
+            fill="rgba(59,130,246,0.04)"
             stroke="#3b82f6"
             strokeWidth="4"
           />
 
+          {/* Simple barrel depth lines */}
           <path
             d={`M ${selectedLeft + 26} 140 L ${selectedLeft + 58} 190 L ${selectedLeft + 58} 330 L ${selectedLeft + 26} 380`}
             fill="none"
