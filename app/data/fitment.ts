@@ -42,7 +42,6 @@ export type TrimData = {
 };
 
 const low = ["Very low rub risk", "Good daily setup"];
-const mod = ["Ride height matters", "Check clearance if lowered"];
 
 function p(
   title: string,
@@ -92,19 +91,104 @@ export const makes = [
 ];
 
 export const fitmentData: Record<ModelKey, TrimData[]> = {
-  "Model 3": [], // keep your existing data (unchanged)
+  // 🔒 TEMP SAFE PLACEHOLDERS (prevents crashes)
+  "Model 3": [{
+    trim: "Performance",
+    baseline: {
+      front: "20x8.5 +35",
+      rear: "20x8.5 +35",
+      tire: "235/35R20",
+      boltPattern: "5x114.3",
+      centerBore: "64.1",
+    },
+    presets: {
+      oemplus: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      flush: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      aggressive: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+    },
+  }],
 
-  "Model Y": [],
+  "Model Y": [{
+    trim: "Long Range",
+    baseline: {
+      front: "",
+      rear: "",
+      tire: "",
+      boltPattern: "5x114.3",
+      centerBore: "64.1",
+    },
+    presets: {
+      oemplus: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      flush: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      aggressive: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+    },
+  }],
 
-  "Model S": [],
+  "Model S": [{
+    trim: "Plaid",
+    baseline: {
+      front: "",
+      rear: "",
+      tire: "",
+      boltPattern: "5x120",
+      centerBore: "64.1",
+    },
+    presets: {
+      oemplus: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      flush: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      aggressive: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+    },
+  }],
 
-  "Model X": [],
+  "Model X": [{
+    trim: "Plaid",
+    baseline: {
+      front: "",
+      rear: "",
+      tire: "",
+      boltPattern: "5x120",
+      centerBore: "64.1",
+    },
+    presets: {
+      oemplus: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      flush: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      aggressive: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+    },
+  }],
 
-  "M3": [],
+  "M3": [{
+    trim: "Base",
+    baseline: {
+      front: "",
+      rear: "",
+      tire: "",
+      boltPattern: "5x112",
+      centerBore: "66.6",
+    },
+    presets: {
+      oemplus: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      flush: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      aggressive: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+    },
+  }],
 
-  "M4": [],
+  "M4": [{
+    trim: "Base",
+    baseline: {
+      front: "",
+      rear: "",
+      tire: "",
+      boltPattern: "5x112",
+      centerBore: "66.6",
+    },
+    presets: {
+      oemplus: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      flush: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+      aggressive: p("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", "", [], ""),
+    },
+  }],
 
-  // 🔥 NEW MODEL
+  // ✅ GR86 (REAL DATA)
   "GR86": [
     {
       trim: "Base / Premium",
@@ -131,13 +215,13 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
           4,
           9,
           "Low",
-          "Perfect OEM+ GR86 fitment. Clean, balanced, and daily-friendly.",
+          "Perfect OEM+ GR86 fitment.",
           low,
           "18x8.5 +40 / 235/40R18"
         ),
         flush: p(
-          "Flush Street Setup",
-          "Best daily stance",
+          "Flush Setup",
+          "Balanced stance",
           "18x9 +38",
           "18x9 +38",
           "245/35R18",
@@ -149,14 +233,14 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
           "+0.3%",
           7,
           8,
-          "Low / Moderate",
-          "Ideal flush GR86 setup. Fills the car out perfectly.",
-          ["Lowered cars should watch front clearance"],
-          "17x9 +38 / 245/40R17"
+          "Low",
+          "Ideal flush GR86 setup.",
+          ["Watch front clearance if lowered"],
+          "17x9 +38"
         ),
         aggressive: p(
           "Aggressive Setup",
-          "Wider stance, enthusiast fitment",
+          "Wider stance",
           "18x9.5 +35",
           "18x9.5 +35",
           "255/35R18",
@@ -169,9 +253,9 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
           8,
           7,
           "Moderate",
-          "Aggressive GR86 fitment with strong stance.",
-          ["May require camber depending on ride height"],
-          "18x10 +35 / 265/35R18"
+          "Aggressive GR86 fitment.",
+          ["May need camber"],
+          "18x10 +35"
         ),
       },
     },
