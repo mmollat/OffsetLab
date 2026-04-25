@@ -102,7 +102,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
         centerBore: "64.1",
       },
       presets: {
-        oemplus: p("OEM+ Setup", "Clean daily setup", "20x8.5 +35", "20x8.5 +35", "235/35R20", "235/35R20", "+7mm", "+7mm", "-1mm", "-1mm", "+0.3%", 4, 9, "Low", "Clean OEM+ fitment with minimal compromise.", "19x9 +35 / 255/40R19,),
+        oemplus: p("OEM+ Setup", "Clean daily setup", "20x8.5 +35", "20x8.5 +35", "235/35R20", "235/35R20", "+7mm", "+7mm", "-1mm", "-1mm", "+0.3%", 4, 9, "Low", "Clean OEM+ fitment with minimal compromise.", "19x9 +35 / 255/40R19"),
         flush: p("Flush Setup", "Balanced stance", "19x9.5 +30", "19x9.5 +30", "265/35R19", "265/35R19", "+18mm", "+18mm", "-8mm", "-8mm", "+0.5%", 7, 8, "Low / Moderate", "Strong daily fitment that fills the car out properly.", ["Watch front clearance on lower ride heights"], "20x9 +30 / 245-255/35R20"),
         aggressive: p("Aggressive Setup", "Wider stance", "20x9 +26", "20x10.5 +38", "245/35R20", "285/30R20", "+22mm", "+28mm", "-6mm", "-10mm", "+0.8%", 8, 7, "Moderate", "Strong aggressive stance with manageable clearance.", ["Front clearance tighter at full lock", "Lowered setups may require camber awareness"], "19x9.5 +25 square / 275/35R19"),
       },
