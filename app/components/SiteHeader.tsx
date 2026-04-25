@@ -26,14 +26,14 @@ export default function SiteHeader() {
         <nav className="flex items-center gap-2 md:gap-3">
           <Link
             href="/fitment"
-            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-red-500/40 hover:bg-red-500/10"
           >
             Fitment
           </Link>
 
           <Link
             href="/compare"
-            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-red-500/40 hover:bg-red-500/10"
           >
             Compare
           </Link>
@@ -41,7 +41,7 @@ export default function SiteHeader() {
           {/* 🔥 NEW */}
           <Link
             href="/gallery"
-            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-emerald-400/40 hover:bg-emerald-400/10"
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/90 hover:border-red-500/40 hover:bg-red-500/10"
           >
             Gallery
           </Link>
