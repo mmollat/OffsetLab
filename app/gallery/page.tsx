@@ -36,6 +36,24 @@ type GalleryBuild = {
   style: StyleKey | string;
 };
 
+function sourceBadge(build: GalleryBuild) {
+  if (build.sourceType === "community") return "Community Build";
+  if (build.sourceType === "wheelBrand") return "Brand Reference";
+  return "Reference Build";
+}
+
+function sourceBadgeClass(build: GalleryBuild) {
+  if (build.sourceType === "community") {
+    return "border-emerald-400/40 bg-emerald-400/10 text-emerald-300";
+  }
+
+  if (build.sourceType === "wheelBrand") {
+    return "border-blue-400/40 bg-blue-400/10 text-blue-300";
+  }
+
+  return "border-white/15 bg-white/[0.06] text-white/65";
+}
+
 export default function GalleryPage() {
   const [make, setMake] = useState<MakeKey>("Tesla");
   const [model, setModel] = useState<ModelKey>("Model 3");
@@ -141,98 +159,120 @@ export default function GalleryPage() {
 
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
-      <div className="mx-auto max-w-6xl">
-        <p className="text-xs uppercase tracking-[0.25em] text-emerald-300/70">
-          Real Build References
-        </p>
+      <div className="mx-auto max-w-7xl">
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.25em] text-emerald-300/70">
+            Real Build References
+          </p>
 
-        <h1 className="mt-2 text-3xl font-bold md:text-4xl">Gallery</h1>
+          <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold md:text-5xl">Gallery</h1>
+              <p className="mt-3 max-w-2xl text-white/50">
+                Browse verified reference builds and approved community submissions by vehicle.
+              </p>
+            </div>
 
-        <p className="mt-3 max-w-2xl text-white/50">
-          Browse verified reference builds and approved community submissions by vehicle.
-        </p>
+            <div className="rounded-2xl border border-white/10 bg-black/30 px-5 py-4">
+              <p className="text-xs uppercase tracking-wide text-white/35">
+                Showing
+              </p>
+              <p className="mt-1 text-2xl font-bold text-white">
+                {builds.length}
+              </p>
+            </div>
+          </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          {makes
-            .filter((item) => item.active)
-            .map((item) => (
+          <div className="mt-8 flex flex-wrap gap-3">
+            {makes
+              .filter((item) => item.active)
+              .map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => {
+                    setMake(item.label);
+                    setModel(getDefaultModelForMake(item.label));
+                  }}
+                  className={`rounded-2xl border px-5 py-3 font-semibold transition ${
+                    make === item.label
+                      ? "border-emerald-400/60 bg-emerald-400/15 text-emerald-200"
+                      : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            {availableModels.map((item) => (
               <button
-                key={item.label}
-                onClick={() => {
-                  setMake(item.label);
-                  setModel(getDefaultModelForMake(item.label));
-                }}
-                className={`rounded-2xl border px-5 py-3 font-semibold transition ${
-                  make === item.label
-                    ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-200"
-                    : "border-white/10 bg-white/[0.03] text-white/70 hover:border-white/25"
+                key={item}
+                onClick={() => setModel(item)}
+                className={`rounded-2xl border px-5 py-3 text-sm font-semibold transition ${
+                  safeModel === item
+                    ? "border-white/40 bg-white/10 text-white"
+                    : "border-white/10 bg-black/30 text-white/60 hover:border-white/25"
                 }`}
               >
-                {item.label}
+                {item}
               </button>
             ))}
-        </div>
-
-        <div className="mt-5 flex flex-wrap gap-3">
-          {availableModels.map((item) => (
-            <button
-              key={item}
-              onClick={() => setModel(item)}
-              className={`rounded-2xl border px-5 py-3 text-sm font-semibold transition ${
-                safeModel === item
-                  ? "border-white/40 bg-white/10 text-white"
-                  : "border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25"
-              }`}
-            >
-              {item}
-            </button>
-          ))}
+          </div>
         </div>
 
         {builds.length === 0 ? (
-          <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-white/55">
-            No verified gallery images yet for {safeModel}.
+          <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center">
+            <p className="text-xl font-bold">No verified gallery images yet for {safeModel}.</p>
+            <p className="mt-2 text-white/50">
+              Add approved submissions or reference photos to make this gallery feel complete.
+            </p>
           </div>
         ) : (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {builds.map((build, index) => (
               <article
                 key={`${build.model}-${build.style}-${build.label}-${index}`}
-                className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03]"
+                className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/20 transition hover:border-emerald-400/30 hover:bg-white/[0.055]"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-black">
+                <div className="relative aspect-[4/3] overflow-hidden bg-black">
                   <img
                     src={build.imageUrl}
                     alt={build.label}
-                    className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
+
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-4">
+                    <div className="flex flex-wrap gap-2">
+                      <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${sourceBadgeClass(build)}`}>
+                        {sourceBadge(build)}
+                      </span>
+
+                      <span className="rounded-full border border-white/15 bg-black/50 px-3 py-1 text-xs text-white/70">
+                        {styleLabels[build.style as StyleKey] ?? build.style}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm text-emerald-300">{build.model}</p>
+                  <p className="text-sm text-emerald-300">{build.model}</p>
 
-                    <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/50">
-                      {styleLabels[build.style as StyleKey] ?? build.style}
-                    </span>
+                  <h2 className="mt-2 text-xl font-bold leading-tight">
+                    {build.label}
+                  </h2>
+
+                  <div className="mt-5 grid gap-3">
+                    <SpecLine label="Wheel" value={build.wheel} />
+                    <SpecLine label="Tire" value={build.tire} />
+                    <SpecLine label="Source" value={build.sourceName} />
                   </div>
 
-                  <h2 className="mt-3 text-xl font-bold">{build.label}</h2>
-
-                  <div className="mt-4 space-y-2 text-sm text-white/60">
-                    <p>
-                      <span className="text-white/35">Wheel:</span>{" "}
-                      {build.wheel}
+                  {build.note ? (
+                    <p className="mt-4 line-clamp-2 text-sm leading-6 text-white/45">
+                      {build.note}
                     </p>
-                    <p>
-                      <span className="text-white/35">Tire:</span>{" "}
-                      {build.tire}
-                    </p>
-                    <p>
-                      <span className="text-white/35">Source:</span>{" "}
-                      {build.sourceName}
-                    </p>
-                  </div>
+                  ) : null}
 
                   <div className="mt-5 flex flex-wrap gap-2">
                     <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">
@@ -255,5 +295,14 @@ export default function GalleryPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function SpecLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+      <p className="text-xs uppercase tracking-wide text-white/35">{label}</p>
+      <p className="mt-1 text-sm font-semibold text-white/80">{value || "—"}</p>
+    </div>
   );
 }
