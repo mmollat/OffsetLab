@@ -1,1 +1,8 @@
-
+<svg width="320" height="60" viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg">
+  <text x="0" y="40" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="2">
+    OFFSET
+  </text>
+  <text x="150" y="40" fill="#00C896" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="2">
+    LAB
+  </text>
+</svg>
