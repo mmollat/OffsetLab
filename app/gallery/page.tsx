@@ -83,7 +83,7 @@ export default function GalleryPage() {
         return;
       }
 
-      const mapped = data
+      const mapped: GalleryBuild[] = data
         .filter((row) => row.image_url)
         .map((row) => {
           const styleRaw = String(row.fitment_style || "").toLowerCase();
@@ -99,8 +99,8 @@ export default function GalleryPage() {
           return {
             label: `${rowModel} ${String(row.trim || "")}`.trim(),
             imageUrl: String(row.image_url || ""),
-            imageStatus: "verified" as const,
-            sourceType: "community" as const,
+            imageStatus: "verified",
+            sourceType: "community",
             sourceName: row.instagram_handle
               ? `@${String(row.instagram_handle).replace(/^@/, "")}`
               : "Offset Lab Community",
@@ -137,23 +137,35 @@ export default function GalleryPage() {
     };
   }, [safeModel]);
 
-  const referenceBuilds = useMemo(() => {
+  const referenceBuilds = useMemo<GalleryBuild[]>(() => {
     const modelBuilds = galleryExamples[safeModel];
 
     if (!modelBuilds) return [];
 
     return (Object.keys(modelBuilds) as StyleKey[]).flatMap((style) =>
       modelBuilds[style]
-        .filter((build) => build.imageStatus === "verified" && build.imageUrl)
-        .map((build) => ({
-          ...build,
+        .filter((build) => build.imageStatus === "verified" && Boolean(build.imageUrl))
+        .map((build): GalleryBuild => ({
+          label: build.label,
+          imageUrl: build.imageUrl,
+          imageStatus: "verified",
+          sourceType: build.sourceType ?? "community",
+          sourceName: build.sourceName,
+          sourceUrl: build.sourceUrl,
+          wheel: build.wheel,
+          tire: build.tire,
+          suspension: build.suspension,
+          note: build.note,
+          verificationNote: build.verificationNote,
+          tags: build.tags,
+          match: build.match,
           model: safeModel,
           style,
         }))
     );
   }, [safeModel]);
 
-  const builds = useMemo(() => {
+  const builds = useMemo<GalleryBuild[]>(() => {
     return [...submittedBuilds, ...referenceBuilds];
   }, [submittedBuilds, referenceBuilds]);
 
