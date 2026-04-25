@@ -391,11 +391,21 @@ export default function FitmentPage() {
         }
 
         const normalize = (value: string) => value.toLowerCase().replace(/\s+/g, "").replace("oem+", "oemplus");
-        const normalizedStyle = normalize(style);
-        const filtered = data.filter((row) => {
-          const rowStyle = normalize(String(row.fitment_style || ""));
-          return rowStyle === normalizedStyle;
-        });
+        const expectedStyle =
+  goal === "track"
+    ? configuration === "square"
+      ? `${style} track square`
+      : `${style} track staggered`
+    : configuration === "square"
+      ? `${style} square`
+      : style;
+
+const normalizedStyle = normalize(expectedStyle);
+
+const filtered = data.filter((row) => {
+  const rowStyle = normalize(String(row.fitment_style || ""));
+  return rowStyle === normalizedStyle;
+});
 
         const mapped = filtered
           .filter((row) => row && row.image_url)
