@@ -2,15 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "../components/GalleryCard";
+import TrustStrip from "../components/TrustStrip";
+import SubmitBuildModal from "../components/SubmitBuildModal";
 import { supabase } from "../lib/supabase";
 import { galleryExamples } from "../data/gallery";
 import {
   getDefaultModelForMake,
   getModelsForMake,
+  getTrimData,
   getTrims,
   makes,
   MakeKey,
   ModelKey,
+  modelSlug,
   normalizeMake,
   normalizeModel,
   normalizeStyle,
@@ -26,7 +30,8 @@ export default function FitmentPage() {
   const [trim, setTrim] = useState("");
   const [style, setStyle] = useState<StyleKey>("aggressive");
   const [goal, setGoal] = useState<DrivingGoalKey>("street");
-  const [configuration, setConfiguration] = useState<ConfigurationKey>("staggered");
+  const [configuration, setConfiguration] =
+    useState<ConfigurationKey>("staggered");
   const [approvedBuilds, setApprovedBuilds] = useState<any[]>([]);
 
   useEffect(() => {
@@ -43,8 +48,12 @@ export default function FitmentPage() {
 
   const trims = useMemo(() => getTrims(safeModel), [safeModel]);
   const safeTrim = trims.includes(trim) ? trim : trims[0];
+  const trimData = useMemo(
+    () => getTrimData(safeModel, safeTrim),
+    [safeModel, safeTrim]
+  );
 
-  // 🔥 Load Supabase builds (exact match)
+  // 🔥 LOAD SUPABASE BUILDS
   useEffect(() => {
     async function loadApprovedBuilds() {
       const { data } = await supabase
@@ -94,7 +103,7 @@ export default function FitmentPage() {
     loadApprovedBuilds();
   }, [safeModel, safeTrim, style, goal, configuration]);
 
-  // 🔥 SOURCE PRIORITY
+  // 🔥 FIXED IMAGE LOGIC
   const sourceRank: Record<string, number> = {
     official: 1,
     wheelBrand: 2,
@@ -104,7 +113,6 @@ export default function FitmentPage() {
   const configurationTag =
     configuration === "square" ? "Square" : "Staggered";
 
-  // 🔥 FIXED: FILTER REFERENCE BUILDS CORRECTLY
   const referenceBuilds = (galleryExamples[safeModel]?.[style] ?? []).filter(
     (build) => {
       const matchesModel =
@@ -119,13 +127,7 @@ export default function FitmentPage() {
     }
   );
 
-  // 🔥 FILTER COMMUNITY BUILDS
-  const communityBuilds = approvedBuilds.filter((build) => {
-    return (
-      build.tags?.includes(safeModel) ||
-      build.label.toLowerCase().includes(safeModel.toLowerCase())
-    );
-  });
+  const communityBuilds = approvedBuilds;
 
   const rawBuilds = [...referenceBuilds, ...communityBuilds];
 
@@ -136,17 +138,61 @@ export default function FitmentPage() {
   );
 
   return (
-    <main className="p-6">
-      <div className="grid gap-6">
-        {builds.length > 0 ? (
-          builds.map((build) => (
-            <GalleryCard key={build.label} build={build} />
-          ))
-        ) : (
-          <div className="text-center text-white/50">
-            No verified build yet for this setup.
-          </div>
-        )}
+    <main className="min-h-screen bg-black text-white p-6">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-4">
+          <select
+            value={make}
+            onChange={(e) => setMake(e.target.value as MakeKey)}
+          >
+            {makes.map((m) => (
+              <option key={m.label}>{m.label}</option>
+            ))}
+          </select>
+
+          <select
+            value={safeModel}
+            onChange={(e) => setModel(e.target.value as ModelKey)}
+          >
+            {availableModels.map((m) => (
+              <option key={m}>{m}</option>
+            ))}
+          </select>
+
+          <select value={safeTrim} onChange={(e) => setTrim(e.target.value)}>
+            {trims.map((t) => (
+              <option key={t}>{t}</option>
+            ))}
+          </select>
+
+          <select value={style} onChange={(e) => setStyle(e.target.value as StyleKey)}>
+            <option value="oemplus">OEM+</option>
+            <option value="flush">Flush</option>
+            <option value="aggressive">Aggressive</option>
+          </select>
+
+          <select
+            value={configuration}
+            onChange={(e) =>
+              setConfiguration(e.target.value as ConfigurationKey)
+            }
+          >
+            <option value="staggered">Staggered</option>
+            <option value="square">Square</option>
+          </select>
+        </div>
+
+        <div className="lg:col-span-2 grid gap-6">
+          {builds.length > 0 ? (
+            builds.map((build) => (
+              <GalleryCard key={build.label} build={build} />
+            ))
+          ) : (
+            <div className="text-center text-white/50">
+              No verified build yet for this setup.
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
