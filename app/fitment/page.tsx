@@ -364,7 +364,22 @@ export default function FitmentPage() {
     };
   }, [configuration, current, safeModel, style, goal, make]);
 
-  const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[safeModel]?.[style] ?? [];
+  const sourceRank: Record<string, number> = {
+    official: 1,
+    wheelBrand: 2,
+    community: 3,
+  };
+
+  const rawBuilds =
+    approvedBuilds.length > 0
+      ? approvedBuilds
+      : galleryExamples[safeModel]?.[style] ?? [];
+
+  const builds = [...rawBuilds].sort(
+    (a, b) =>
+      (sourceRank[a.sourceType || "community"] ?? 99) -
+      (sourceRank[b.sourceType || "community"] ?? 99)
+  );
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -427,6 +442,7 @@ export default function FitmentPage() {
             label: `${String(row.model || "")} ${String(row.trim || "")}`.trim(),
             imageUrl: String(row.image_url || ""),
             imageStatus: "verified" as const,
+            sourceType: "community" as const,
             sourceName: row.instagram_handle ? `@${String(row.instagram_handle).replace(/^@/, "")}` : "Offset Lab Community",
             sourceUrl: row.instagram_handle ? `https://instagram.com/${String(row.instagram_handle).replace(/^@/, "")}` : "#",
             wheel: `${String(row.front_wheel || "")}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${String(row.rear_wheel)}` : ""}`,
@@ -618,7 +634,13 @@ export default function FitmentPage() {
             </div>
 
             <div className="grid gap-6">
-              {builds.map((build) => <GalleryCard key={build.label} build={build} />)}
+              {builds.length > 0 ? (
+                builds.map((build) => <GalleryCard key={build.label} build={build} />)
+              ) : (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/50">
+                  No verified build yet for this exact setup.
+                </div>
+              )}
             </div>
 
             <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
