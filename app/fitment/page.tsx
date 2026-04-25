@@ -288,13 +288,13 @@ function getGoalMessage(make: MakeKey) {
 function scoreColor(score: number) {
   if (score >= 8) return "text-red-400";
   if (score >= 6) return "text-yellow-300";
-  return "text-emerald-400";
+  return "text-red-500";
 }
 
 function riskPill(risk: string) {
   if (risk.toLowerCase().includes("moderate")) return "bg-yellow-500/15 text-yellow-300 border-yellow-500/30";
   if (risk.toLowerCase().includes("high")) return "bg-red-500/15 text-red-300 border-red-500/30";
-  return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
+  return "bg-red-600/15 text-red-400 border-red-600/30";
 }
 
 export default function FitmentPage() {
@@ -516,9 +516,9 @@ export default function FitmentPage() {
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-emerald-300/70">Offset Lab Gallery</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-red-400/70">Offset Lab Gallery</p>
           <h1 className="mt-2 text-3xl font-bold md:text-5xl">
-            {safeModel} {safeTrim} <span className="text-emerald-400">| {displayedFitment.title}</span>
+            {safeModel} {safeTrim} <span className="text-red-500">| {displayedFitment.title}</span>
           </h1>
           <p className="mt-3 text-white/55">
             Real-world visual references paired with specs, scores, and fitment notes.
@@ -548,7 +548,7 @@ export default function FitmentPage() {
         !item.active
           ? "border-white/10 bg-white/[0.02] text-white/45"
           : isSelected
-            ? "border-emerald-400/60 bg-emerald-400/15 text-white"
+            ? "border-red-500/60 bg-red-500/15 text-white"
             : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
       }`}
     >
@@ -603,7 +603,7 @@ export default function FitmentPage() {
                   <button
                     key={key}
                     onClick={() => setStyle(key)}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${style === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
+                    className={`w-full rounded-2xl border p-4 text-left transition ${style === key ? "border-red-500/60 bg-red-500/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
                   >
                     <p className="font-semibold">{label}</p>
                     <p className="mt-1 text-sm text-white/45">{sub}</p>
@@ -624,14 +624,14 @@ export default function FitmentPage() {
                       setGoal(key);
                       setConfiguration(getRecommendedConfiguration(safeModel, key));
                     }}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${goal === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
+                    className={`w-full rounded-2xl border p-4 text-left transition ${goal === key ? "border-red-500/60 bg-red-500/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
                   >
                     <p className="font-semibold">{label}</p>
                     <p className="mt-1 text-sm text-white/45">{sub}</p>
                   </button>
                 ))}
               </div>
-              {goal === "track" ? <p className="mt-4 text-sm text-emerald-200/80">{getGoalMessage(make)}</p> : null}
+              {goal === "track" ? <p className="mt-4 text-sm text-red-300/80">{getGoalMessage(make)}</p> : null}
             </Panel>
 
             <Panel title="5. Configuration">
@@ -643,7 +643,7 @@ export default function FitmentPage() {
                   <button
                     key={key}
                     onClick={() => setConfiguration(key)}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${configuration === key ? "border-emerald-400/60 bg-emerald-400/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
+                    className={`w-full rounded-2xl border p-4 text-left transition ${configuration === key ? "border-red-500/60 bg-red-500/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
                   >
                     <p className="font-semibold">{label}</p>
                     <p className="mt-1 text-sm text-white/45">{sub}</p>
@@ -660,7 +660,7 @@ export default function FitmentPage() {
               <button onClick={copyLink} className="mt-5 w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold hover:bg-white/5">
                 {copied ? "Link Copied" : "Copy Link"}
               </button>
-              <button onClick={shareBuild} className="mt-3 w-full rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-bold text-black hover:bg-emerald-300">
+              <button onClick={shareBuild} className="mt-3 w-full rounded-2xl bg-red-500 px-4 py-3 text-sm font-bold text-black hover:bg-red-400">
                 Share Build
               </button>
             </Panel>
@@ -712,7 +712,7 @@ export default function FitmentPage() {
                   <p className="text-xl font-bold">Have a setup like this?</p>
                   <p className="mt-2 text-sm text-white/55">Share your build with the community and get featured.</p>
                 </div>
-                <button onClick={() => setSubmitOpen(true)} className="rounded-2xl border border-emerald-400/40 px-5 py-3 text-center font-semibold text-emerald-300 hover:bg-emerald-400/10">
+                <button onClick={() => setSubmitOpen(true)} className="rounded-2xl border border-red-500/40 px-5 py-3 text-center font-semibold text-red-400 hover:bg-red-500/10">
                   Submit Your Build
                 </button>
               </div>
