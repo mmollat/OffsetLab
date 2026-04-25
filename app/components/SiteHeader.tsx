@@ -6,14 +6,14 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/85 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
         <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/logos/offset-lab-secondary-logo.png"
-            alt="Offset Lab"
-            width={220}
-            height={52}
-            priority
-            className="h-8 w-auto md:h-10"
-          />
+<Image
+  src="/logos/offsetlab-primary.svg"
+  alt="Offset Lab"
+  width={220}
+  height={52}
+  priority
+  className="h-8 w-auto md:h-10"
+/>
         </Link>
 
         <nav className="flex items-center gap-2 md:gap-3">
