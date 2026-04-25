@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { galleryExamples } from "../data/gallery";
 import { supabase } from "../lib/supabase";
 import {
+  getDefaultModelForMake,
   getModelsForMake,
   makes,
   MakeKey,
@@ -37,21 +38,25 @@ type GalleryBuild = {
 
 export default function GalleryPage() {
   const [make, setMake] = useState<MakeKey>("Tesla");
+  const [model, setModel] = useState<ModelKey>("Model 3");
   const [submittedBuilds, setSubmittedBuilds] = useState<GalleryBuild[]>([]);
+
+  const availableModels = useMemo(() => getModelsForMake(make), [make]);
+  const safeModel = availableModels.includes(model)
+    ? model
+    : getDefaultModelForMake(make);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadSubmittedBuilds() {
-      const models = getModelsForMake(make);
-
       const { data, error } = await supabase
         .from("build_submissions")
         .select(
           "id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle"
         )
         .eq("status", "approved")
-        .in("model", models);
+        .eq("model", safeModel);
 
       if (cancelled) return;
 
@@ -71,10 +76,10 @@ export default function GalleryPage() {
               ? "flush"
               : "aggressive";
 
-          const model = String(row.model || "");
+          const rowModel = String(row.model || safeModel);
 
           return {
-            label: `${model} ${String(row.trim || "")}`.trim(),
+            label: `${rowModel} ${String(row.trim || "")}`.trim(),
             imageUrl: String(row.image_url || ""),
             imageStatus: "verified" as const,
             sourceType: "community" as const,
@@ -97,9 +102,9 @@ export default function GalleryPage() {
             suspension: "User submitted build",
             note: String(row.notes || "Approved community build"),
             verificationNote: "Approved community-submitted build.",
-            tags: [model, String(row.trim || ""), "Community"],
+            tags: [rowModel, String(row.trim || ""), "Community"],
             match: "Verified Community Build",
-            model,
+            model: rowModel,
             style,
           };
         });
@@ -112,27 +117,23 @@ export default function GalleryPage() {
     return () => {
       cancelled = true;
     };
-  }, [make]);
+  }, [safeModel]);
 
   const referenceBuilds = useMemo(() => {
-    const models = getModelsForMake(make);
+    const modelBuilds = galleryExamples[safeModel];
 
-    return models.flatMap((model) => {
-      const modelBuilds = galleryExamples[model as ModelKey];
+    if (!modelBuilds) return [];
 
-      if (!modelBuilds) return [];
-
-      return (Object.keys(modelBuilds) as StyleKey[]).flatMap((style) =>
-        modelBuilds[style]
-          .filter((build) => build.imageStatus === "verified" && build.imageUrl)
-          .map((build) => ({
-            ...build,
-            model,
-            style,
-          }))
-      );
-    });
-  }, [make]);
+    return (Object.keys(modelBuilds) as StyleKey[]).flatMap((style) =>
+      modelBuilds[style]
+        .filter((build) => build.imageStatus === "verified" && build.imageUrl)
+        .map((build) => ({
+          ...build,
+          model: safeModel,
+          style,
+        }))
+    );
+  }, [safeModel]);
 
   const builds = useMemo(() => {
     return [...submittedBuilds, ...referenceBuilds];
@@ -148,7 +149,7 @@ export default function GalleryPage() {
         <h1 className="mt-2 text-3xl font-bold md:text-4xl">Gallery</h1>
 
         <p className="mt-3 max-w-2xl text-white/50">
-          Browse verified reference builds and approved community submissions by make.
+          Browse verified reference builds and approved community submissions by vehicle.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
@@ -157,7 +158,10 @@ export default function GalleryPage() {
             .map((item) => (
               <button
                 key={item.label}
-                onClick={() => setMake(item.label)}
+                onClick={() => {
+                  setMake(item.label);
+                  setModel(getDefaultModelForMake(item.label));
+                }}
                 className={`rounded-2xl border px-5 py-3 font-semibold transition ${
                   make === item.label
                     ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-200"
@@ -169,9 +173,25 @@ export default function GalleryPage() {
             ))}
         </div>
 
+        <div className="mt-5 flex flex-wrap gap-3">
+          {availableModels.map((item) => (
+            <button
+              key={item}
+              onClick={() => setModel(item)}
+              className={`rounded-2xl border px-5 py-3 text-sm font-semibold transition ${
+                safeModel === item
+                  ? "border-white/40 bg-white/10 text-white"
+                  : "border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25"
+              }`}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
         {builds.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-white/55">
-            No verified gallery images yet for {make}.
+            No verified gallery images yet for {safeModel}.
           </div>
         ) : (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -201,10 +221,12 @@ export default function GalleryPage() {
 
                   <div className="mt-4 space-y-2 text-sm text-white/60">
                     <p>
-                      <span className="text-white/35">Wheel:</span> {build.wheel}
+                      <span className="text-white/35">Wheel:</span>{" "}
+                      {build.wheel}
                     </p>
                     <p>
-                      <span className="text-white/35">Tire:</span> {build.tire}
+                      <span className="text-white/35">Tire:</span>{" "}
+                      {build.tire}
                     </p>
                     <p>
                       <span className="text-white/35">Source:</span>{" "}
