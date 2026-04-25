@@ -97,3 +97,76 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
 
   // everything else stays exactly the same (M3, M4, GR86, etc)
 };
+export const makeModelOptions: Record<MakeKey, ModelKey[]> = {
+  Tesla: ["Model 3", "Model Y", "Model S", "Model X"],
+  BMW: ["M3", "M4"],
+  Toyota: ["GR86"],
+  Porsche: [],
+};
+
+export const modelOptions = Object.keys(fitmentData) as ModelKey[];
+
+export function getModelsForMake(make: MakeKey): ModelKey[] {
+  return makeModelOptions[make] ?? [];
+}
+
+export function getDefaultModelForMake(make: MakeKey): ModelKey {
+  return getModelsForMake(make)[0] ?? "Model 3";
+}
+
+export function getTrims(model: ModelKey): string[] {
+  return fitmentData[model].map((entry) => entry.trim);
+}
+
+export function getTrimData(model: ModelKey, trim: string): TrimData {
+  return (
+    fitmentData[model].find((entry) => entry.trim === trim) ??
+    fitmentData[model][0]
+  );
+}
+
+export function modelSlug(model: ModelKey): string {
+  return model.toLowerCase().replace(/\s+/g, "-");
+}
+
+export function normalizeModel(
+  value: string | null,
+  make: MakeKey = "Tesla"
+): ModelKey {
+  const input = (value || "").toLowerCase().replace(/[-_]/g, " ").trim();
+
+  if (make === "Toyota") return "GR86";
+
+  if (make === "BMW") {
+    if (input === "m4") return "M4";
+    return "M3";
+  }
+
+  if (input === "model y" || input === "modely") return "Model Y";
+  if (input === "model s" || input === "models") return "Model S";
+  if (input === "model x" || input === "modelx") return "Model X";
+
+  return "Model 3";
+}
+
+export function normalizeStyle(value: string | null): StyleKey {
+  const input = (value || "").toLowerCase().trim();
+  if (input === "oemplus" || input === "oem+") return "oemplus";
+  if (input === "flush") return "flush";
+  return "aggressive";
+}
+
+export function normalizeMake(value: string | null): MakeKey {
+  const input = (value || "").toLowerCase().trim();
+  if (input === "bmw") return "BMW";
+  if (input === "toyota") return "Toyota";
+  if (input === "porsche") return "Porsche";
+  return "Tesla";
+}
+
+export const makes: { label: MakeKey; active: boolean }[] = [
+  { label: "Tesla", active: true },
+  { label: "BMW", active: true },
+  { label: "Toyota", active: true },
+  { label: "Porsche", active: false },
+];
