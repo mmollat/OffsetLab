@@ -63,129 +63,144 @@ export default function CompareFitmentVisual({
 
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-      <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+      <div className="mb-4 flex justify-between items-end">
         <div>
           <p className="text-sm uppercase tracking-[0.25em] text-white/40">
             Fitment Cross-Section
           </p>
           <h2 className="text-xl font-bold">OEM vs Selected</h2>
         </div>
-        {selectedLabel ? <span className="text-sm text-white/50">{selectedLabel}</span> : null}
+        {selectedLabel && (
+          <span className="text-sm text-white/50">{selectedLabel}</span>
+        )}
       </div>
 
       <div className="rounded-3xl border border-white/10 bg-black/60 p-6">
         <svg viewBox="0 0 1000 520" className="h-[360px] w-full">
-          <defs>
-            <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
-            </marker>
-            <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316" />
-            </marker>
-          </defs>
 
-          <text x="120" y="70" fill="rgba(255,255,255,0.45)" fontSize="14" letterSpacing="3">
-            INSIDE / SUSPENSION
-          </text>
-          <text x="880" y="70" textAnchor="end" fill="rgba(255,255,255,0.45)" fontSize="14" letterSpacing="3">
-            OUTSIDE / FENDER
-          </text>
+          {/* CENTER HUB */}
+          <rect x={centerX - 28} y="180" width="56" height="160" rx="6" fill="#666" />
+          <rect x={centerX - 60} y="220" width="120" height="80" rx="8" fill="#888" />
 
+          {/* CENTER LINE */}
           <line
             x1={centerX}
-            y1="72"
+            y1="60"
             x2={centerX}
-            y2="455"
-            stroke="rgba(255,255,255,0.3)"
+            y2="460"
+            stroke="rgba(255,255,255,0.2)"
             strokeDasharray="6 6"
           />
 
-          <rect x={centerX - 30} y="180" width="60" height="160" rx="6" fill="#666" />
-          <rect x={centerX - 60} y="220" width="120" height="80" rx="8" fill="#888" />
-
-          {/* OEM tire outline */}
+          {/* OEM (orange ghost) */}
           <rect
-            x={oemLeft - 18}
-            y="88"
-            width={oemRight - oemLeft + 36}
-            height="344"
-            rx="46"
-            fill="rgba(249,115,22,0.025)"
+            x={oemLeft - 16}
+            y="90"
+            width={oemRight - oemLeft + 32}
+            height="340"
+            rx="40"
+            fill="rgba(249,115,22,0.04)"
             stroke="#f97316"
-            strokeWidth="3"
-            strokeDasharray="8 6"
+            strokeWidth="2"
+            strokeDasharray="6 6"
           />
 
-          {/* OEM wheel outline */}
           <rect
             x={oemLeft}
-            y="125"
+            y="120"
             width={oemRight - oemLeft}
-            height="270"
-            rx="20"
+            height="280"
+            rx="18"
             fill="none"
             stroke="#f97316"
-            strokeWidth="3"
-            strokeDasharray="8 6"
+            strokeWidth="2"
+            strokeDasharray="6 6"
           />
 
-          {/* Selected tire shape */}
+          {/* SELECTED (main visual) */}
           <rect
-            x={selectedLeft - 24}
-            y="78"
-            width={selectedRight - selectedLeft + 48}
-            height="364"
-            rx="54"
-            fill="rgba(59,130,246,0.08)"
-            stroke="#3b82f6"
-            strokeWidth="5"
-          />
-
-          {/* Selected wheel barrel */}
-          <rect
-            x={selectedLeft}
-            y="105"
-            width={selectedRight - selectedLeft}
-            height="310"
-            rx="24"
-            fill="rgba(59,130,246,0.04)"
+            x={selectedLeft - 22}
+            y="80"
+            width={selectedRight - selectedLeft + 44}
+            height="360"
+            rx="50"
+            fill="rgba(59,130,246,0.10)"
             stroke="#3b82f6"
             strokeWidth="4"
           />
 
-          {/* Simple barrel depth lines */}
-          <path
-            d={`M ${selectedLeft + 26} 140 L ${selectedLeft + 58} 190 L ${selectedLeft + 58} 330 L ${selectedLeft + 26} 380`}
-            fill="none"
+          <rect
+            x={selectedLeft}
+            y="110"
+            width={selectedRight - selectedLeft}
+            height="300"
+            rx="22"
+            fill="rgba(59,130,246,0.05)"
             stroke="#3b82f6"
             strokeWidth="3"
           />
 
-          <path
-            d={`M ${selectedRight - 26} 140 L ${selectedRight - 58} 190 L ${selectedRight - 58} 330 L ${selectedRight - 26} 380`}
-            fill="none"
+          {/* DEPTH / BARREL LINES */}
+          <line
+            x1={selectedLeft + 30}
+            y1="140"
+            x2={selectedLeft + 60}
+            y2="190"
+            stroke="#3b82f6"
+            strokeWidth="2"
+          />
+          <line
+            x1={selectedRight - 30}
+            y1="140"
+            x2={selectedRight - 60}
+            y2="190"
+            stroke="#3b82f6"
+            strokeWidth="2"
+          />
+
+          {/* INNER CHANGE */}
+          <line
+            x1={oemLeft}
+            y1="450"
+            x2={selectedLeft}
+            y2="450"
+            stroke="#f97316"
+            strokeWidth="3"
+          />
+
+          {/* OUTER POKE */}
+          <line
+            x1={oemRight}
+            y1="450"
+            x2={selectedRight}
+            y2="450"
             stroke="#3b82f6"
             strokeWidth="3"
           />
 
-          <line x1={oemLeft} y1="445" x2={selectedLeft} y2="445" stroke="#f97316" strokeWidth="3" markerEnd="url(#arrowOrange)" />
-          <line x1={oemRight} y1="445" x2={selectedRight} y2="445" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowBlue)" />
-
-          <text x="120" y="205" fill="#f97316" fontSize="14" letterSpacing="2">
-            INNER CHANGE
+          {/* TEXT */}
+          <text x="120" y="210" fill="#f97316" fontSize="13">
+            INNER
           </text>
-          <text x="120" y="238" fill="#fff" fontSize="30" fontWeight="bold">
+          <text x="120" y="240" fill="#fff" fontSize="26" fontWeight="bold">
             {formatMm(innerChange)}
           </text>
 
-          <text x="720" y="205" fill="#3b82f6" fontSize="14" letterSpacing="2">
-            OUTER POKE
+          <text x="760" y="210" fill="#3b82f6" fontSize="13">
+            OUTER
           </text>
-          <text x="720" y="238" fill="#fff" fontSize="30" fontWeight="bold">
+          <text x="760" y="240" fill="#fff" fontSize="26" fontWeight="bold">
             {formatMm(outerChange)}
           </text>
 
-          <text x="500" y="492" textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize="14" letterSpacing="4">
+          <text
+            x="500"
+            y="490"
+            textAnchor="middle"
+            fill="rgba(255,255,255,0.45)"
+            fontSize="12"
+            letterSpacing="3"
+          >
             OEM = ORANGE · SELECTED = BLUE
           </text>
         </svg>
