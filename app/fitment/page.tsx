@@ -335,6 +335,7 @@ export default function FitmentPage() {
   const safeTrim = trims.includes(trim) ? trim : trims[0];
   const trimData = useMemo(() => getTrimData(safeModel, safeTrim), [safeModel, safeTrim]);
   const current = trimData.presets[style];
+
   const displayedFitment = useMemo(() => {
     if (configuration !== "square") return current;
 
@@ -362,6 +363,7 @@ export default function FitmentPage() {
       alternate: current.alternate,
     };
   }, [configuration, current, safeModel, style, goal, make]);
+
   const builds = approvedBuilds.length > 0 ? approvedBuilds : galleryExamples[safeModel]?.[style] ?? [];
 
   useEffect(() => {
@@ -376,8 +378,30 @@ export default function FitmentPage() {
   }, [make, safeModel, safeTrim, style, goal, configuration]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadApprovedBuilds() {
+      setApprovedBuilds([]);
+
       try {
+        const normalize = (value: string) =>
+          value
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, " ")
+            .replace("oem+", "oemplus");
+
+        const expectedStyle =
+          goal === "track"
+            ? configuration === "square"
+              ? `${style} track square`
+              : `${style} track staggered`
+            : configuration === "square"
+              ? `${style} square`
+              : style;
+
+        const normalizedStyle = normalize(expectedStyle);
+
         const { data, error } = await supabase
           .from("build_submissions")
           .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
@@ -385,27 +409,17 @@ export default function FitmentPage() {
           .eq("model", safeModel)
           .eq("trim", safeTrim);
 
+        if (cancelled) return;
+
         if (error || !data) {
           setApprovedBuilds([]);
           return;
         }
 
-        const normalize = (value: string) => value.toLowerCase().replace(/\s+/g, "").replace("oem+", "oemplus");
-        const expectedStyle =
-  goal === "track"
-    ? configuration === "square"
-      ? `${style} track square`
-      : `${style} track staggered`
-    : configuration === "square"
-      ? `${style} square`
-      : style;
-
-const normalizedStyle = normalize(expectedStyle);
-
-const filtered = data.filter((row) => {
-  const rowStyle = normalize(String(row.fitment_style || ""));
-  return rowStyle === normalizedStyle;
-});
+        const filtered = data.filter((row) => {
+          const rowStyle = normalize(String(row.fitment_style || ""));
+          return rowStyle === normalizedStyle;
+        });
 
         const mapped = filtered
           .filter((row) => row && row.image_url)
@@ -419,19 +433,25 @@ const filtered = data.filter((row) => {
             tire: `${String(row.front_tire || "")}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${String(row.rear_tire)}` : ""}`,
             suspension: "User submitted build",
             note: String(row.notes || "Approved community build"),
-            verificationNote: "Approved community-submitted build matched to this model and style.",
-            tags: [String(row.model || safeModel), String(style), "Community"],
+            verificationNote: "Approved community-submitted build matched to this exact model, trim, style, goal, and configuration.",
+            tags: [String(row.model || safeModel), String(expectedStyle), "Community"],
             match: "Verified Spec Match" as const,
           }));
 
         setApprovedBuilds(mapped);
       } catch (err) {
-        console.error("Approved build load failed:", err);
-        setApprovedBuilds([]);
+        if (!cancelled) {
+          console.error("Approved build load failed:", err);
+          setApprovedBuilds([]);
+        }
       }
     }
 
     loadApprovedBuilds();
+
+    return () => {
+      cancelled = true;
+    };
   }, [safeModel, safeTrim, style, goal, configuration]);
 
   async function copyLink() {
@@ -624,13 +644,14 @@ const filtered = data.filter((row) => {
           make,
           model: safeModel,
           trim: safeTrim,
-          fitmentStyle: goal === "track"
-            ? configuration === "square"
-              ? `${style} track square`
-              : `${style} track staggered`
-            : configuration === "square"
-              ? `${style} square`
-              : style,
+          fitmentStyle:
+            goal === "track"
+              ? configuration === "square"
+                ? `${style} track square`
+                : `${style} track staggered`
+              : configuration === "square"
+                ? `${style} square`
+                : style,
           frontWheel: displayedFitment.front,
           rearWheel: displayedFitment.rear,
           frontTire: displayedFitment.frontTire,
