@@ -432,7 +432,7 @@ const filtered = data.filter((row) => {
     }
 
     loadApprovedBuilds();
-  }, [safeModel, safeTrim, style]);
+  }, [safeModel, safeTrim, style, goal, configuration]);
 
   async function copyLink() {
     await navigator.clipboard.writeText(window.location.href);
