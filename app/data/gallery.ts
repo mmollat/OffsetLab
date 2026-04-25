@@ -38,7 +38,7 @@ function pending(
     suspension: "Use fitment notes",
     note,
     verificationNote:
-      "Photo hidden until a source image with matching specs is verified. This prevents showing an incorrect visual reference.",
+      "Photo hidden until a source image with matching specs is verified.",
     tags,
     match: "Pending Verified Photo",
   };
@@ -46,80 +46,85 @@ function pending(
 
 export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>> = {
   "Model 3": {
-    oemplus: [pending("Model 3 OEM+ Verified Photo Pending", "19x8.5 +35", "245/40R19", "OEM+ Model 3 should use a square, conservative setup only. No wide rear or deep concave staggered photos.", ["Model 3", "OEM+", "Square", "Strict Match"])],
-    flush: [pending("Model 3 Flush Verified Photo Pending", "19x9.5 +30", "265/35R19", "Flush Model 3 should show a filled-out square setup without extreme poke.", ["Model 3", "Flush", "Square", "Strict Match"])],
-    aggressive: [{
-      label: "Model 3 Aggressive Reference",
-      imageUrl: "https://teslamotorsclub.com/tmc/attachments/img_7357-jpg.837123/",
-      imageStatus: "verified",
-      sourceType: "community",
-      sourceName: "Tesla Motors Club",
-      sourceUrl: "https://teslamotorsclub.com",
-      wheel: "20x9 +25 / 20x10.5 +38",
-      tire: "245/35R20 / 285/30R20",
-      suspension: "Coilovers",
-      note: "Aggressive Model 3 stance with wide rear fitment.",
-      verificationNote: "Reference image used for aggressive Model 3 staggered fitment.",
-      tags: ["Model 3", "Aggressive", "Staggered", "Wide Rear"],
-      match: "Verified Spec Match",
-    }],
+    oemplus: [pending("Model 3 OEM+ Verified Photo Pending", "19x8.5 +35", "245/40R19", "", ["Model 3"])],
+    flush: [pending("Model 3 Flush Verified Photo Pending", "19x9.5 +30", "265/35R19", "", ["Model 3"])],
+    aggressive: [pending("Model 3 Aggressive Pending", "20x9 +25 / 20x10.5 +38", "245/35R20 / 285/30R20", "", ["Model 3"])],
   },
 
   "Model Y": {
-    oemplus: [pending("Model Y OEM+ Verified Photo Pending", "20x9.5 +40", "255/40R20", "OEM+ Model Y should stay subtle and daily-friendly.", ["Model Y", "OEM+", "Strict Match"])],
-    flush: [pending("Model Y Flush Verified Photo Pending", "20x10 +35", "275/40R20", "Flush Model Y should show a filled-out stance without looking overbuilt.", ["Model Y", "Flush", "Strict Match"])],
-    aggressive: [pending("Model Y Aggressive Verified Photo Pending", "21x9.5 +30 / 21x10.5 +38", "275/35R21 / 295/35R21", "Aggressive Model Y should show stronger SUV presence and wider fitment.", ["Model Y", "Aggressive", "Strict Match"])],
+    oemplus: [pending("Model Y OEM+ Pending", "20x9.5 +40", "255/40R20", "", ["Model Y"])],
+    flush: [pending("Model Y Flush Pending", "20x10 +35", "275/40R20", "", ["Model Y"])],
+    aggressive: [pending("Model Y Aggressive Pending", "21x9.5 +30", "275/35R21", "", ["Model Y"])],
   },
 
   "Model S": {
-    oemplus: [pending("Model S OEM+ Verified Photo Pending", "21x9.5 +38 / 21x10.5 +42", "265/35R21 / 295/30R21", "OEM+ Model S Plaid should show a tight but not extreme stance.", ["Model S", "OEM+", "Plaid", "Strict Match"])],
-    flush: [pending("Model S Flush Verified Photo Pending", "21x9.5 +35 / 21x10.5 +40", "275/35R21 / 295/30R21", "Flush Model S should show a clean filled-out stance without wide 305+ rear exaggeration.", ["Model S", "Flush", "Plaid", "Strict Match"])],
-    aggressive: [{
-      label: "Model S Plaid Aggressive",
-      imageUrl: verifiedModelSPlaidAggressive,
-      imageStatus: "verified",
-      sourceType: "wheelBrand",
-      sourceName: "Strasse Wheels",
-      sourceUrl: "https://strassewheels.com/case/tesla-model-s-plaid/",
-      wheel: "21x10 +30 / 21x11 +38",
-      tire: "275/35R21 / 305/30R21",
-      suspension: "Street stance",
-      note: "Strict aggressive Plaid reference. Wide staggered stance with strong rear presence.",
-      verificationNote: "Used only for the aggressive Model S category because the visual stance and wheel sizing are aligned with the recommended wide staggered setup.",
-      tags: ["Model S", "Plaid", "Aggressive", "Wide Rear"],
-      match: "Verified Spec Match",
-    }],
+    oemplus: [pending("Model S OEM+ Pending", "", "", "", ["Model S"])],
+    flush: [pending("Model S Flush Pending", "", "", "", ["Model S"])],
+    aggressive: [
+      {
+        label: "Model S Plaid Aggressive",
+        imageUrl: verifiedModelSPlaidAggressive,
+        imageStatus: "verified",
+        sourceType: "wheelBrand",
+        sourceName: "Strasse Wheels",
+        sourceUrl: "https://strassewheels.com",
+        wheel: "21x10 +30 / 21x11 +38",
+        tire: "275/35R21 / 305/30R21",
+        suspension: "Street",
+        note: "Aggressive Plaid stance.",
+        verificationNote: "Verified aggressive Model S reference.",
+        tags: ["Model S", "Aggressive"],
+        match: "Verified Spec Match",
+      },
+    ],
   },
 
   "Model X": {
-    oemplus: [pending("Model X OEM+ Verified Photo Pending", "22x9.5 +33 / 22x10.5 +38", "265/35R22 / 295/35R22", "OEM+ Model X should show a clean premium SUV stance.", ["Model X", "OEM+", "Strict Match"])],
-    flush: [pending("Model X Flush Verified Photo Pending", "22x10 +30 / 22x11 +35", "275/35R22 / 305/30R22", "Flush Model X should look planted without going oversized/show-only.", ["Model X", "Flush", "Strict Match"])],
-    aggressive: [pending("Model X Aggressive Verified Photo Pending", "22x10.5 +28 / 22x11.5 +30", "285/35R22 / 315/30R22", "Aggressive Model X needs a verified wide SUV photo before display.", ["Model X", "Aggressive", "Strict Match"])],
+    oemplus: [pending("Model X OEM+ Pending", "", "", "", ["Model X"])],
+    flush: [pending("Model X Flush Pending", "", "", "", ["Model X"])],
+    aggressive: [pending("Model X Aggressive Pending", "", "", "", ["Model X"])],
   },
 
   "M3": {
-    oemplus: [pending("BMW M3 OEM+ Verified Photo Pending", "See selected trim baseline", "See selected trim baseline", "OEM+ BMW M3 should stay close to factory proportions.", ["BMW", "M3", "OEM+", "Strict Match"])],
-    flush: [pending("BMW M3 Flush Verified Photo Pending", "See selected trim recommendation", "See selected trim recommendation", "Flush BMW M3 should show a strong filled-out stance.", ["BMW", "M3", "Flush", "Strict Match"])],
-    aggressive: [{
-      label: "M3 Aggressive Reference",
-      imageUrl: "https://www.hrewheels.com/wp-content/uploads/2021/04/bmw-g80-m3-hre-wheels.jpg",
-      imageStatus: "verified",
-      sourceType: "wheelBrand",
-      sourceName: "HRE Wheels",
-      sourceUrl: "https://www.hrewheels.com",
-      wheel: "20x10 ET12 / 20x11 ET12",
-      tire: "285/30R20 / 305/30R20",
-      suspension: "Coilovers",
-      note: "Aggressive M3 stance with wide rear setup.",
-      verificationNote: "Reference image used for aggressive BMW M3 fitment.",
-      tags: ["BMW", "M3", "Aggressive", "Wide Rear"],
-      match: "Verified Spec Match",
-    }],
+    oemplus: [pending("M3 OEM+ Pending", "", "", "", ["M3"])],
+    flush: [pending("M3 Flush Pending", "", "", "", ["M3"])],
+    aggressive: [pending("M3 Aggressive Pending", "", "", "", ["M3"])],
   },
 
   "M4": {
-    oemplus: [pending("G82/G83 M4 OEM+ Verified Photo Pending", "19x9.5 ET20 / 20x10.5 ET20", "275/35R19 / 285/30R20", "BMW M4 OEM+ should stay close to factory proportions.", ["BMW", "M4", "OEM+", "Strict Match"])],
-    flush: [pending("G82/G83 M4 Flush Verified Photo Pending", "20x10 ET15 / 20x11 ET15", "285/30R20 / 305/30R20", "BMW M4 flush should show a strong stance.", ["BMW", "M4", "Flush", "Strict Match"])],
-    aggressive: [pending("G82/G83 M4 Aggressive Verified Photo Pending", "20x10 ET12 / 20x11 ET12", "285/30R20 / 305/30R20", "BMW M4 aggressive should only show wide fitment.", ["BMW", "M4", "Aggressive", "Strict Match"])],
+    oemplus: [pending("M4 OEM+ Pending", "", "", "", ["M4"])],
+    flush: [pending("M4 Flush Pending", "", "", "", ["M4"])],
+    aggressive: [pending("M4 Aggressive Pending", "", "", "", ["M4"])],
+  },
+
+  // ✅ FIX: ADD GR86
+  "GR86": {
+    oemplus: [
+      pending(
+        "GR86 OEM+ Verified Photo Pending",
+        "18x8 +40",
+        "225/40R18",
+        "Clean OEM+ GR86 setup",
+        ["GR86", "OEM+"]
+      ),
+    ],
+    flush: [
+      pending(
+        "GR86 Flush Verified Photo Pending",
+        "18x9 +38",
+        "245/35R18",
+        "Flush GR86 stance",
+        ["GR86", "Flush"]
+      ),
+    ],
+    aggressive: [
+      pending(
+        "GR86 Aggressive Verified Photo Pending",
+        "18x9.5 +35",
+        "255/35R18",
+        "Aggressive GR86 stance",
+        ["GR86", "Aggressive"]
+      ),
+    ],
   },
 };
