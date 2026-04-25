@@ -529,24 +529,34 @@ export default function FitmentPage() {
           <aside className="space-y-5">
             <Panel title="1. Select Make">
               <div className="flex flex-wrap gap-2">
-                {makes.map((item) => (
-                  <button
-                    key={item.label}
-                    disabled={!item.active}
-                    onClick={() => {
-                      if (!item.active) return;
-                      setMake(item.label);
-                      const nextModel = getDefaultModelForMake(item.label);
-                      setModel(nextModel);
-                      setTrim(getTrims(nextModel)[0]);
-                      setConfiguration(getRecommendedConfiguration(nextModel, goal));
-                    }}
-                    className={`rounded-xl border px-3 py-2 text-sm ${item.active ? "border-emerald-400/40 bg-emerald-400/10 text-white" : "border-white/10 bg-white/[0.02] text-white/45"}`}
-                  >
-                    {item.label}
-                    {!item.active ? " • Soon" : ""}
-                  </button>
-                ))}
+{makes.map((item) => {
+  const isSelected = make === item.label;
+
+  return (
+    <button
+      key={item.label}
+      disabled={!item.active}
+      onClick={() => {
+        if (!item.active) return;
+        setMake(item.label);
+        const nextModel = getDefaultModelForMake(item.label);
+        setModel(nextModel);
+        setTrim(getTrims(nextModel)[0]);
+        setConfiguration(getRecommendedConfiguration(nextModel, goal));
+      }}
+      className={`rounded-xl border px-3 py-2 text-sm transition ${
+        !item.active
+          ? "border-white/10 bg-white/[0.02] text-white/45"
+          : isSelected
+            ? "border-emerald-400/60 bg-emerald-400/15 text-white"
+            : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
+      }`}
+    >
+      {item.label}
+      {!item.active ? " • Soon" : ""}
+    </button>
+  );
+})}
               </div>
             </Panel>
 
