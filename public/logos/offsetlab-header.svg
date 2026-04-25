@@ -1,0 +1,47 @@
+<svg width="520" height="96" viewBox="0 0 520 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Offset Lab">
+  <rect width="520" height="96" fill="none"/>
+
+  <!-- OL mark -->
+  <g transform="translate(8 12)">
+    <!-- O -->
+    <path
+      d="M28 50C28 31 43 18 64 18H112L101 36H65C55 36 48 42 48 50C48 56 53 60 62 60H91C99 60 105 56 109 48L118 30H139L126 58C119 72 108 78 91 78H59C40 78 28 67 28 50Z"
+      fill="#FFFFFF"
+    />
+
+    <!-- L -->
+    <path
+      d="M138 18H166L143 60H221L210 78H102L138 18Z"
+      fill="#00C896"
+    />
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(245 29)">
+    <text
+      x="0"
+      y="28"
+      fill="#FFFFFF"
+      font-family="Arial Black, Arial, Helvetica, sans-serif"
+      font-size="30"
+      font-weight="900"
+      font-style="italic"
+      letter-spacing="2.5"
+    >
+      OFFSET
+    </text>
+
+    <text
+      x="178"
+      y="28"
+      fill="#00C896"
+      font-family="Arial Black, Arial, Helvetica, sans-serif"
+      font-size="30"
+      font-weight="900"
+      font-style="italic"
+      letter-spacing="2.5"
+    >
+      LAB
+    </text>
+  </g>
+</svg>
