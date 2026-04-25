@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { galleryExamples } from "../data/gallery";
+import { supabase } from "../lib/supabase";
 import {
   getModelsForMake,
   makes,
@@ -16,10 +17,104 @@ const styleLabels: Record<StyleKey, string> = {
   aggressive: "Aggressive",
 };
 
+type GalleryBuild = {
+  label: string;
+  imageUrl: string;
+  imageStatus: "verified";
+  sourceType: "official" | "wheelBrand" | "community";
+  sourceName: string;
+  sourceUrl?: string;
+  wheel: string;
+  tire: string;
+  suspension?: string;
+  note?: string;
+  verificationNote?: string;
+  tags: string[];
+  match: string;
+  model: ModelKey | string;
+  style: StyleKey | string;
+};
+
 export default function GalleryPage() {
   const [make, setMake] = useState<MakeKey>("Tesla");
+  const [submittedBuilds, setSubmittedBuilds] = useState<GalleryBuild[]>([]);
 
-  const builds = useMemo(() => {
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSubmittedBuilds() {
+      const models = getModelsForMake(make);
+
+      const { data, error } = await supabase
+        .from("build_submissions")
+        .select(
+          "id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle"
+        )
+        .eq("status", "approved")
+        .in("model", models);
+
+      if (cancelled) return;
+
+      if (error || !data) {
+        setSubmittedBuilds([]);
+        return;
+      }
+
+      const mapped = data
+        .filter((row) => row.image_url)
+        .map((row) => {
+          const styleRaw = String(row.fitment_style || "").toLowerCase();
+
+          const style: StyleKey = styleRaw.includes("oem")
+            ? "oemplus"
+            : styleRaw.includes("flush")
+              ? "flush"
+              : "aggressive";
+
+          const model = String(row.model || "");
+
+          return {
+            label: `${model} ${String(row.trim || "")}`.trim(),
+            imageUrl: String(row.image_url || ""),
+            imageStatus: "verified" as const,
+            sourceType: "community" as const,
+            sourceName: row.instagram_handle
+              ? `@${String(row.instagram_handle).replace(/^@/, "")}`
+              : "Offset Lab Community",
+            sourceUrl: row.instagram_handle
+              ? `https://instagram.com/${String(row.instagram_handle).replace(/^@/, "")}`
+              : "#",
+            wheel: `${String(row.front_wheel || "")}${
+              row.rear_wheel && row.rear_wheel !== row.front_wheel
+                ? ` / ${String(row.rear_wheel)}`
+                : ""
+            }`,
+            tire: `${String(row.front_tire || "")}${
+              row.rear_tire && row.rear_tire !== row.front_tire
+                ? ` / ${String(row.rear_tire)}`
+                : ""
+            }`,
+            suspension: "User submitted build",
+            note: String(row.notes || "Approved community build"),
+            verificationNote: "Approved community-submitted build.",
+            tags: [model, String(row.trim || ""), "Community"],
+            match: "Verified Community Build",
+            model,
+            style,
+          };
+        });
+
+      setSubmittedBuilds(mapped);
+    }
+
+    loadSubmittedBuilds();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [make]);
+
+  const referenceBuilds = useMemo(() => {
     const models = getModelsForMake(make);
 
     return models.flatMap((model) => {
@@ -39,6 +134,10 @@ export default function GalleryPage() {
     });
   }, [make]);
 
+  const builds = useMemo(() => {
+    return [...submittedBuilds, ...referenceBuilds];
+  }, [submittedBuilds, referenceBuilds]);
+
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
       <div className="mx-auto max-w-6xl">
@@ -46,12 +145,10 @@ export default function GalleryPage() {
           Real Build References
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold md:text-4xl">
-          Gallery
-        </h1>
+        <h1 className="mt-2 text-3xl font-bold md:text-4xl">Gallery</h1>
 
         <p className="mt-3 max-w-2xl text-white/50">
-          Browse verified fitment references by make.
+          Browse verified reference builds and approved community submissions by make.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
@@ -93,26 +190,21 @@ export default function GalleryPage() {
 
                 <div className="p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm text-emerald-300">
-                      {build.model}
-                    </p>
+                    <p className="text-sm text-emerald-300">{build.model}</p>
+
                     <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/50">
-                      {styleLabels[build.style]}
+                      {styleLabels[build.style as StyleKey] ?? build.style}
                     </span>
                   </div>
 
-                  <h2 className="mt-3 text-xl font-bold">
-                    {build.label}
-                  </h2>
+                  <h2 className="mt-3 text-xl font-bold">{build.label}</h2>
 
                   <div className="mt-4 space-y-2 text-sm text-white/60">
                     <p>
-                      <span className="text-white/35">Wheel:</span>{" "}
-                      {build.wheel}
+                      <span className="text-white/35">Wheel:</span> {build.wheel}
                     </p>
                     <p>
-                      <span className="text-white/35">Tire:</span>{" "}
-                      {build.tire}
+                      <span className="text-white/35">Tire:</span> {build.tire}
                     </p>
                     <p>
                       <span className="text-white/35">Source:</span>{" "}
