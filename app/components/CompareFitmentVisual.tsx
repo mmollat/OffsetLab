@@ -123,7 +123,8 @@ const selectedWidthPx = selectedInner - selectedOuter;
           <img
             src="/compare/cross_section_suspension.png"
             alt=""
-            className="absolute inset-0 h-full w-full object-contain object-top translate-y-[-14px]"
+            className="absolute inset-0 h-full w-full object-contain object-top"
+            style={{ transform: "translateY(-14px)" }}
           />
 
           <svg viewBox="0 0 1000 562" className="absolute inset-0 h-full w-full">
