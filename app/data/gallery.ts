@@ -252,7 +252,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
         verificationNote:
           "Used as an OEM+ visual reference for a clean GR86 stance. Exact wheel size may vary slightly from the preset.",
         tags: ["GR86", "OEM+", "Square"],
-        match: "Verified Spec Match",
+        match: "Close Match",
       },
     ],
 
@@ -273,7 +273,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
         verificationNote:
           "System Motorsports documents 2022+ GR86 setups using 18x9.5 +40 with 255/35R18 tires.",
         tags: ["GR86", "Flush", "Square"],
-        match: "Verified Spec Match",
+        match: "Close Match",
       },
     ],
 
@@ -294,7 +294,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
         verificationNote:
           "System Motorsports highlights 18x9.5 +40 / 255/35R18 as a strong GR86 fitment reference.",
         tags: ["GR86", "Aggressive", "Square"],
-        match: "Verified Spec Match",
+        match: "Close Match",
       },
     ],
   },
@@ -314,7 +314,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
       verificationNote:
         "Used as OEM+ reference. Matches square setup with minimal poke and daily drivability.",
       tags: ["GR Corolla", "OEM+", "Square"],
-      match: "Verified Spec Match",
+      match: "Close Match",
     },
   ],
 
@@ -333,7 +333,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
       verificationNote:
         "Matches flush preset with 18x9.5 +30 and 255 tire sizing.",
       tags: ["GR Corolla", "Flush", "Square"],
-      match: "Verified Spec Match",
+      match: "Close Match",
     },
   ],
 
@@ -352,7 +352,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
       verificationNote:
         "Represents aggressive preset with wider tire and lower offset.",
       tags: ["GR Corolla", "Aggressive", "Wide"],
-      match: "Verified Spec Match",
+      match: "Close Match",
     },
   ],
 },
