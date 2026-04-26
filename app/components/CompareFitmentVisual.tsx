@@ -71,19 +71,21 @@ export default function CompareFitmentVisual({
   const outerChange =
     selectedWidth / 2 - selected.offset - (oemWidth / 2 - oem.offset);
 
-  const scale = 0.9;
-  const centerX = 500;
+  const scale = 0.78;
+  const hubFaceX = 515;
 
-  const oemLeft = centerX - (oemWidth / 2 + oem.offset) * scale;
-  const oemRight = centerX + (oemWidth / 2 - oem.offset) * scale;
+  const oemOuter = hubFaceX - (oemWidth / 2 - oem.offset) * scale;
+  const oemInner = hubFaceX + (oemWidth / 2 + oem.offset) * scale;
 
-  const selectedLeft = centerX - (selectedWidth / 2 + selected.offset) * scale;
-  const selectedRight = centerX + (selectedWidth / 2 - selected.offset) * scale;
+  const selectedOuter =
+    hubFaceX - (selectedWidth / 2 - selected.offset) * scale;
+  const selectedInner =
+    hubFaceX + (selectedWidth / 2 + selected.offset) * scale;
 
-  const oemWidthPx = oemRight - oemLeft;
-  const selectedWidthPx = selectedRight - selectedLeft;
+  const oemWidthPx = oemInner - oemOuter;
+  const selectedWidthPx = selectedInner - selectedOuter;
 
-  const baseTireThickness = 36;
+  const baseTireThickness = 34;
   const oemTireThickness = baseTireThickness + (oemTire.width - 235) * 0.08;
   const selectedTireThickness =
     baseTireThickness + (selectedTire.width - 235) * 0.08;
@@ -107,162 +109,286 @@ export default function CompareFitmentVisual({
         ) : null}
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-black/60 p-6">
-        <svg viewBox="0 0 1000 520" className="h-[360px] w-full">
-          <defs>
-            <filter id="blueGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-
-            <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
-            </marker>
-
-            <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316" />
-            </marker>
-          </defs>
-
-          <text x="116" y="70" fill="rgba(255,255,255,0.45)" fontSize="13" letterSpacing="3">
-            INNER / SUSPENSION
-          </text>
-          <text x="884" y="70" textAnchor="end" fill="rgba(255,255,255,0.45)" fontSize="13" letterSpacing="3">
-            OUTER / FENDER
-          </text>
-
-          <line x1={centerX} y1="58" x2={centerX} y2="462" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 6" />
-          <text x={centerX} y="52" textAnchor="middle" fill="rgba(255,255,255,0.42)" fontSize="12" letterSpacing="3">
-            HUB FACE
-          </text>
-
-          <rect x={centerX - 28} y="178" width="56" height="164" rx="6" fill="#666" />
-          <rect x={centerX - 62} y="218" width="124" height="84" rx="8" fill="#888" />
-
-          {/* OEM tire + wheel reference */}
-          <rect
-            x={oemLeft - oemTireThickness / 2}
-            y="100"
-            width={oemWidthPx + oemTireThickness}
-            height="320"
-            rx="42"
-            fill="rgba(249,115,22,0.04)"
-            stroke="#f97316"
-            strokeWidth="2"
-            strokeDasharray="7 6"
-          />
-          <rect
-            x={oemLeft}
-            y="126"
-            width={oemWidthPx}
-            height="268"
-            rx="18"
-            fill="none"
-            stroke="#f97316"
-            strokeWidth="2"
-            strokeDasharray="7 6"
+      <div className="overflow-hidden rounded-3xl border border-white/10 bg-white p-3">
+        <div className="relative mx-auto aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-2xl bg-white">
+          <img
+            src="/compare/cross-section-suspension.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-contain"
           />
 
-          {/* Selected tire + wheel */}
-          <rect
-            x={selectedLeft - selectedTireThickness / 2}
-            y="80"
-            width={selectedWidthPx + selectedTireThickness}
-            height="360"
-            rx="52"
-            fill="rgba(59,130,246,0.11)"
-            stroke="#3b82f6"
-            strokeWidth="4"
-            filter="url(#blueGlow)"
-            style={transitionStyle}
-          />
-          <rect
-            x={selectedLeft}
-            y="112"
-            width={selectedWidthPx}
-            height="296"
-            rx="22"
-            fill="rgba(59,130,246,0.045)"
-            stroke="#3b82f6"
-            strokeWidth="3"
-            style={transitionStyle}
-          />
+          <svg
+            viewBox="0 0 1000 562"
+            className="absolute inset-0 h-full w-full"
+          >
+            <defs>
+              <filter id="blueGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
 
-          {/* Edge tick markers */}
-          <line x1={oemLeft} y1="430" x2={oemLeft} y2="462" stroke="#f97316" strokeWidth="2" strokeDasharray="5 5" />
-          <line x1={selectedLeft} y1="430" x2={selectedLeft} y2="462" stroke="#3b82f6" strokeWidth="3" style={transitionStyle} />
+              <marker
+                id="arrowBlue"
+                markerWidth="10"
+                markerHeight="10"
+                refX="8"
+                refY="5"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+              </marker>
 
-          <line x1={oemRight} y1="430" x2={oemRight} y2="462" stroke="#f97316" strokeWidth="2" strokeDasharray="5 5" />
-          <line x1={selectedRight} y1="430" x2={selectedRight} y2="462" stroke="#3b82f6" strokeWidth="3" style={transitionStyle} />
+              <marker
+                id="arrowRed"
+                markerWidth="10"
+                markerHeight="10"
+                refX="8"
+                refY="5"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+              </marker>
+            </defs>
 
-          {/* Barrel depth lines */}
-          <path
-            d={`M ${selectedLeft + 30} 142 L ${selectedLeft + 60} 192 L ${selectedLeft + 60} 328 L ${selectedLeft + 30} 378`}
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="2"
-            opacity="0.85"
-            style={transitionStyle}
-          />
-          <path
-            d={`M ${selectedRight - 30} 142 L ${selectedRight - 60} 192 L ${selectedRight - 60} 328 L ${selectedRight - 30} 378`}
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="2"
-            opacity="0.85"
-            style={transitionStyle}
-          />
-
-          {/* Measurement arrows */}
-          <line
-            x1={oemLeft}
-            y1="456"
-            x2={selectedLeft}
-            y2="456"
-            stroke="#f97316"
-            strokeWidth="3"
-            markerEnd="url(#arrowOrange)"
-            style={transitionStyle}
-          />
-          <line
-            x1={oemRight}
-            y1="456"
-            x2={selectedRight}
-            y2="456"
-            stroke="#3b82f6"
-            strokeWidth="3"
-            markerEnd="url(#arrowBlue)"
-            style={transitionStyle}
-          />
-
-          {/* Value cards */}
-          <g>
-            <rect x="96" y="170" width="210" height="92" rx="18" fill="rgba(249,115,22,0.10)" stroke="rgba(249,115,22,0.38)" />
-            <text x="122" y="205" fill="#f97316" fontSize="13" letterSpacing="2">
-              INNER CHANGE
+            {/* labels */}
+            <text
+              x="120"
+              y="72"
+              fill="rgba(0,0,0,0.42)"
+              fontSize="13"
+              letterSpacing="3"
+            >
+              OUTER / FENDER
             </text>
-            <text x="122" y="242" fill="#fff" fontSize="32" fontWeight="bold">
-              {formatMm(innerChange)}
-            </text>
-          </g>
 
-          <g>
-            <rect x="694" y="170" width="210" height="92" rx="18" fill="rgba(59,130,246,0.12)" stroke="rgba(59,130,246,0.4)" />
-            <text x="720" y="205" fill="#3b82f6" fontSize="13" letterSpacing="2">
-              OUTER POKE
+            <text
+              x="850"
+              y="72"
+              textAnchor="end"
+              fill="rgba(0,0,0,0.42)"
+              fontSize="13"
+              letterSpacing="3"
+            >
+              INNER / SUSPENSION
             </text>
-            <text x="720" y="242" fill="#fff" fontSize="32" fontWeight="bold">
-              {formatMm(outerChange)}
-            </text>
-          </g>
 
-          <text x="500" y="495" textAnchor="middle" fill="rgba(255,255,255,0.45)" fontSize="12" letterSpacing="3">
-            OEM = ORANGE DASH · SELECTED = BLUE
-          </text>
-        </svg>
+            {/* hub face reference */}
+            <line
+              x1={hubFaceX}
+              y1="96"
+              x2={hubFaceX}
+              y2="462"
+              stroke="rgba(0,0,0,0.28)"
+              strokeDasharray="7 7"
+            />
+
+            <text
+              x={hubFaceX}
+              y="92"
+              textAnchor="middle"
+              fill="rgba(0,0,0,0.46)"
+              fontSize="12"
+              letterSpacing="3"
+            >
+              HUB FACE
+            </text>
+
+            {/* OEM reference */}
+            <rect
+              x={oemOuter - oemTireThickness / 2}
+              y="142"
+              width={oemWidthPx + oemTireThickness}
+              height="275"
+              rx="34"
+              fill="rgba(239,68,68,0.05)"
+              stroke="#ef4444"
+              strokeWidth="2"
+              strokeDasharray="7 6"
+            />
+
+            <rect
+              x={oemOuter}
+              y="166"
+              width={oemWidthPx}
+              height="227"
+              rx="18"
+              fill="none"
+              stroke="#ef4444"
+              strokeWidth="2"
+              strokeDasharray="7 6"
+            />
+
+            {/* selected overlay */}
+            <rect
+              x={selectedOuter - selectedTireThickness / 2}
+              y="122"
+              width={selectedWidthPx + selectedTireThickness}
+              height="315"
+              rx="42"
+              fill="rgba(59,130,246,0.09)"
+              stroke="#3b82f6"
+              strokeWidth="4"
+              filter="url(#blueGlow)"
+              style={transitionStyle}
+            />
+
+            <rect
+              x={selectedOuter}
+              y="154"
+              width={selectedWidthPx}
+              height="251"
+              rx="22"
+              fill="rgba(59,130,246,0.03)"
+              stroke="#3b82f6"
+              strokeWidth="3"
+              style={transitionStyle}
+            />
+
+            {/* tire/wheel depth detail */}
+            <path
+              d={`M ${selectedOuter + 28} 168 L ${selectedOuter + 58} 215 L ${selectedOuter + 58} 345 L ${selectedOuter + 28} 392`}
+              fill="none"
+              stroke="#3b82f6"
+              strokeWidth="2"
+              opacity="0.7"
+              style={transitionStyle}
+            />
+
+            <path
+              d={`M ${selectedInner - 28} 168 L ${selectedInner - 58} 215 L ${selectedInner - 58} 345 L ${selectedInner - 28} 392`}
+              fill="none"
+              stroke="#3b82f6"
+              strokeWidth="2"
+              opacity="0.7"
+              style={transitionStyle}
+            />
+
+            {/* tick markers */}
+            <line
+              x1={oemOuter}
+              y1="430"
+              x2={oemOuter}
+              y2="465"
+              stroke="#ef4444"
+              strokeWidth="2"
+              strokeDasharray="5 5"
+            />
+            <line
+              x1={selectedOuter}
+              y1="430"
+              x2={selectedOuter}
+              y2="465"
+              stroke="#3b82f6"
+              strokeWidth="3"
+              style={transitionStyle}
+            />
+
+            <line
+              x1={oemInner}
+              y1="430"
+              x2={oemInner}
+              y2="465"
+              stroke="#ef4444"
+              strokeWidth="2"
+              strokeDasharray="5 5"
+            />
+            <line
+              x1={selectedInner}
+              y1="430"
+              x2={selectedInner}
+              y2="465"
+              stroke="#3b82f6"
+              strokeWidth="3"
+              style={transitionStyle}
+            />
+
+            {/* movement arrows */}
+            <line
+              x1={oemOuter}
+              y1="456"
+              x2={selectedOuter}
+              y2="456"
+              stroke="#3b82f6"
+              strokeWidth="3"
+              markerEnd="url(#arrowBlue)"
+              style={transitionStyle}
+            />
+
+            <line
+              x1={oemInner}
+              y1="482"
+              x2={selectedInner}
+              y2="482"
+              stroke="#ef4444"
+              strokeWidth="3"
+              markerEnd="url(#arrowRed)"
+              style={transitionStyle}
+            />
+
+            {/* cards */}
+            <g>
+              <rect
+                x="70"
+                y="118"
+                width="218"
+                height="92"
+                rx="18"
+                fill="rgba(255,255,255,0.82)"
+                stroke="rgba(239,68,68,0.4)"
+              />
+              <text
+                x="96"
+                y="153"
+                fill="#ef4444"
+                fontSize="13"
+                letterSpacing="2"
+              >
+                INNER CHANGE
+              </text>
+              <text x="96" y="190" fill="#111827" fontSize="32" fontWeight="bold">
+                {formatMm(innerChange)}
+              </text>
+            </g>
+
+            <g>
+              <rect
+                x="70"
+                y="228"
+                width="218"
+                height="92"
+                rx="18"
+                fill="rgba(255,255,255,0.82)"
+                stroke="rgba(59,130,246,0.4)"
+              />
+              <text
+                x="96"
+                y="263"
+                fill="#3b82f6"
+                fontSize="13"
+                letterSpacing="2"
+              >
+                OUTER POKE
+              </text>
+              <text x="96" y="300" fill="#111827" fontSize="32" fontWeight="bold">
+                {formatMm(outerChange)}
+              </text>
+            </g>
+
+            <text
+              x="500"
+              y="532"
+              textAnchor="middle"
+              fill="rgba(0,0,0,0.42)"
+              fontSize="12"
+              letterSpacing="3"
+            >
+              OEM = RED DASH · SELECTED = BLUE
+            </text>
+          </svg>
+        </div>
       </div>
     </section>
   );
