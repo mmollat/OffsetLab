@@ -40,7 +40,7 @@ function pending(
     verificationNote:
       "Photo hidden until a source image with matching specs is verified. This prevents showing an incorrect visual reference.",
     tags,
-    match: "Pending Verified Photo",
+    match: "Visual Reference",
   };
 }
 
