@@ -74,6 +74,7 @@ export default function CompareFitmentVisual({
   const scale = 0.64;
   const hubFaceX = 483;
   const visualOffset = -46;
+  const overlayLift = 18;
 
   const oemOuter =
     hubFaceX - (oemWidth / 2 - oem.offset) * scale + visualOffset;
@@ -83,16 +84,14 @@ export default function CompareFitmentVisual({
   const selectedOuter =
     hubFaceX - (selectedWidth / 2 - selected.offset) * scale + visualOffset;
   const selectedInnerRaw =
-  hubFaceX + (selectedWidth / 2 + selected.offset) * scale + visualOffset;
+    hubFaceX + (selectedWidth / 2 + selected.offset) * scale + visualOffset;
 
-// prevents overlay from visually hitting rotor
-const selectedInner = Math.min(selectedInnerRaw, hubFaceX + 55);
+  const selectedInner = Math.min(selectedInnerRaw, hubFaceX + 55);
 
   const oemWidthPx = oemInner - oemOuter;
   const innerVisualPull = -5;
-const selectedInnerVisual = selectedInner + innerVisualPull;
-
-const selectedWidthPx = selectedInner - selectedOuter;
+  const selectedInnerVisual = selectedInner + innerVisualPull;
+  const selectedWidthPx = selectedInner - selectedOuter;
 
   const baseTireThickness = 24;
   const oemTireThickness = baseTireThickness + (oemTire.width - 235) * 0.06;
@@ -176,7 +175,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
 
             <rect
               x={oemOuter - oemTireThickness / 2}
-              y="138"
+              y={138 + overlayLift}
               width={oemWidthPx + oemTireThickness}
               height="350"
               rx="44"
@@ -188,7 +187,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
 
             <rect
               x={oemOuter}
-              y="170"
+              y={170 + overlayLift}
               width={oemWidthPx}
               height="286"
               rx="22"
@@ -200,7 +199,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
 
             <rect
               x={selectedOuter - selectedTireThickness / 2}
-              y="128"
+              y={128 + overlayLift}
               width={selectedWidthPx + selectedTireThickness}
               height="380"
               rx="52"
@@ -213,7 +212,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
 
             <rect
               x={selectedOuter}
-              y="164"
+              y={164 + overlayLift}
               width={selectedWidthPx}
               height="308"
               rx="25"
@@ -224,7 +223,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
             />
 
             <path
-              d={`M ${selectedOuter + 22} 182 L ${selectedOuter + 46} 240 L ${selectedOuter + 46} 398 L ${selectedOuter + 22} 454`}
+              d={`M ${selectedOuter + 22} ${182 + overlayLift} L ${selectedOuter + 46} ${240 + overlayLift} L ${selectedOuter + 46} ${398 + overlayLift} L ${selectedOuter + 22} ${454 + overlayLift}`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
@@ -233,7 +232,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
             />
 
             <path
-              d={`M ${selectedInnerVisual - 32} 182 L ${selectedInnerVisual - 56} 240 L ${selectedInnerVisual - 56} 398 L ${selectedInnerVisual - 32} 454`}
+              d={`M ${selectedInnerVisual - 32} ${182 + overlayLift} L ${selectedInnerVisual - 56} ${240 + overlayLift} L ${selectedInnerVisual - 56} ${398 + overlayLift} L ${selectedInnerVisual - 32} ${454 + overlayLift}`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
