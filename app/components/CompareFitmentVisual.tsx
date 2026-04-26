@@ -82,8 +82,11 @@ export default function CompareFitmentVisual({
 
   const selectedOuter =
     hubFaceX - (selectedWidth / 2 - selected.offset) * scale + visualOffset;
-  const selectedInner =
-    hubFaceX + (selectedWidth / 2 + selected.offset) * scale + visualOffset;
+  const selectedInnerRaw =
+  hubFaceX + (selectedWidth / 2 + selected.offset) * scale + visualOffset;
+
+// prevents overlay from visually hitting rotor
+const selectedInner = Math.min(selectedInnerRaw, hubFaceX + 85);
 
   const oemWidthPx = oemInner - oemOuter;
   const selectedWidthPx = selectedInner - selectedOuter;
