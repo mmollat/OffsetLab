@@ -123,7 +123,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
           <img
             src="/compare/cross_section_suspension.png"
             alt=""
-            className="absolute inset-0 h-full w-full translate-y-[8px] object-contain"
+            className="absolute inset-0 h-full w-full translate-y-[6px] object-contain"
           />
 
           <svg viewBox="0 0 1000 562" className="absolute inset-0 h-full w-full translate-y-[15px]">
