@@ -301,7 +301,9 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       ),
     },
   },
-    "Supra": [
+],
+
+"Supra": [
   {
     trim: "MK5 (A90 / A91)",
     baseline: {
