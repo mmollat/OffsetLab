@@ -112,7 +112,7 @@ export default function CompareFitmentVisual({
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white p-3">
         <div className="relative mx-auto aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-2xl bg-white">
           <img
-            src="/compare/cross-section-suspension.png"
+            src="/compare/cross_section_suspension.png"
             alt=""
             className="absolute inset-0 h-full w-full object-contain"
           />
