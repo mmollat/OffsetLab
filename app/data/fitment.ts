@@ -7,7 +7,8 @@ export type ModelKey =
   | "Model X"
   | "M3"
   | "M4"
-  | "GR86";
+  | "GR86"
+  | "GR Corolla";
 
 export type Preset = {
   title: string;
@@ -229,12 +230,83 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       },
     },
   ],
+  "GR Corolla": [
+  {
+    trim: "Core / Premium / Circuit",
+    baseline: {
+      front: "18x8.5 +30",
+      rear: "18x8.5 +30",
+      tire: "235/40R18",
+      boltPattern: "5x114.3",
+      centerBore: "60.1",
+    },
+    presets: {
+      oemplus: p(
+        "OEM+ Setup",
+        "Clean daily upgrade",
+        "18x8.5 +28",
+        "18x8.5 +28",
+        "245/40R18",
+        "245/40R18",
+        "+4mm",
+        "+4mm",
+        "-2mm",
+        "-2mm",
+        "+0.3%",
+        4,
+        9,
+        "Low",
+        "Perfect OEM+ GR Corolla setup.",
+        low,
+        "18x9 +30"
+      ),
+      flush: p(
+        "Flush Setup",
+        "Balanced stance",
+        "18x9.5 +30",
+        "18x9.5 +30",
+        "255/35R18",
+        "255/35R18",
+        "+18mm",
+        "+18mm",
+        "-6mm",
+        "-6mm",
+        "+0.2%",
+        7,
+        8,
+        "Low / Moderate",
+        "Strong flush fitment.",
+        mod,
+        "18x9 +28"
+      ),
+      aggressive: p(
+        "Aggressive Setup",
+        "Wide stance",
+        "18x9.5 +22",
+        "18x9.5 +22",
+        "265/35R18",
+        "265/35R18",
+        "+26mm",
+        "+26mm",
+        "-10mm",
+        "-10mm",
+        "+0.5%",
+        8,
+        7,
+        "Moderate",
+        "Aggressive GR Corolla fitment.",
+        mod,
+        "18x9.5 +25"
+      ),
+    },
+  },
+],
 };
 
 export const makeModelOptions: Record<MakeKey, ModelKey[]> = {
   Tesla: ["Model 3", "Model Y", "Model S", "Model X"],
   BMW: ["M3", "M4"],
-  Toyota: ["GR86"],
+  Toyota: ["GR86", "GR Corolla"],
   Porsche: [],
 };
 
@@ -263,7 +335,10 @@ export function modelSlug(model: ModelKey): string {
 export function normalizeModel(value: string | null, make: MakeKey = "Tesla"): ModelKey {
   const input = (value || "").toLowerCase().replace(/[-_]/g, " ").trim();
 
-  if (make === "Toyota") return "GR86";
+  if (make === "Toyota") {
+  if (input.includes("corolla")) return "GR Corolla";
+  return "GR86";
+}
 
   if (make === "BMW") {
     if (input === "m4") return "M4";
