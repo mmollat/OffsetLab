@@ -8,7 +8,8 @@ export type ModelKey =
   | "M3"
   | "M4"
   | "GR86"
-  | "GR Corolla";
+  | "GR Corolla"
+  | "Supra";
 
 export type Preset = {
   title: string;
@@ -300,13 +301,84 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       ),
     },
   },
+    "Supra": [
+  {
+    trim: "MK5 (A90 / A91)",
+    baseline: {
+      front: "19x9 +32",
+      rear: "19x10 +40",
+      tire: "255/35R19 / 275/35R19",
+      boltPattern: "5x112",
+      centerBore: "66.6",
+    },
+    presets: {
+      oemplus: p(
+        "OEM+ Setup",
+        "Clean daily fitment",
+        "19x9 +30",
+        "19x10 +38",
+        "255/35R19",
+        "275/35R19",
+        "+2mm",
+        "+2mm",
+        "-2mm",
+        "-2mm",
+        "0%",
+        4,
+        9,
+        "Low",
+        "Clean OEM+ Supra setup.",
+        low,
+        "20x9 +30"
+      ),
+      flush: p(
+        "Flush Setup",
+        "Balanced stance",
+        "19x9.5 +25",
+        "19x10.5 +35",
+        "265/35R19",
+        "285/35R19",
+        "+12mm",
+        "+15mm",
+        "-5mm",
+        "-6mm",
+        "+0.3%",
+        7,
+        8,
+        "Low / Moderate",
+        "Perfect flush Supra stance.",
+        mod,
+        "20x10 +30"
+      ),
+      aggressive: p(
+        "Aggressive Setup",
+        "Wide stance",
+        "19x10 +22",
+        "19x11 +35",
+        "275/35R19",
+        "305/30R19",
+        "+18mm",
+        "+25mm",
+        "-6mm",
+        "-10mm",
+        "+0.6%",
+        9,
+        7,
+        "Moderate",
+        "Aggressive Supra fitment.",
+        mod,
+        "20x10.5 +25"
+      ),
+    },
+  },
+],
 ],
 };
 
 export const makeModelOptions: Record<MakeKey, ModelKey[]> = {
   Tesla: ["Model 3", "Model Y", "Model S", "Model X"],
   BMW: ["M3", "M4"],
-  Toyota: ["GR86", "GR Corolla"],
+  Toyota: ["GR86", "GR Corolla", "Supra"],
   Porsche: [],
 };
 
@@ -337,6 +409,7 @@ export function normalizeModel(value: string | null, make: MakeKey = "Tesla"): M
 
   if (make === "Toyota") {
   if (input.includes("corolla")) return "GR Corolla";
+  if (input.includes("supra")) return "Supra";
   return "GR86";
 }
 
