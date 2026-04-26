@@ -89,7 +89,10 @@ export default function CompareFitmentVisual({
 const selectedInner = Math.min(selectedInnerRaw, hubFaceX + 55);
 
   const oemWidthPx = oemInner - oemOuter;
-  const selectedWidthPx = selectedInner - selectedOuter;
+  const innerVisualPull = -35;
+const selectedInnerVisual = selectedInner + innerVisualPull;
+
+const selectedWidthPx = selectedInnerVisual - selectedOuter;
 
   const baseTireThickness = 24;
   const oemTireThickness = baseTireThickness + (oemTire.width - 235) * 0.06;
@@ -229,7 +232,7 @@ const selectedInner = Math.min(selectedInnerRaw, hubFaceX + 55);
             />
 
             <path
-              d={`M ${selectedInner - 22} 182 L ${selectedInner - 46} 240 L ${selectedInner - 46} 398 L ${selectedInner - 22} 454`}
+              d={`M ${selectedInnerVisual - 22} 182 L ${selectedInnerVisual - 46} 240 L ${selectedInnerVisual - 46} 398 L ${selectedInnerVisual - 22} 454`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
