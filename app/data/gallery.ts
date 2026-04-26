@@ -10,8 +10,8 @@ export type GalleryBuild = {
   wheel: string;
   tire: string;
   suspension: string;
-  note: string;
-  verificationNote: string;
+  note: "Strong flush stance with proper tire stretch and clean fender alignment.",
+  verificationNote: "Very close to the recommended setup. Minor differences may exist, but the stance is accurate.",
   tags: string[];
   match: "Exact Match" | "Close Match" | "Visual Reference";
 };
