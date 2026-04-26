@@ -89,10 +89,10 @@ export default function CompareFitmentVisual({
 const selectedInner = Math.min(selectedInnerRaw, hubFaceX + 55);
 
   const oemWidthPx = oemInner - oemOuter;
-  const innerVisualPull = -35;
+  const innerVisualPull = 0;
 const selectedInnerVisual = selectedInner + innerVisualPull;
 
-const selectedWidthPx = selectedInnerVisual - selectedOuter;
+const selectedWidthPx = selectedInner - selectedOuter;
 
   const baseTireThickness = 24;
   const oemTireThickness = baseTireThickness + (oemTire.width - 235) * 0.06;
@@ -244,7 +244,7 @@ const selectedWidthPx = selectedInnerVisual - selectedOuter;
             <line x1={selectedOuter} y1="492" x2={selectedOuter} y2="525" stroke="#3b82f6" strokeWidth="3" style={transitionStyle} />
 
             <line x1={oemInner} y1="492" x2={oemInner} y2="525" stroke="#ef4444" strokeWidth="2" strokeDasharray="5 5" />
-            <line x1={selectedInner} y1="492" x2={selectedInner} y2="525" stroke="#3b82f6" strokeWidth="3" style={transitionStyle} />
+            <line x1={selectedInnerVisual} y1="492" x2={selectedInnerVisual} y2="525" stroke="#3b82f6" strokeWidth="3" style={transitionStyle} />
 
             <line
               x1={oemOuter}
@@ -260,7 +260,7 @@ const selectedWidthPx = selectedInnerVisual - selectedOuter;
             <line
               x1={oemInner}
               y1="536"
-              x2={selectedInner}
+              x2={selectedInnerVisual}
               y2="536"
               stroke="#ef4444"
               strokeWidth="3"
