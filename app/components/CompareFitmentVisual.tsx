@@ -74,7 +74,7 @@ export default function CompareFitmentVisual({
   const scale = 0.78;
 
   // Moved left to better align with the wheel mounting face on the static image.
-  const hubFaceX = 490;
+  const hubFaceX = 455;
 
   const oemOuter = hubFaceX - (oemWidth / 2 - oem.offset) * scale;
   const oemInner = hubFaceX + (oemWidth / 2 + oem.offset) * scale;
