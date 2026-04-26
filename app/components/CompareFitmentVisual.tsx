@@ -71,26 +71,27 @@ export default function CompareFitmentVisual({
   const outerChange =
     selectedWidth / 2 - selected.offset - (oemWidth / 2 - oem.offset);
 
-  const scale = 0.78;
+  const scale = 0.64;
+  const hubFaceX = 470;
+  const visualOffset = -46;
 
-  // Moved left to better align with the wheel mounting face on the static image.
-  const hubFaceX = 455;
-
-  const oemOuter = hubFaceX - (oemWidth / 2 - oem.offset) * scale;
-  const oemInner = hubFaceX + (oemWidth / 2 + oem.offset) * scale;
+  const oemOuter =
+    hubFaceX - (oemWidth / 2 - oem.offset) * scale + visualOffset;
+  const oemInner =
+    hubFaceX + (oemWidth / 2 + oem.offset) * scale + visualOffset;
 
   const selectedOuter =
-    hubFaceX - (selectedWidth / 2 - selected.offset) * scale;
+    hubFaceX - (selectedWidth / 2 - selected.offset) * scale + visualOffset;
   const selectedInner =
-    hubFaceX + (selectedWidth / 2 + selected.offset) * scale;
+    hubFaceX + (selectedWidth / 2 + selected.offset) * scale + visualOffset;
 
   const oemWidthPx = oemInner - oemOuter;
   const selectedWidthPx = selectedInner - selectedOuter;
 
-  const baseTireThickness = 36;
-  const oemTireThickness = baseTireThickness + (oemTire.width - 235) * 0.08;
+  const baseTireThickness = 24;
+  const oemTireThickness = baseTireThickness + (oemTire.width - 235) * 0.06;
   const selectedTireThickness =
-    baseTireThickness + (selectedTire.width - 235) * 0.08;
+    baseTireThickness + (selectedTire.width - 235) * 0.06;
 
   const transitionStyle: CSSProperties = {
     transition: "all 600ms cubic-bezier(0.22, 1, 0.36, 1)",
@@ -148,16 +149,16 @@ export default function CompareFitmentVisual({
 
             <line
               x1={hubFaceX}
-              y1="92"
+              y1="98"
               x2={hubFaceX}
-              y2="480"
+              y2="470"
               stroke="rgba(0,0,0,0.34)"
               strokeDasharray="7 7"
             />
 
             <text
               x={hubFaceX}
-              y="88"
+              y="94"
               textAnchor="middle"
               fill="rgba(0,0,0,0.5)"
               fontSize="12"
@@ -166,14 +167,13 @@ export default function CompareFitmentVisual({
               HUB FACE
             </text>
 
-            {/* OEM reference - taller tire outline */}
             <rect
               x={oemOuter - oemTireThickness / 2}
-              y="104"
+              y="118"
               width={oemWidthPx + oemTireThickness}
-              height="365"
-              rx="48"
-              fill="rgba(239,68,68,0.045)"
+              height="350"
+              rx="44"
+              fill="rgba(239,68,68,0.04)"
               stroke="#ef4444"
               strokeWidth="2"
               strokeDasharray="7 6"
@@ -181,9 +181,9 @@ export default function CompareFitmentVisual({
 
             <rect
               x={oemOuter}
-              y="136"
+              y="150"
               width={oemWidthPx}
-              height="301"
+              height="286"
               rx="22"
               fill="none"
               stroke="#ef4444"
@@ -191,14 +191,13 @@ export default function CompareFitmentVisual({
               strokeDasharray="7 6"
             />
 
-            {/* Selected overlay - taller tire outline */}
             <rect
               x={selectedOuter - selectedTireThickness / 2}
-              y="82"
+              y="104"
               width={selectedWidthPx + selectedTireThickness}
-              height="410"
-              rx="56"
-              fill="rgba(59,130,246,0.09)"
+              height="380"
+              rx="52"
+              fill="rgba(59,130,246,0.08)"
               stroke="#3b82f6"
               strokeWidth="4"
               filter="url(#blueGlow)"
@@ -207,31 +206,31 @@ export default function CompareFitmentVisual({
 
             <rect
               x={selectedOuter}
-              y="120"
+              y="140"
               width={selectedWidthPx}
-              height="334"
-              rx="26"
-              fill="rgba(59,130,246,0.03)"
+              height="308"
+              rx="25"
+              fill="rgba(59,130,246,0.025)"
               stroke="#3b82f6"
               strokeWidth="3"
               style={transitionStyle}
             />
 
             <path
-              d={`M ${selectedOuter + 28} 138 L ${selectedOuter + 62} 205 L ${selectedOuter + 62} 370 L ${selectedOuter + 28} 438`}
+              d={`M ${selectedOuter + 22} 158 L ${selectedOuter + 46} 216 L ${selectedOuter + 46} 374 L ${selectedOuter + 22} 430`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
-              opacity="0.65"
+              opacity="0.55"
               style={transitionStyle}
             />
 
             <path
-              d={`M ${selectedInner - 28} 138 L ${selectedInner - 62} 205 L ${selectedInner - 62} 370 L ${selectedInner - 28} 438`}
+              d={`M ${selectedInner - 22} 158 L ${selectedInner - 46} 216 L ${selectedInner - 46} 374 L ${selectedInner - 22} 430`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
-              opacity="0.65"
+              opacity="0.55"
               style={transitionStyle}
             />
 
