@@ -393,7 +393,7 @@ export default function FitmentPage() {
       (!hasSquareTag && !hasStaggeredTag && configuration === "staggered" && looksStaggered) ||
       build.match === "Visual Reference";
 
-    return matchesModel && matchesConfiguration && Boolean(build.imageUrl);
+    return matchesModel && matchesConfiguration;
   });
 
   const communityBuilds = approvedBuilds;
