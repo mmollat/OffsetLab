@@ -232,7 +232,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
             />
 
             <path
-              d={`M ${selectedInnerVisual - 40} 182 L ${selectedInnerVisual - 40} 240 L ${selectedInnerVisual - 40} 398 L ${selectedInnerVisual - 40} 454`}
+              d={`M ${selectedInnerVisual - 32} 182 L ${selectedInnerVisual - 56} 240 L ${selectedInnerVisual - 56} 398 L ${selectedInnerVisual - 32} 454`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
