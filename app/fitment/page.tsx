@@ -391,7 +391,7 @@ export default function FitmentPage() {
     const matchesConfiguration =
       build.tags?.includes(configurationTag) ||
       (!hasSquareTag && !hasStaggeredTag && configuration === "staggered" && looksStaggered) ||
-      build.match === "Pending Verified Photo";
+      build.match === "Visual Reference";
 
     return matchesModel && matchesConfiguration && Boolean(build.imageUrl);
   });
