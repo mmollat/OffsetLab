@@ -254,6 +254,12 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
         tags: ["GR86", "OEM+", "Square"],
         match: "Verified Spec Match",
       },
+      
+      "GR Corolla": {
+  oemplus: [],
+  flush: [],
+  aggressive: [],
+},
     ],
 
     flush: [
