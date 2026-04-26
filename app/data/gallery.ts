@@ -361,5 +361,4 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
   flush: [],
   aggressive: [],
 },
-],
 };
