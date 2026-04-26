@@ -1,7 +1,7 @@
 import type { GalleryBuild } from "../data/gallery";
 
 export default function GalleryCard({ build }: { build: GalleryBuild }) {
-  const showImage = build.imageUrl && build.imageStatus === "verified";
+  const showImage = Boolean(build.imageUrl);
 
   return (
     <article className="overflow-hidden rounded-3xl border border-white/10 bg-[#11141a] shadow-2xl shadow-black/30">
