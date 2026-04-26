@@ -169,7 +169,7 @@ export default function CompareFitmentVisual({
 
             <rect
               x={oemOuter - oemTireThickness / 2}
-              y="118"
+              y="138"
               width={oemWidthPx + oemTireThickness}
               height="350"
               rx="44"
@@ -181,7 +181,7 @@ export default function CompareFitmentVisual({
 
             <rect
               x={oemOuter}
-              y="150"
+              y="170"
               width={oemWidthPx}
               height="286"
               rx="22"
@@ -193,7 +193,7 @@ export default function CompareFitmentVisual({
 
             <rect
               x={selectedOuter - selectedTireThickness / 2}
-              y="104"
+              y="128"
               width={selectedWidthPx + selectedTireThickness}
               height="380"
               rx="52"
@@ -206,7 +206,7 @@ export default function CompareFitmentVisual({
 
             <rect
               x={selectedOuter}
-              y="140"
+              y="164"
               width={selectedWidthPx}
               height="308"
               rx="25"
@@ -217,7 +217,7 @@ export default function CompareFitmentVisual({
             />
 
             <path
-              d={`M ${selectedOuter + 22} 158 L ${selectedOuter + 46} 216 L ${selectedOuter + 46} 374 L ${selectedOuter + 22} 430`}
+              d={`M ${selectedOuter + 22} 182 L ${selectedOuter + 46} 240 L ${selectedOuter + 46} 398 L ${selectedOuter + 22} 454`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
@@ -226,7 +226,7 @@ export default function CompareFitmentVisual({
             />
 
             <path
-              d={`M ${selectedInner - 22} 158 L ${selectedInner - 46} 216 L ${selectedInner - 46} 374 L ${selectedInner - 22} 430`}
+              d={`M ${selectedInner - 22} 182 L ${selectedInner - 46} 240 L ${selectedInner - 46} 398 L ${selectedInner - 22} 454`}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2"
