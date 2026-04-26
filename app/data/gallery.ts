@@ -10,8 +10,8 @@ export type GalleryBuild = {
   wheel: string;
   tire: string;
   suspension: string;
-  note: "Strong flush stance with proper tire stretch and clean fender alignment.",
-  verificationNote: "Very close to the recommended setup. Minor differences may exist, but the stance is accurate.",
+  note: string;
+  verificationNote: string;
   tags: string[];
   match: "Exact Match" | "Close Match" | "Visual Reference";
 };
@@ -38,7 +38,7 @@ function pending(
     suspension: "Use fitment notes",
     note,
     verificationNote:
-      "Photo hidden until a source image with matching specs is verified. This prevents showing an incorrect visual reference.",
+      "Used as a visual reference. Specs may vary slightly from the recommended setup, but the overall look and stance are similar.",
     tags,
     match: "Visual Reference",
   };
@@ -139,7 +139,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
         verificationNote:
           "Used only for the aggressive Model S category because the visual stance and wheel sizing are aligned with the recommended wide staggered setup.",
         tags: ["Model S", "Plaid", "Aggressive", "Wide Rear"],
-        match: "Verified Spec Match",
+        match: "Close Match",
       },
     ],
   },
