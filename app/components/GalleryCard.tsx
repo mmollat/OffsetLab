@@ -39,7 +39,7 @@ export default function GalleryCard({ build }: { build: GalleryBuild }) {
         <div className={`absolute left-4 top-4 rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur ${
           build.match === "Exact Match"
             ? "border-emerald-400/30 bg-emerald-400/15 text-emerald-300"
-            : build.match === "Verified Spec Match"
+            : build.match === "Close Match"
             ? "border-blue-400/30 bg-blue-400/15 text-blue-300"
             : "border-yellow-400/30 bg-yellow-400/15 text-yellow-300"
         }`}>
