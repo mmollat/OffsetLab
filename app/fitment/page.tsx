@@ -456,10 +456,7 @@ export default function FitmentPage() {
           return;
         }
 
-        const filtered = data.filter((row) => {
-          const rowStyle = normalize(String(row.fitment_style || ""));
-          return rowStyle === normalizedStyle;
-        });
+        const filtered = data.filter((row) => row && row.image_url);
 
         const mapped = filtered
           .filter((row) => row && row.image_url)
@@ -474,9 +471,16 @@ export default function FitmentPage() {
             tire: `${String(row.front_tire || "")}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${String(row.rear_tire)}` : ""}`,
             suspension: "User submitted build",
             note: String(row.notes || "Approved community build"),
-            verificationNote: "Approved community-submitted build matched to this exact model, trim, style, goal, and configuration.",
-            tags: [String(row.model || safeModel), String(expectedStyle), "Community"],
-            match: "Verified Spec Match" as const,
+            verificationNote:
+  normalize(String(row.fitment_style || "")) === normalizedStyle
+    ? "Approved community build closely matched to this model, trim, style, goal, and configuration."
+    : "Approved community build used as a visual reference. Specs or setup style may vary slightly.",
+tags: [
+  String(row.model || safeModel),
+  normalize(String(row.fitment_style || "")) === normalizedStyle ? String(expectedStyle) : "Visual Reference",
+  "Community",
+],
+match: normalize(String(row.fitment_style || "")) === normalizedStyle ? "Close Match" as const : "Visual Reference" as const,
           }));
 
         setApprovedBuilds(mapped);
@@ -701,7 +705,7 @@ export default function FitmentPage() {
                 builds.map((build) => <GalleryCard key={build.label} build={build} />)
               ) : (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/50">
-                  No verified build yet for this exact setup.
+                  No visual reference available yet for this setup.
                 </div>
               )}
             </div>
