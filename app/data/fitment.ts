@@ -372,7 +372,6 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
     },
   },
 ],
-],
 };
 
 export const makeModelOptions: Record<MakeKey, ModelKey[]> = {
