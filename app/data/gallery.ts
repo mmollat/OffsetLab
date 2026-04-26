@@ -355,6 +355,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
       match: "Verified Spec Match",
     },
   ],
+},
   "Supra": [
   {
     trim: "MK5 (A90 / A91)",
