@@ -89,7 +89,7 @@ export default function CompareFitmentVisual({
 const selectedInner = Math.min(selectedInnerRaw, hubFaceX + 55);
 
   const oemWidthPx = oemInner - oemOuter;
-  const innerVisualPull = 0;
+  const innerVisualPull = -5;
 const selectedInnerVisual = selectedInner + innerVisualPull;
 
 const selectedWidthPx = selectedInner - selectedOuter;
