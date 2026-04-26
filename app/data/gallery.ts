@@ -356,4 +356,9 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     },
   ],
 },
+  "Supra": {
+  oemplus: [],
+  flush: [],
+  aggressive: [],
+},
 };
