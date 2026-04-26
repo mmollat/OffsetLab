@@ -356,9 +356,33 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     },
   ],
 },
-  "Supra": {
-  oemplus: [],
-  flush: [],
-  aggressive: [],
+"Supra": {
+  oemplus: [
+    pending(
+      "Supra OEM+ Verified Photo Pending",
+      "19x9 +30 / 19x10 +38",
+      "255/35R19 / 275/35R19",
+      "OEM+ Supra should stay clean, proportional, and close to factory balance.",
+      ["Supra", "OEM+", "Strict Match"]
+    ),
+  ],
+  flush: [
+    pending(
+      "Supra Flush Verified Photo Pending",
+      "19x9.5 +25 / 19x10.5 +35",
+      "265/35R19 / 285/35R19",
+      "Flush Supra should show a filled-out stance with proper front/rear balance.",
+      ["Supra", "Flush", "Strict Match"]
+    ),
+  ],
+  aggressive: [
+    pending(
+      "Supra Aggressive Verified Photo Pending",
+      "19x10 +22 / 19x11 +35",
+      "275/35R19 / 305/30R19",
+      "Aggressive Supra should show strong rear width and an assertive stance.",
+      ["Supra", "Aggressive", "Wide Rear", "Strict Match"]
+    ),
+  ],
 },
 };
