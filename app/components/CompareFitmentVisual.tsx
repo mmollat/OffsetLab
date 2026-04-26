@@ -72,7 +72,7 @@ export default function CompareFitmentVisual({
     selectedWidth / 2 - selected.offset - (oemWidth / 2 - oem.offset);
 
   const scale = 0.64;
-  const hubFaceX = 485;
+  const hubFaceX = 484;
   const visualOffset = -46;
 
   const oemOuter =
