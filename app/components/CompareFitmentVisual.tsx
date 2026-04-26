@@ -126,7 +126,7 @@ const selectedWidthPx = selectedInner - selectedOuter;
             className="absolute inset-0 h-full w-full object-contain object-top translate-y-[2px]"
           />
 
-          <svg viewBox="0 0 1000 562" className="absolute inset-0 h-full w-full translate-y-[15px]">
+          <svg viewBox="0 0 1000 562" className="absolute inset-0 h-full w-full">
             <defs>
               <filter id="blueGlow" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur stdDeviation="3" result="blur" />
