@@ -13,7 +13,7 @@ export type GalleryBuild = {
   note: string;
   verificationNote: string;
   tags: string[];
-  match: "Exact Match" | "Verified Spec Match" | "Pending Verified Photo";
+  match: "Exact Match" | "Close Match" | "Visual Reference";
 };
 
 const verifiedModelSPlaidAggressive =
