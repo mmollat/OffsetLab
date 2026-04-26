@@ -25,11 +25,14 @@ export default function GalleryCard({ build }: { build: GalleryBuild }) {
         >
           <div className="px-6 text-center">
             <p className="text-xs uppercase tracking-[0.35em] text-white/30">
-              Verified Image
-            </p>
-            <p className="mt-3 text-3xl font-black tracking-tight text-white/80">
-              Coming Soon
-            </p>
+  Visual Reference
+</p>
+<p className="mt-3 text-3xl font-black tracking-tight text-white/80">
+  Image Pending
+</p>
+<p className="mt-3 text-sm text-white/45">
+  A reference image will appear here once one is available for this setup.
+</p>
             <p className="mt-3 text-sm text-white/45">
               We only show photos when the specs match this fitment category.
             </p>
