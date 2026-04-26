@@ -298,7 +298,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
       },
     ],
   },
-        "GR Corolla": {
+  "GR Corolla": {
   oemplus: [
     {
       label: "GR Corolla OEM+ Reference",
