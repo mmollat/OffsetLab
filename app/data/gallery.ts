@@ -299,8 +299,61 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     ],
   },
         "GR Corolla": {
-  oemplus: [],
-  flush: [],
-  aggressive: [],
+  oemplus: [
+    {
+      label: "GR Corolla OEM+ Reference",
+      imageUrl: "https://images.fitmentindustries.com/web-compressed/2303120-1-2023-corolla-toyota-core-stock-stock-enkei-tsr-x.jpg",
+      imageStatus: "verified",
+      sourceType: "community",
+      sourceName: "Fitment Industries",
+      sourceUrl: "https://www.fitmentindustries.com/",
+      wheel: "18x8.5 +30",
+      tire: "245/40R18",
+      suspension: "Stock / Mild drop",
+      note: "Clean OEM+ GR Corolla fitment with slightly wider tire for better stance.",
+      verificationNote:
+        "Used as OEM+ reference. Matches square setup with minimal poke and daily drivability.",
+      tags: ["GR Corolla", "OEM+", "Square"],
+      match: "Verified Spec Match",
+    },
+  ],
+
+  flush: [
+    {
+      label: "GR Corolla Flush Reference",
+      imageUrl: "https://images.fitmentindustries.com/web-compressed/2359981-1-2023-corolla-toyota-core-te37sl-ray-volk-bronze.jpg",
+      imageStatus: "verified",
+      sourceType: "community",
+      sourceName: "Fitment Industries",
+      sourceUrl: "https://www.fitmentindustries.com/",
+      wheel: "18x9.5 +30",
+      tire: "255/35R18",
+      suspension: "Lowered",
+      note: "Strong flush stance with proper tire stretch and clean fender alignment.",
+      verificationNote:
+        "Matches flush preset with 18x9.5 +30 and 255 tire sizing.",
+      tags: ["GR Corolla", "Flush", "Square"],
+      match: "Verified Spec Match",
+    },
+  ],
+
+  aggressive: [
+    {
+      label: "GR Corolla Aggressive Reference",
+      imageUrl: "https://images.fitmentindustries.com/web-compressed/2411123-1-2023-corolla-toyota-core-work-meister-s1-3p-polished.jpg",
+      imageStatus: "verified",
+      sourceType: "community",
+      sourceName: "Fitment Industries",
+      sourceUrl: "https://www.fitmentindustries.com/",
+      wheel: "18x9.5 +22",
+      tire: "265/35R18",
+      suspension: "Coilovers",
+      note: "Wide aggressive stance with visible poke and lower ride height.",
+      verificationNote:
+        "Represents aggressive preset with wider tire and lower offset.",
+      tags: ["GR Corolla", "Aggressive", "Wide"],
+      match: "Verified Spec Match",
+    },
+  ],
 },
 };
