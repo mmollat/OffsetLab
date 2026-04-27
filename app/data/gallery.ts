@@ -414,4 +414,33 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     ),
   ],
 },
+"S2000": {
+  oemplus: [
+    pending(
+      "S2000 OEM+ Verified Photo Pending",
+      "17x8 +50 / 17x9 +60",
+      "225/45R17 / 255/40R17",
+      "OEM+ S2000 should show a clean high-offset staggered setup with factory-plus proportions.",
+      ["S2000", "OEM+", "Staggered", "Strict Match"]
+    ),
+  ],
+  flush: [
+    pending(
+      "S2000 Flush Verified Photo Pending",
+      "17x8.5 +45 / 17x9.5 +50",
+      "225/45R17 / 255/40R17",
+      "Flush S2000 should show a lowered, filled-out stance without excessive poke.",
+      ["S2000", "Flush", "Staggered", "Strict Match"]
+    ),
+  ],
+  aggressive: [
+    pending(
+      "S2000 Aggressive Verified Photo Pending",
+      "17x9 +45 / 17x10 +50",
+      "245/40R17 / 255/40R17",
+      "Aggressive S2000 should show wide, track-inspired fitment with verified camber and fender clearance.",
+      ["S2000", "Aggressive", "Staggered", "Strict Match"]
+    ),
+  ],
+},
 };
