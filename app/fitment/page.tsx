@@ -787,6 +787,10 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
               <p className="text-sm uppercase tracking-wide text-white/40">Verdict</p>
               <p className="mt-3 text-lg leading-8 text-white/80">{displayedFitment.verdict}</p>
             </div>
+            <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <p className="text-sm uppercase tracking-wide text-white/40">Alternate Setup</p>
+              <p className="mt-3 text-lg leading-8 text-white/80">{displayedFitment.alternate}</p>
+            </div>
 
             <div className="grid gap-6">
               {builds.length > 0 ? (
