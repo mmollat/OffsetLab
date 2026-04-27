@@ -298,9 +298,9 @@ function riskPill(risk: string) {
 }
 
 export default function FitmentPage() {
-  const [make, setMake] = useState<MakeKey>("Tesla");
-  const [model, setModel] = useState<ModelKey>("Model S");
-  const [trim, setTrim] = useState("Plaid");
+  const [make, setMake] = useState<MakeKey | null>(null);
+  const [model, setModel] = useState<ModelKey | null>(null);
+  const [trim, setTrim] = useState<string>("");
   const [style, setStyle] = useState<StyleKey>("aggressive");
   const [goal, setGoal] = useState<DrivingGoalKey>("street");
   const [configuration, setConfiguration] = useState<ConfigurationKey>("staggered");
@@ -309,35 +309,68 @@ export default function FitmentPage() {
   const [approvedBuilds, setApprovedBuilds] = useState<any[]>([]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlMake = normalizeMake(params.get("make"));
-    const urlModel = normalizeModel(params.get("model"), urlMake);
-    const urlStyle = normalizeStyle(params.get("style"));
-    const urlTrim = params.get("trim");
-    const urlGoal = params.get("goal");
-    const initialGoal: DrivingGoalKey = urlGoal === "track" ? "track" : "street";
-    const urlConfiguration = params.get("configuration");
-    const recommendedConfiguration = getRecommendedConfiguration(urlModel, initialGoal);
+  const params = new URLSearchParams(window.location.search);
+  const rawMake = params.get("make");
 
-    setMake(urlMake);
-    setModel(urlModel);
-    setStyle(urlStyle);
-    setGoal(initialGoal);
-    setConfiguration(urlConfiguration === "square" || urlConfiguration === "staggered" ? (urlConfiguration as ConfigurationKey) : recommendedConfiguration);
+  if (!rawMake) return;
 
-    const availableTrims = getTrims(urlModel);
-    setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
-  }, []);
+  const urlMake = normalizeMake(rawMake);
+  const urlModel = normalizeModel(params.get("model"), urlMake);
+  const urlStyle = normalizeStyle(params.get("style"));
+  const urlTrim = params.get("trim");
+  const urlGoal = params.get("goal");
+  const initialGoal: DrivingGoalKey = urlGoal === "track" ? "track" : "street";
+  const urlConfiguration = params.get("configuration");
+  const recommendedConfiguration = getRecommendedConfiguration(urlModel, initialGoal);
 
-  const availableModels = useMemo(() => getModelsForMake(make), [make]);
-  const safeModel = availableModels.includes(model) ? model : getDefaultModelForMake(make);
-  const trims = useMemo(() => getTrims(safeModel), [safeModel]);
-  const safeTrim = trims.includes(trim) ? trim : trims[0];
-  const trimData = useMemo(() => getTrimData(safeModel, safeTrim), [safeModel, safeTrim]);
-  const current = trimData.presets[style];
+  setMake(urlMake);
+  setModel(urlModel);
+  setStyle(urlStyle);
+  setGoal(initialGoal);
+  setConfiguration(
+    urlConfiguration === "square" || urlConfiguration === "staggered"
+      ? (urlConfiguration as ConfigurationKey)
+      : recommendedConfiguration
+  );
+
+  const availableTrims = getTrims(urlModel);
+  setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
+}, []);
+
+  const availableModels = useMemo(
+  () => (make ? getModelsForMake(make) : []),
+  [make]
+);
+
+const safeModel =
+  make && model && availableModels.includes(model)
+    ? model
+    : make
+      ? getDefaultModelForMake(make)
+      : null;
+  const trims = useMemo(
+  () => (safeModel ? getTrims(safeModel) : []),
+  [safeModel]
+);
+
+const safeTrim =
+  trim && trims.includes(trim)
+    ? trim
+    : trims.length > 0
+      ? trims[0]
+      : "";
+
+const trimData = useMemo(
+  () => (safeModel && safeTrim ? getTrimData(safeModel, safeTrim) : null),
+  [safeModel, safeTrim]
+);
+  const current = trimData?.presets?.[style];
 
   const displayedFitment = useMemo(() => {
-    if (configuration !== "square") return current;
+  if (!current || !safeModel || !make) return null;
+
+  if (configuration !== "square") return current;
+  
 
     const override = (goal === "track" ? trackOverrides : squareOverrides)[safeModel]?.[style];
     const squareWheel = override?.front ?? current.front;
@@ -379,7 +412,9 @@ export default function FitmentPage() {
 
   const configurationTag = configuration === "square" ? "Square" : "Staggered";
 
-  const referenceBuilds = (galleryExamples[safeModel]?.[style] ?? []).filter((build) => {
+  const referenceBuilds =
+  safeModel && displayedFitment
+    ? (galleryExamples[safeModel]?.[style] ?? []).filter((build) => {
     const matchesModel =
       build.tags?.includes(safeModel) ||
       build.label.toLowerCase().includes(safeModel.toLowerCase());
@@ -394,7 +429,8 @@ export default function FitmentPage() {
       build.match === "Visual Reference";
 
     return matchesModel && matchesConfiguration;
-  });
+  })
+  : [];
 
   const communityBuilds = approvedBuilds;
 
@@ -407,6 +443,8 @@ export default function FitmentPage() {
   );
 
   useEffect(() => {
+    if (!make || !safeModel || !safeTrim) return;
+    
     const params = new URLSearchParams();
     params.set("make", make.toLowerCase());
     params.set("model", modelSlug(safeModel));
@@ -422,6 +460,10 @@ export default function FitmentPage() {
 
     async function loadApprovedBuilds() {
       setApprovedBuilds([]);
+      if (!safeModel) {
+  setApprovedBuilds([]);
+  return;
+}
 
       try {
         const normalize = (value: string) =>
@@ -505,16 +547,63 @@ match: normalize(String(row.fitment_style || "")) === normalizedStyle ? "Close M
   }
 
   async function shareBuild() {
-    const data = {
-      title: "Offset Lab",
-      text: `${safeModel} ${safeTrim} • ${displayedFitment.title}`,
-      url: window.location.href,
-    };
+  if (!safeModel || !safeTrim || !displayedFitment) return;
 
-    if (navigator.share) await navigator.share(data);
-    else await copyLink();
-  }
+  const data = {
+    title: "Offset Lab",
+    text: `${safeModel} ${safeTrim} • ${displayedFitment.title}`,
+    url: window.location.href,
+  };
 
+  if (navigator.share) await navigator.share(data);
+  else await copyLink();
+}
+if (!make || !safeModel || !trimData || !current || !displayedFitment) {
+  return (
+    <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8">
+          <p className="text-xs uppercase tracking-[0.25em] text-red-400/70">
+            Offset Lab Gallery
+          </p>
+          <h1 className="mt-2 text-3xl font-bold md:text-5xl">
+            Select Your <span className="text-red-500">Platform</span>
+          </h1>
+          <p className="mt-3 text-white/55">
+            Choose a make to start building your fitment recommendation.
+          </p>
+        </div>
+
+        <Panel title="1. Select Make">
+          <div className="flex flex-wrap gap-2">
+            {makes.map((item) => (
+              <button
+                key={item.label}
+                disabled={!item.active}
+                onClick={() => {
+                  if (!item.active) return;
+                  setMake(item.label);
+                  const nextModel = getDefaultModelForMake(item.label);
+                  setModel(nextModel);
+                  setTrim(getTrims(nextModel)[0]);
+                  setConfiguration(getRecommendedConfiguration(nextModel, goal));
+                }}
+                className={`rounded-xl border px-3 py-2 text-sm transition ${
+                  !item.active
+                    ? "border-white/10 bg-white/[0.02] text-white/45"
+                    : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
+                }`}
+              >
+                {item.label}
+                {!item.active ? " • Soon" : ""}
+              </button>
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </main>
+  );
+}
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
       <div className="mx-auto max-w-7xl">
@@ -566,7 +655,7 @@ match: normalize(String(row.fitment_style || "")) === normalizedStyle ? "Close M
             <Panel title="2. Select Vehicle">
               <div className="space-y-3">
                 <select
-                  value={safeModel}
+                  value={safeModel ?? ""}
                   onChange={(e) => {
                     const next = e.target.value as ModelKey;
                     setModel(next);
@@ -625,7 +714,7 @@ match: normalize(String(row.fitment_style || "")) === normalizedStyle ? "Close M
                     key={key}
                     onClick={() => {
                       setGoal(key);
-                      setConfiguration(getRecommendedConfiguration(safeModel, key));
+                      setConfiguration(getRecommendedConfiguration(safeModel as ModelKey, key));
                     }}
                     className={`w-full rounded-2xl border p-4 text-left transition ${goal === key ? "border-red-500/60 bg-red-500/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
                   >
