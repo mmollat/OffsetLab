@@ -488,7 +488,8 @@ const trimData = useMemo(
           .from("build_submissions")
           .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
           .eq("status", "approved")
-          .eq("model", safeModel);
+          .eq("model", safeModel)
+          .eq("trim", safeTrim);
 
         if (cancelled) return;
 
