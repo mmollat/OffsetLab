@@ -385,4 +385,56 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     ),
   ],
 },
+  Civic: {
+  oemplus: [
+    {
+      label: "Civic OEM+ Street",
+      imageUrl: "/images/civic/oemplus-1.jpg",
+      imageStatus: "pending",
+      sourceType: "community",
+      sourceName: "Offset Lab",
+      sourceUrl: "#",
+      wheel: "18x8.5 +45",
+      tire: "235/40R18",
+      suspension: "Lowering springs",
+      note: "Clean OEM+ Civic setup. Slightly wider wheel with factory-friendly offset for a subtle, refined stance.",
+      tags: ["Civic", "OEM+", "Square"],
+      match: "Close Match",
+    },
+  ],
+
+  flush: [
+    {
+      label: "Civic Flush Street",
+      imageUrl: "/images/civic/flush-1.jpg",
+      imageStatus: "pending",
+      sourceType: "community",
+      sourceName: "Offset Lab",
+      sourceUrl: "#",
+      wheel: "18x9.5 +35",
+      tire: "255/35R18",
+      suspension: "Coilovers",
+      note: "Classic flush Civic fitment. Strong stance without excessive poke. Works best slightly lowered.",
+      tags: ["Civic", "Flush", "Square"],
+      match: "Close Match",
+    },
+  ],
+
+  aggressive: [
+    {
+      label: "Civic Aggressive Stance",
+      imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
+      imageStatus: "pending",
+      sourceType: "community",
+      sourceName: "Offset Lab",
+      sourceUrl: "#",
+      wheel: "18x10 +25",
+      tire: "265/35R18",
+      suspension: "Coilovers w/ camber",
+      note: "Aggressive square Civic setup with wide wheels and tire. Requires camber and ride height dial-in for proper clearance.",
+      tags: ["Civic", "Aggressive", "Square"],
+      match: "Close Match",
+    },
+  ],
+},
 };
