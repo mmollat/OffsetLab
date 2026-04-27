@@ -10,7 +10,8 @@ export type ModelKey =
   | "GR86"
   | "GR Corolla"
   | "Supra"
-  | "Civic";
+  | "Civic"
+  | "S2000";
 
 export type Preset = {
   title: string;
@@ -519,6 +520,81 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
   },
 },
   ],
+  "S2000": [
+    {
+      trim: "AP1 / AP2",
+      baseline: {
+        front: "17x7 +55",
+        rear: "17x8.5 +65",
+        tire: "215/45R17 / 245/40R17",
+        boltPattern: "5x114.3",
+        centerBore: "64.1",
+      },
+      presets: {
+        oemplus: p(
+          "OEM+ Setup",
+          "Clean factory-plus stance",
+          "17x8 +48",
+          "17x9 +55",
+          "215/45R17",
+          "245/40R17",
+          "+13mm",
+          "+16mm",
+          "-7mm",
+          "-3mm",
+          "0%",
+          5,
+          9,
+          "Low",
+          "Clean S2000 OEM+ setup with better stance while staying daily-friendly.",
+          low,
+          "17x8.5 +50 / 17x9.5 +58 for a slightly fuller staggered setup"
+        ),
+        flush: p(
+          "Flush Setup",
+          "Balanced street fitment",
+          "17x9 +45",
+          "17x10 +50",
+          "225/45R17",
+          "255/40R17",
+          "+23mm",
+          "+28mm",
+          "-9mm",
+          "-7mm",
+          "+0.3%",
+          8,
+          7,
+          "Moderate",
+          "Strong flush S2000 setup with a clean aggressive stance. Best with alignment dialed in.",
+          mod,
+          "17x9 +48 / 17x10 +55 for a safer flush setup"
+        ),
+        aggressive: p(
+          "Aggressive Setup",
+          "Wide stance / track-inspired",
+          "17x9.5 +40",
+          "17x10.5 +45",
+          "245/40R17",
+          "265/40R17",
+          "+34mm",
+          "+40mm",
+          "-10mm",
+          "-9mm",
+          "+0.7%",
+          9,
+          5,
+          "Moderate / High",
+          "Aggressive S2000 fitment with serious presence. Requires camber, ride-height tuning, and fender clearance work.",
+          [
+            "Front camber recommended.",
+            "Rear fender roll likely needed.",
+            "Check inner clearance and ride height carefully.",
+          ],
+          "17x9 +45 / 17x10 +50 for a cleaner aggressive street setup"
+        ),
+      },
+    },
+  ],
 };
 
 
@@ -526,7 +602,7 @@ export const makeModelOptions: Record<MakeKey, ModelKey[]> = {
   Tesla: ["Model 3", "Model Y", "Model S", "Model X"],
   BMW: ["M3", "M4"],
   Toyota: ["GR86", "GR Corolla", "Supra"],
-  Honda: ["Civic"],
+  Honda: ["Civic", "S2000"],
   Porsche: [],
 };
 
@@ -562,8 +638,9 @@ export function normalizeModel(value: string | null, make: MakeKey = "Tesla"): M
   }
 
   if (make === "Honda") {
-    return "Civic";
-  }
+  if (input.includes("s2000") || input.includes("s2k")) return "S2000";
+  return "Civic";
+}
 
   if (make === "BMW") {
     if (input === "m4") return "M4";
