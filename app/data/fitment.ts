@@ -500,8 +500,8 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
     aggressive: p(
       "Aggressive Setup",
       "Max grip / stance",
-      "18x10 +38",
-      "18x10 +38",
+      "18x10 +38/40",
+      "18x10 +38/40",
       "285/35R18",
       "285/35R18",
       "+28mm",
