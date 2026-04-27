@@ -131,7 +131,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Setup", "Clean daily setup", "20x9.5 +40", "20x9.5 +40", "255/40R20", "255/40R20", "+5mm", "+5mm", "-5mm", "-5mm", "-0.1%", 4, 9, "Low", "Clean OEM+ option.", low, "20x10 +40"),
         flush: p("Flush Setup", "Filled-out stance", "20x10 +35", "20x10 +35", "275/40R20", "275/40R20", "+16mm", "+16mm", "-10mm", "-10mm", "+0.7%", 7, 8, "Low / Moderate", "Strong flush setup.", mod, "21x9.5 +40"),
-        aggressive: p("Aggressive Setup", "Wider stance", "21x9.5 +30", "21x10.5 +40", "265/35R21", "295/35R21", "+20mm", "+24mm", "-5mm", "-8mm", "+0.9%", 8, 7, "Moderate", "Aggressive SUV fitment.", mod, "20x10 +30"),
+        aggressive: p("Aggressive Setup", "Wider stance", "21x10 +32", "21x11 +38", "275/35R21", "295/35R21", "+20mm", "+24mm", "-5mm", "-8mm", "+0.9%", 8, 7, "Moderate", "Aggressive SUV fitment.", mod, "20x10 +30"),
       },
     },
     {
@@ -140,7 +140,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Setup", "Close to stock", "21x9.5 +38", "21x10.5 +42", "255/35R21", "275/35R21", "+2mm", "+3mm", "-2mm", "-3mm", "0%", 4, 9, "Low", "Minimal compromise.", low, "20x10 +38"),
         flush: p("Flush Setup", "Sharper stance", "21x10 +35", "21x11 +40", "265/35R21", "295/35R21", "+8mm", "+10mm", "-4mm", "-5mm", "+0.5%", 7, 8, "Low / Moderate", "Clean performance flush.", mod, "21x10 +35"),
-        aggressive: p("Aggressive Setup", "Wide stance", "21x10.5 +30", "21x11.5 +35", "275/35R21", "305/30R21", "+15mm", "+20mm", "-5mm", "-8mm", "+0.8%", 8, 7, "Moderate", "Aggressive stance.", mod, "20x10 +30"),
+        aggressive: p("Aggressive Setup", "Wide stance", "21x10.5 +32", "21x11.5 +38", "275/35R21", "295/35R21", "+15mm", "+20mm", "-5mm", "-8mm", "+0.8%", 8, 7, "Moderate", "Aggressive stance.", mod, "20x10 +30"),
       },
     },
   ],
@@ -194,7 +194,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Daily", "Factory fitment", "19x9.5 ET20", "20x10.5 ET20", "275/35R19", "285/30R20", "+0mm", "+0mm", "OEM", "OEM", "OEM", 6, 9, "Low", "Factory-plus setup.", low, "19x10 ET20"),
         flush: p("Flush Street", "Clean stance", "20x10 ET15", "20x11 ET15", "285/30R20", "305/30R20", "+11mm", "+11mm", "-1mm", "-1mm", "+0.3%", 8, 8, "Low / Moderate", "Balanced flush setup.", mod, "20x10 ET18"),
-        aggressive: p("Aggressive Performance", "Wide stance", "20x10 ET12", "20x11 ET12", "285/30R20", "305/30R20", "+14mm", "+14mm", "+2mm", "+2mm", "+0.3%", 9, 7, "Moderate", "Aggressive stance.", mod, "20x10 ET15"),
+        aggressive: p("Aggressive Performance", "Wide stance", "20x10 ET18", "20x11 ET32", "285/30R20", "305/30R20", "+8mm", "+18mm", "-4mm", "-2mm", "+0.3%", 8, 7, "Moderate", "Aggressive but realistic G80/G82 stance. No excessive poke, no camber required.", mod, "20x10 ET20"),
       },
     },
     {
@@ -203,7 +203,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Daily", "AWD-safe setup", "19x9.5 ET20", "20x10.5 ET20", "275/35R19", "285/30R20", "+0mm", "+0mm", "OEM", "OEM", "OEM", 6, 9, "Low", "Safe AWD setup.", low, "20x10 ET20"),
         flush: p("Flush Street", "Balanced AWD stance", "20x10 ET18", "20x11 ET18", "285/30R20", "305/30R20", "+8mm", "+8mm", "-2mm", "-2mm", "+0.3%", 7, 8, "Low / Moderate", "Clean flush AWD.", mod, "20x10 ET20"),
-        aggressive: p("Aggressive Performance", "Wide AWD stance", "20x10 ET15", "20x11 ET15", "285/30R20", "305/30R20", "+11mm", "+11mm", "-3mm", "-3mm", "+0.3%", 8, 7, "Moderate", "Aggressive AWD stance.", mod, "20x10 ET18"),
+        aggressive: p("Aggressive Performance", "Wide AWD stance", "20x10 ET18", "20x11 ET32", "285/30R20", "305/30R20", "+8mm", "+18mm", "-4mm", "-2mm", "+0.3%", 8, 7, "Moderate", "Aggressive AWD stance.", mod, "20x10 ET18"),
       },
     },
   ],
@@ -215,7 +215,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Daily", "Factory fitment", "19x9.5 ET20", "20x10.5 ET20", "275/35R19", "285/30R20", "+0mm", "+0mm", "OEM", "OEM", "OEM", 6, 9, "Low", "Factory setup.", low, "19x10 ET20"),
         flush: p("Flush Street", "Clean stance", "20x10 ET15", "20x11 ET15", "285/30R20", "305/30R20", "+11mm", "+11mm", "-1mm", "-1mm", "+0.3%", 8, 8, "Low / Moderate", "Clean flush.", mod, "20x10 ET18"),
-        aggressive: p("Aggressive Performance", "Wide stance", "20x10 ET12", "20x11 ET12", "285/30R20", "305/30R20", "+14mm", "+14mm", "+2mm", "+2mm", "+0.3%", 9, 7, "Moderate", "Aggressive stance.", mod, "20x10 ET15"),
+        aggressive: p("Aggressive Performance", "Wide stance", "20x10 ET18", "20x11 ET32", "285/30R20", "305/30R20", "+8mm", "+18mm", "-4mm", "-2mm", "+0.3%", 9, 7, "Moderate", "Aggressive stance.", mod, "20x10 ET15"),
       },
     },
   ],
@@ -227,7 +227,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Setup", "Clean daily upgrade", "18x8 +40", "18x8 +40", "225/40R18", "225/40R18", "+8mm", "+8mm", "-3mm", "-3mm", "+0.2%", 4, 9, "Low", "Perfect OEM+.", low, "18x8.5 +40"),
         flush: p("Flush Setup", "Balanced stance", "18x9 +38", "18x9 +38", "245/35R18", "245/35R18", "+18mm", "+18mm", "-6mm", "-6mm", "+0.3%", 7, 8, "Low", "Ideal flush.", mod, "17x9 +38"),
-        aggressive: p("Aggressive Setup", "Wider stance", "18x9.5 +35", "18x9.5 +35", "255/35R18", "255/35R18", "+25mm", "+25mm", "-8mm", "-8mm", "+0.5%", 8, 7, "Moderate", "Aggressive fitment.", mod, "18x10 +35"),
+        aggressive: p("Aggressive Setup", "Wider stance", "18x9.5 +38", "18x9.5 +35", "255/35R18", "255/35R18", "+25mm", "+25mm", "-8mm", "-8mm", "+0.5%", 8, 7, "Moderate", "Aggressive fitment.", mod, "18x10 +35"),
       },
     },
   ],
@@ -355,7 +355,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       aggressive: p(
         "Aggressive Setup",
         "Wide stance",
-        "19x10 +22",
+        "19x10 +25",
         "19x11 +35",
         "275/35R19",
         "305/30R19",
