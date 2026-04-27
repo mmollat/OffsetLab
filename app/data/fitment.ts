@@ -227,7 +227,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
       presets: {
         oemplus: p("OEM+ Setup", "Clean daily upgrade", "18x8 +40", "18x8 +40", "225/40R18", "225/40R18", "+8mm", "+8mm", "-3mm", "-3mm", "+0.2%", 4, 9, "Low", "Perfect OEM+.", low, "18x8.5 +40"),
         flush: p("Flush Setup", "Balanced stance", "18x9 +38", "18x9 +38", "245/35R18", "245/35R18", "+18mm", "+18mm", "-6mm", "-6mm", "+0.3%", 7, 8, "Low", "Ideal flush.", mod, "17x9 +38"),
-        aggressive: p("Aggressive Setup", "Wider stance", "18x9.5 +38", "18x9.5 +35", "255/35R18", "255/35R18", "+25mm", "+25mm", "-8mm", "-8mm", "+0.5%", 8, 7, "Moderate", "Aggressive fitment.", mod, "18x10 +35"),
+        aggressive: p("Aggressive Setup", "Controlled wide stance", "18x9.5 +38", "18x9.5 +38", "255/35R18", "255/35R18", "+22mm", "+22mm", "-5mm", "-5mm", "+0.5%", 8, 7, "Moderate", "Controlled aggressive GR86 fitment with a wide square stance while staying clean and usable.", mod, "18x9.5 +40"),
       },
     },
   ],
