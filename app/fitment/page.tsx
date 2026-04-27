@@ -488,8 +488,7 @@ const trimData = useMemo(
           .from("build_submissions")
           .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
           .eq("status", "approved")
-          .eq("model", safeModel)
-          .eq("trim", safeTrim);
+          .eq("model", safeModel);
 
         if (cancelled) return;
 
@@ -497,8 +496,17 @@ const trimData = useMemo(
           setApprovedBuilds([]);
           return;
         }
+        const normalizeTrim = (value: string) => {
+  const input = value.toLowerCase().replace(/\s+/g, "").trim();
 
-        const filtered = data.filter((row) => row && row.image_url);
+  if (input.includes("typer") || input.includes("ctr")) return "Type R";
+  if (input.includes("si") || input.includes("sport")) return "Sport / Si";
+
+  return value;
+};
+       const filtered = data
+  .filter((row) => row && row.image_url)
+  .filter((row) => normalizeTrim(String(row.trim || "")) === normalizeTrim(safeTrim));
 
         const mapped = filtered
           .filter((row) => row && row.image_url)
