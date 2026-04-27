@@ -404,7 +404,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
           "Low",
           "Clean Civic OEM+ setup with daily-friendly sizing and minimal fitment risk.",
           low,
-          "18x8.5 +38"
+          "18x8.5 +38 with 245/40R18 for a slightly fuller daily stance"
         ),
         flush: p(
           "Flush Setup",
@@ -423,7 +423,7 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
           "Low / Moderate",
           "Strong Civic flush setup with a wider footprint and clean street presence.",
           mod,
-          "18x9.5 +38"
+          "19x9 +35 with 245/35R19 for a larger diameter street setup"
         ),
         aggressive: p(
           "Aggressive Setup",
@@ -440,12 +440,12 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
           9,
           5,
           "Moderate / High",
-          "Aggressive Civic square setup with strong visual impact. Best for lowered builds with alignment dialed in.",
+          "Aggressive Civic square setup focused on width, offset, and stance rather than wheel diameter. Best for lowered builds with alignment dialed in.",
           [
             "Likely requires camber, ride-height tuning, and possible fender clearance work.",
             "Check front inner and fender clearance carefully.",
           ],
-          "18x9.5 +35"
+          "19x9.5 +30 with 255/30R19 for a larger visual street setup"
         ),
       },
     },
