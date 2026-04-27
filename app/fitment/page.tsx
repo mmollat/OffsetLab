@@ -258,7 +258,7 @@ const trackOverrides: GoalOverrideMap = {
 
 function getRecommendedConfiguration(model: ModelKey, goal: DrivingGoalKey = "street"): ConfigurationKey {
   if (goal === "track") return "square";
-  if (model === "Model 3" || model === "Model Y") return "square";
+  if (model === "Model 3" || model === "Model Y" || model === "Civic") return "square";
   return "staggered";
 }
 
