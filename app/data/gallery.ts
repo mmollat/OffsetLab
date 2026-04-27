@@ -385,62 +385,33 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     ),
   ],
 },
-  Civic: {
-  oemplus: [
-    {
-  label: "Civic OEM+ Street",
-  imageUrl: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6",
-  imageStatus: "pending",
-  sourceType: "community",
-  sourceName: "Reference Build",
-  sourceUrl: "https://unsplash.com",
-  wheel: "18x8.5 +45",
-  tire: "235/40R18",
-  suspension: "Lowering springs",
-  note: "Subtle OEM+ Civic fitment. Slightly wider wheel with conservative offset for a clean, factory-inspired stance.",
-  verificationNote:
-  "Represents OEM+ preset with conservative offset and square sizing focused on daily drivability and clean fitment.",
-  tags: ["Civic", "OEM+", "Square"],
-  match: "Close Match",
-},
-  ],
-
-  flush: [
-    {
-  label: "Civic Flush Street",
-  imageUrl: "https://images.unsplash.com/photo-1542362567-b07e54358753",
-  imageStatus: "pending",
-  sourceType: "community",
-  sourceName: "Reference Build",
-  sourceUrl: "https://unsplash.com",
-  wheel: "18x9.5 +35",
-  tire: "255/35R18",
-  suspension: "Coilovers",
-  note: "Strong flush Civic setup. Fills the arches perfectly without excessive poke. Ideal balance of stance and drivability.",
-  verificationNote:
-  "Represents flush preset with wider wheel and tire sizing to achieve a balanced, filled-out stance.",
-  tags: ["Civic", "Flush", "Square"],
-  match: "Close Match",
-},
-  ],
-
-  aggressive: [
-    {
-  label: "Civic Aggressive Stance",
-  imageUrl: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c",
-  imageStatus: "pending",
-  sourceType: "community",
-  sourceName: "Reference Build",
-  sourceUrl: "https://unsplash.com",
-  wheel: "18x10 +25",
-  tire: "265/35R18",
-  suspension: "Coilovers w/ camber",
-  note: "Aggressive Civic square setup. Wide wheels and tires require camber and ride height tuning to clear properly.",
-  verificationNote:
-  "Represents aggressive preset with wider tire and lower offset requiring proper suspension and alignment setup.",
-  tags: ["Civic", "Aggressive", "Square"],
-  match: "Close Match",
-},
-  ],
-},
+    "Civic": {
+    oemplus: [
+      pending(
+        "Civic OEM+ Verified Photo Pending",
+        "18x8.5 +45",
+        "235/40R18",
+        "OEM+ Civic should show a subtle, factory-like stance with minimal poke and clean proportions.",
+        ["Civic", "OEM+", "Square", "Strict Match"]
+      ),
+    ],
+    flush: [
+      pending(
+        "Civic Flush Verified Photo Pending",
+        "18x9.5 +35",
+        "255/35R18",
+        "Flush Civic should show a balanced, filled-out square stance without excessive poke.",
+        ["Civic", "Flush", "Square", "Strict Match"]
+      ),
+    ],
+    aggressive: [
+      pending(
+        "Civic Aggressive Verified Photo Pending",
+        "18x10 +25",
+        "265/35R18",
+        "Aggressive Civic should show a wide square setup with proper camber, ride height, and fender clearance.",
+        ["Civic", "Aggressive", "Square", "Strict Match"]
+      ),
+    ],
+  },
 };
