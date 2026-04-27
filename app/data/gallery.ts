@@ -385,33 +385,33 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     ),
   ],
 },
-    "Civic": {
-    oemplus: [
-      pending(
-        "Civic OEM+ Verified Photo Pending",
-        "18x8.5 +45",
-        "235/40R18",
-        "OEM+ Civic should show a subtle, factory-like stance with minimal poke and clean proportions.",
-        ["Civic", "OEM+", "Square", "Strict Match"]
-      ),
-    ],
-    flush: [
-      pending(
-        "Civic Flush Verified Photo Pending",
-        "18x9.5 +35",
-        "255/35R18",
-        "Flush Civic should show a balanced, filled-out square stance without excessive poke.",
-        ["Civic", "Flush", "Square", "Strict Match"]
-      ),
-    ],
-    aggressive: [
-      pending(
-        "Civic Aggressive Verified Photo Pending",
-        "18x10 +25",
-        "265/35R18",
-        "Aggressive Civic should show a wide square setup with proper camber, ride height, and fender clearance.",
-        ["Civic", "Aggressive", "Square", "Strict Match"]
-      ),
-    ],
-  },
+"Civic": {
+  oemplus: [
+    pending(
+      "Civic OEM+ Verified Photo Pending",
+      "Sport/Si: 18x8.5 +45 / Type R: 18x9.5 +45",
+      "Sport/Si: 235/40R18 / Type R: 265/35R18",
+      "Civic Sport/Si and Type R should use separate visual judgment because CTR fitment is more aggressive.",
+      ["Civic", "OEM+", "Square", "Strict Match"]
+    ),
+  ],
+  flush: [
+    pending(
+      "Civic Flush Verified Photo Pending",
+      "Sport/Si: 18x9.5 +35 / Type R: 18x9.5 +38",
+      "Sport/Si: 255/35R18 / Type R: 275/35R18",
+      "Flush Civic should match the selected trim. Type R fitment is wider and more performance-focused than Sport/Si.",
+      ["Civic", "Flush", "Square", "Strict Match"]
+    ),
+  ],
+  aggressive: [
+    pending(
+      "Civic Aggressive Verified Photo Pending",
+      "Sport/Si: 18x10 +25 / Type R: 18x10 +35-40",
+      "Sport/Si: 265/35R18 / Type R: 285/35R18",
+      "Aggressive Civic visuals should be verified carefully, especially for Type R fitment.",
+      ["Civic", "Aggressive", "Square", "Strict Match"]
+    ),
+  ],
+},
 };
