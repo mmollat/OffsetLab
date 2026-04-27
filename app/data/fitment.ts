@@ -1,4 +1,4 @@
-export type MakeKey = "Tesla" | "BMW" | "Toyota" | "Porsche";
+export type MakeKey = "Tesla" | "BMW" | "Toyota" | "Porsche" | "Honda";
 export type StyleKey = "oemplus" | "flush" | "aggressive";
 export type ModelKey =
   | "Model 3"
@@ -9,7 +9,8 @@ export type ModelKey =
   | "M4"
   | "GR86"
   | "GR Corolla"
-  | "Supra";
+  | "Supra"
+  | "Civic";
 
 export type Preset = {
   title: string;
@@ -90,6 +91,7 @@ export const makes: { label: MakeKey; active: boolean }[] = [
   { label: "Tesla", active: true },
   { label: "BMW", active: true },
   { label: "Toyota", active: true },
+  { label: "Honda", active: true },
   { label: "Porsche", active: false },
 ];
 
@@ -374,12 +376,88 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
     },
   },
 ],
+  "Civic": [
+    {
+      trim: "Sport / Si / Type R",
+      baseline: {
+        front: "18x8 +50",
+        rear: "18x8 +50",
+        tire: "235/40R18",
+        boltPattern: "5x114.3",
+        centerBore: "64.1",
+      },
+      presets: {
+        oemplus: p(
+          "OEM+ Setup",
+          "Clean daily fitment",
+          "18x8.5 +45",
+          "18x8.5 +45",
+          "235/40R18",
+          "235/40R18",
+          "+11mm",
+          "+11mm",
+          "-1mm",
+          "-1mm",
+          "+0.1%",
+          4,
+          9,
+          "Low",
+          "Clean Civic OEM+ setup with daily-friendly sizing and minimal fitment risk.",
+          low,
+          "18x8.5 +38"
+        ),
+        flush: p(
+          "Flush Setup",
+          "Balanced street stance",
+          "18x9.5 +35",
+          "18x9.5 +35",
+          "255/35R18",
+          "255/35R18",
+          "+27mm",
+          "+27mm",
+          "-7mm",
+          "-7mm",
+          "-0.4%",
+          7,
+          7,
+          "Low / Moderate",
+          "Strong Civic flush setup with a wider footprint and clean street presence.",
+          mod,
+          "18x9.5 +38"
+        ),
+        aggressive: p(
+          "Aggressive Setup",
+          "Wide square stance",
+          "18x10 +25",
+          "18x10 +25",
+          "265/35R18",
+          "265/35R18",
+          "+43mm",
+          "+43mm",
+          "-8mm",
+          "-8mm",
+          "+0.2%",
+          9,
+          5,
+          "Moderate / High",
+          "Aggressive Civic square setup with strong visual impact. Best for lowered builds with alignment dialed in.",
+          [
+            "Likely requires camber, ride-height tuning, and possible fender clearance work.",
+            "Check front inner and fender clearance carefully.",
+          ],
+          "18x9.5 +35"
+        ),
+      },
+    },
+  ],
 };
+
 
 export const makeModelOptions: Record<MakeKey, ModelKey[]> = {
   Tesla: ["Model 3", "Model Y", "Model S", "Model X"],
   BMW: ["M3", "M4"],
   Toyota: ["GR86", "GR Corolla", "Supra"],
+  Honda: ["Civic"],
   Porsche: [],
 };
 
@@ -409,10 +487,14 @@ export function normalizeModel(value: string | null, make: MakeKey = "Tesla"): M
   const input = (value || "").toLowerCase().replace(/[-_]/g, " ").trim();
 
   if (make === "Toyota") {
-  if (input.includes("corolla")) return "GR Corolla";
-  if (input.includes("supra")) return "Supra";
-  return "GR86";
-}
+    if (input.includes("corolla")) return "GR Corolla";
+    if (input.includes("supra")) return "Supra";
+    return "GR86";
+  }
+
+  if (make === "Honda") {
+    return "Civic";
+  }
 
   if (make === "BMW") {
     if (input === "m4") return "M4";
@@ -437,6 +519,7 @@ export function normalizeMake(value: string | null): MakeKey {
   const input = (value || "").toLowerCase().trim();
   if (input === "bmw") return "BMW";
   if (input === "toyota") return "Toyota";
+  if (input === "honda") return "Honda";
   if (input === "porsche") return "Porsche";
   return "Tesla";
 }
