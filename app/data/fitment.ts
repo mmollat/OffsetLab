@@ -8,7 +8,7 @@ export type ModelKey =
   | "M3"
   | "M4"
   | "GR86"
-  | "GR Corolla"
+  | "GR Corolla" 
   | "Supra"
   | "Civic"
   | "S2000";
