@@ -1,4 +1,4 @@
-export type MakeKey = "Tesla" | "BMW" | "Toyota" | "Porsche" | "Honda";
+export type MakeKey = "Tesla" | "BMW" | "Toyota" | "Porsche" | "Honda" | "McLaren";
 export type StyleKey = "oemplus" | "flush" | "aggressive";
 export type ModelKey =
   | "Model 3"
@@ -11,7 +11,10 @@ export type ModelKey =
   | "GR Corolla" 
   | "Supra"
   | "Civic"
-  | "S2000";
+  | "S2000"
+  | "Artura"
+  | "570S"
+  | "720S";
 
 export type Preset = {
   title: string;
@@ -93,6 +96,7 @@ export const makes: { label: MakeKey; active: boolean }[] = [
   { label: "BMW", active: true },
   { label: "Toyota", active: true },
   { label: "Honda", active: true },
+  { label: "McLaren", active: true },
   { label: "Porsche", active: false },
 ];
 
@@ -596,6 +600,9 @@ export const fitmentData: Record<ModelKey, TrimData[]> = {
     },
   },
 ],
+    "Artura": [],
+  "570S": [],
+  "720S": [],
 };
 
 
@@ -604,6 +611,7 @@ export const makeModelOptions: Record<MakeKey, ModelKey[]> = {
   BMW: ["M3", "M4"],
   Toyota: ["GR86", "GR Corolla", "Supra"],
   Honda: ["Civic", "S2000"],
+  McLaren: ["Artura", "570S", "720S"],
   Porsche: [],
 };
 
@@ -642,7 +650,12 @@ export function normalizeModel(value: string | null, make: MakeKey = "Tesla"): M
   if (input.includes("s2000") || input.includes("s2k")) return "S2000";
   return "Civic";
 }
-
+  if (make === "McLaren") {
+  if (input.includes("570")) return "570S";
+  if (input.includes("720")) return "720S";
+  return "Artura";
+}
+  
   if (make === "BMW") {
     if (input === "m4") return "M4";
     return "M3";
@@ -667,6 +680,7 @@ export function normalizeMake(value: string | null): MakeKey {
   if (input === "bmw") return "BMW";
   if (input === "toyota") return "Toyota";
   if (input === "honda") return "Honda";
+  if (input === "mclaren") return "McLaren";
   if (input === "porsche") return "Porsche";
   return "Tesla";
 }
