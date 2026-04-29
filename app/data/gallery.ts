@@ -443,4 +443,19 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     ),
   ],
 },
+  "Artura": {
+    oemplus: [],
+    flush: [],
+    aggressive: [],
+  },
+  "570S": {
+    oemplus: [],
+    flush: [],
+    aggressive: [],
+  },
+  "720S": {
+    oemplus: [],
+    flush: [],
+    aggressive: [],
+  },
 };
