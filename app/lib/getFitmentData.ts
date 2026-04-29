@@ -13,8 +13,8 @@ type FitmentPresetRow = {
   center_bore: string;
   title: string;
   subtitle: string;
-  front_wheel: string;
-  rear_wheel: string;
+  front: string;
+  rear: string;
   front_tire: string;
   rear_tire: string;
   poke_front: string;
@@ -36,8 +36,8 @@ function rowToPreset(row: FitmentPresetRow): Preset {
   return {
     title: row.title,
     subtitle: row.subtitle,
-    front: row.front_wheel,
-    rear: row.rear_wheel,
+    front: row.front,
+    rear: row.rear,
     frontTire: row.front_tire,
     rearTire: row.rear_tire,
     pokeFront: row.poke_front,
