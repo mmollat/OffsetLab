@@ -3,10 +3,16 @@
 import type { CSSProperties } from "react";
 
 type Props = {
-  oemFront: string;
+  baselineFront?: string;
+  baselineRear?: string;
   selectedFront: string;
-  oemRear?: string;
   selectedRear?: string;
+  pokeFront?: string;
+  pokeRear?: string;
+
+  // keeps old usage from other pages working too
+  oemFront?: string;
+  oemRear?: string;
   selectedLabel?: string;
 };
 
@@ -44,14 +50,17 @@ function formatMm(value: number) {
 }
 
 export default function CompareFitmentVisual({
-  oemFront,
+  baselineFront,
   selectedFront,
   selectedLabel,
+  oemFront,
 }: Props) {
-  const oem = parseWheel(oemFront);
+  const baseFront = baselineFront ?? oemFront ?? "";
+
+  const oem = parseWheel(baseFront);
   const selected = parseWheel(selectedFront);
 
-  const oemTire = parseTire(oemFront) || { width: 235 };
+  const oemTire = parseTire(baseFront) || { width: 235 };
   const selectedTire = parseTire(selectedFront) || { width: 265 };
 
   if (!oem || !selected) {
