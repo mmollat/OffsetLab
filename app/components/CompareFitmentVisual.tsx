@@ -129,18 +129,17 @@ export default function CompareFitmentVisual({
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white p-3">
-        <div className="relative mx-auto aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-2xl bg-white">
-  <img
-    src="/compare/cross_section_suspension.png"
-    alt="Suspension cross section"
-    className="absolute inset-0 z-0 h-full w-full object-cover"
-  />
-
-  <svg
-    viewBox="0 0 1000 562"
-    className="relative z-10 block h-full w-full"
-    preserveAspectRatio="xMidYMid meet"
+  <div
+    className="relative mx-auto aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-2xl bg-white bg-contain bg-center bg-no-repeat"
+    style={{
+      backgroundImage: "url('/compare/cross_section_suspension.png')",
+    }}
   >
+    <svg
+      viewBox="0 0 1000 562"
+      className="absolute inset-0 block h-full w-full"
+      preserveAspectRatio="xMidYMid meet"
+    >
   <defs>
     <filter id="blueGlow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="3" result="blur" />
