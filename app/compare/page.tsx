@@ -356,13 +356,13 @@ const urlModel =
               <p className="text-sm uppercase tracking-wide text-white/40">Visual Compare</p>
               <div className="mt-6">
                 <CompareFitmentVisual
-                  baselineFront={trimData.baseline.front}
-                  baselineRear={trimData.baseline.rear}
-                  selectedFront={current.front}
-                  selectedRear={current.rear}
-                  pokeFront={current.pokeFront}
-                  pokeRear={current.pokeRear}
-                />
+  baselineFront={trimData.baseline.front ?? ""}
+  baselineRear={trimData.baseline.rear ?? ""}
+  selectedFront={current.front ?? ""}
+  selectedRear={current.rear ?? ""}
+  pokeFront={current.pokeFront ?? ""}
+  pokeRear={current.pokeRear ?? ""}
+/>
               </div>
             </div>
 
