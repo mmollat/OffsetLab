@@ -28,7 +28,7 @@ type TireSpec = {
 function parseWheel(spec?: string): WheelSpec | null {
   if (!spec) return null;
 
-  const match = spec.match(/(\d+\.?\d*)x(\d+\.?\d*)\s*(?:ET|\+)?\s*(-?\d+)/i);
+  const match = spec.match(/(\d+\.?\d*)x(\d+\.?\d*)\s*(?:ET|\+|et)?\s*(-?\d+)/i);
   if (!match) return null;
 
   return {
