@@ -42,11 +42,13 @@ export default function ComparePage() {
 }, []);
 
   const makes = useMemo(() => {
-    return Array.from(new Set(vehicleModels.map((item) => item.make))).map((label) => ({
+  return Array.from(new Set(vehicleModels.map((item) => item.make)))
+    .sort((a, b) => String(a).localeCompare(String(b)))
+    .map((label) => ({
       label: label as MakeKey,
       active: true,
     }));
-  }, [vehicleModels]);
+}, [vehicleModels]);
 
   const availableModels = useMemo(() => {
     if (!make) return [];
