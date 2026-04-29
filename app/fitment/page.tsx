@@ -7,8 +7,6 @@ import SubmitBuildModal from "../components/SubmitBuildModal";
 import { supabase } from "../lib/supabase";
 import { galleryExamples } from "../data/gallery";
 import {
-  getDefaultModelForMake,
-  getModelsForMake,
   makes,
   MakeKey,
   ModelKey,
@@ -20,6 +18,7 @@ import {
   TrimData,
 } from "../data/fitment";
 import { getFitmentData } from "../lib/getFitmentData";
+import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
 
 type ConfigurationKey = "staggered" | "square";
 type DrivingGoalKey = "street" | "track";
@@ -308,6 +307,8 @@ export default function FitmentPage() {
   const [submitOpen, setSubmitOpen] = useState(false);
   const [approvedBuilds, setApprovedBuilds] = useState<any[]>([]);
   const [fitmentDb, setFitmentDb] = useState<Record<ModelKey, TrimData[]> | null>(null);
+  const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
+  
   useEffect(() => {
   let cancelled = false;
 
@@ -317,6 +318,21 @@ export default function FitmentPage() {
   }
 
   loadFitmentData();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
+useEffect(() => {
+  let cancelled = false;
+
+  async function loadVehicleModels() {
+    const data = await getVehicleModels();
+    if (!cancelled) setVehicleModels(data);
+  }
+
+  loadVehicleModels();
 
   return () => {
     cancelled = true;
@@ -363,16 +379,19 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
   setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
 }, [fitmentDb]);
 
-  const availableModels = useMemo(
-  () => (make ? getModelsForMake(make) : []),
-  [make]
-);
+  const availableModels = useMemo(() => {
+  if (!make) return [];
+
+  return vehicleModels
+    .filter((item) => item.make === make)
+    .map((item) => item.model as ModelKey);
+}, [make, vehicleModels]);
 
 const safeModel =
   make && model && availableModels.includes(model)
     ? model
-    : make
-      ? getDefaultModelForMake(make)
+    : availableModels.length > 0
+      ? availableModels[0]
       : null;
   const trims = useMemo(
   () => (safeModel ? getLoadedTrims(safeModel) : []),
@@ -593,7 +612,7 @@ match: normalize(String(row.fitment_style || "")) === normalizedStyle ? "Close M
   if (navigator.share) await navigator.share(data);
   else await copyLink();
 }
-if (!fitmentDb) {
+if (!fitmentDb || vehicleModels.length === 0) {
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
       <div className="mx-auto max-w-7xl text-white/60">
@@ -627,10 +646,15 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
                 onClick={() => {
                   if (!item.active) return;
                   setMake(item.label);
-                  const nextModel = getDefaultModelForMake(item.label);
-                  setModel(nextModel);
-                  setTrim(getLoadedTrims(nextModel)[0] ?? "");
-                  setConfiguration(getRecommendedConfiguration(nextModel, goal));
+                  const nextModel = vehicleModels.find(
+  (vehicle) => vehicle.make === item.label
+)?.model as ModelKey;
+
+if (!nextModel) return;
+
+setModel(nextModel);
+setTrim(getLoadedTrims(nextModel)[0] ?? "");
+setConfiguration(getRecommendedConfiguration(nextModel, goal));
                 }}
                 className={`rounded-xl border px-3 py-2 text-sm transition ${
                   !item.active
@@ -675,7 +699,8 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
       onClick={() => {
         if (!item.active) return;
         setMake(item.label);
-        const nextModel = getDefaultModelForMake(item.label);
+        const nextModel = vehicleModels.find((vehicle) => vehicle.make === item.label)?.model as ModelKey;
+        if (!nextModel) return;
         setModel(nextModel);
         setTrim(getLoadedTrims(nextModel)[0] ?? "");
         setConfiguration(getRecommendedConfiguration(nextModel, goal));
