@@ -774,16 +774,18 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
     </select>
 
     <select
-      value={safeTrim}
-      onChange={(e) => setTrim(e.target.value)}
-      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-    >
-      {trims.map((item) => (
-        <option key={item} value={item}>
-          {item}
-        </option>
-      ))}
-    </select>
+  value={safeTrim}
+  onChange={(e) => setTrim(e.target.value)}
+  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
+>
+  {vehicleTrims
+    .filter((item) => item.make === make && item.model === safeModel)
+    .map((item) => (
+      <option key={item.trim} value={item.trim}>
+        {item.display_name ?? item.trim}
+      </option>
+    ))}
+</select>
   </div>
 </Panel>
             <Panel title="3. Select Style">
