@@ -26,20 +26,20 @@ export default function ComparePage() {
   const [vehicleTrims, setVehicleTrims] = useState<VehicleTrim[]>([]);
 
   useEffect(() => {
-    async function loadData() {
-      const [fitment, models, trims] = await Promise.all([
-        getFitmentData(),
-        getVehicleModels(),
-        getVehicleTrims(),
-      ]);
+  async function loadData() {
+    const [fitment, models, trims] = await Promise.all([
+      getFitmentData(),
+      getVehicleModels(),
+      getVehicleTrims(),
+    ]);
 
-      setFitmentDb(fitment);
-      setVehicleModels(models);
-      setVehicleTrims(trims);
-    }
+    setFitmentDb(fitment);
+    setVehicleModels(models);
+    setVehicleTrims(trims);
+  }
 
-    loadData();
-  }, []);
+  loadData();
+}, []);
 
   const makes = useMemo(() => {
     return Array.from(new Set(vehicleModels.map((item) => item.make))).map((label) => ({
@@ -89,10 +89,34 @@ export default function ComparePage() {
     const params = new URLSearchParams(window.location.search);
     const rawMake = params.get("make");
 
-    if (!rawMake) return;
+    if (!rawMake) {
+  const firstMake = vehicleModels[0]?.make as MakeKey;
+  const firstModel = vehicleModels[0]?.model as ModelKey;
+
+  if (!firstMake || !firstModel) return;
+
+  setMake(firstMake);
+  setModel(firstModel);
+
+  const firstTrim =
+    vehicleTrims.find(
+      (item) => item.make === firstMake && item.model === firstModel
+    )?.trim ?? "";
+
+  setTrim(firstTrim);
+  return;
+}
 
     const urlMake = normalizeMake(rawMake);
-    const urlModel = normalizeModel(params.get("model"), urlMake);
+    const rawModel = params.get("model")?.replace(/[-_]/g, " ").toLowerCase().trim();
+
+const urlModel =
+  vehicleModels.find(
+    (item) =>
+      item.make === urlMake &&
+      item.model.toLowerCase().replace(/[-_]/g, " ").trim() === rawModel
+  )?.model as ModelKey ||
+  normalizeModel(params.get("model"), urlMake);
     const urlStyle = normalizeStyle(params.get("style"));
     const urlTrim = params.get("trim");
 
