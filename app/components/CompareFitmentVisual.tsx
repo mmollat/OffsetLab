@@ -59,19 +59,16 @@ export default function CompareFitmentVisual({
 }: Props) {
   const baseFront = baselineFront ?? oemFront ?? "";
 
-  const oem = parseWheel(baseFront);
-  const selected = parseWheel(selectedFront);
+  const parsedOem = parseWheel(baseFront);
+const parsedSelected = parseWheel(selectedFront);
 
-  const oemTire = parseTire(baseFront) || { width: 235 };
-  const selectedTire = parseTire(selectedFront) || { width: 265 };
+const oem = parsedOem ?? { width: 9, offset: 34 };
+const selected = parsedSelected ?? oem;
 
-  if (!oem || !selected) {
-    return (
-      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-white/50">
-        Unable to compare wheel specs.
-      </section>
-    );
-  }
+const oemTire = parseTire(baseFront) || { width: 235 };
+const selectedTire = parseTire(selectedFront) || { width: 265 };
+
+const canCompare = Boolean(parsedOem && parsedSelected);
 
   const oemWidth = oem.width * 25.4;
   const selectedWidth = selected.width * 25.4;
@@ -121,6 +118,11 @@ export default function CompareFitmentVisual({
             Fitment Cross-Section
           </p>
           <h2 className="text-xl font-bold">OEM vs Selected</h2>
+          {!canCompare ? (
+  <p className="mt-2 text-sm text-red-400/80">
+    Wheel specs missing or unreadable — showing default visual reference.
+  </p>
+) : null}
         </div>
 
         {selectedLabel ? (
