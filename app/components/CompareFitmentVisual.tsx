@@ -130,7 +130,17 @@ export default function CompareFitmentVisual({
 
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white p-3">
         <div className="relative mx-auto aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-2xl bg-white">
-          <svg viewBox="0 0 1000 562" className="block h-full w-full" preserveAspectRatio="xMidYMid meet">
+  <img
+   src="/compare/cross_section_suspension.png"
+   alt="Suspension cross section"
+   className="absolute inset-0 h-full w-full object-cover"
+/>
+
+<svg
+  viewBox="0 0 1000 562"
+  className="relative z-10 block h-full w-full"
+  preserveAspectRatio="xMidYMid meet"
+>
   <defs>
     <filter id="blueGlow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="3" result="blur" />
@@ -148,16 +158,7 @@ export default function CompareFitmentVisual({
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
     </marker>
   </defs>
-
-  <image
-    href="/compare/cross_section_suspension.png"
-    x={0}
-    y={0}
-    width={1000}
-    height={562}
-    preserveAspectRatio="xMidYMid slice"
-  />
-
+  
   <text x="120" y="72" fill="rgba(0,0,0,0.42)" fontSize="13" letterSpacing="3">
     OUTER / FENDER
   </text>
