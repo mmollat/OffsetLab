@@ -281,12 +281,19 @@ const urlModel =
                   }}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
                 >
-                  {availableModels.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
+                  <select ...>
+  {availableModels.map((item) => {
+    const modelObj = vehicleModels.find(
+      (m) => m.make === make && m.model === item
+    );
+
+    return (
+      <option key={item} value={item}>
+        {modelObj?.display_name ?? item}
+      </option>
+    );
+  })}
+</select>
 
                 <select
                   value={safeTrim}
