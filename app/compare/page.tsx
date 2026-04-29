@@ -75,8 +75,17 @@ export default function ComparePage() {
   }, [fitmentDb, model, trim]);
 
   const current = trimData?.presets?.[style];
+  if (!current) {
+  return (
+    <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8 text-white">
+      <div className="mx-auto max-w-7xl">
+        No compare data found for this setup.
+      </div>
+    </main>
+  );
+}
 
-  if (!fitmentDb || !model || !current) {
+  if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     return (
       <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8 text-white">
         <div className="mx-auto max-w-7xl">Loading...</div>
