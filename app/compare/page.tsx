@@ -264,36 +264,51 @@ const urlModel =
             </Panel>
 
             <Panel title="2. Select Vehicle">
-              <div className="space-y-3">
-                <select
-                  value={safeModel ?? ""}
-                  onChange={(e) => {
-                    const next = e.target.value as ModelKey;
-                    setModel(next);
+  <div className="space-y-3">
+    <select
+      value={safeModel ?? ""}
+      onChange={(e) => {
+        const next = e.target.value as ModelKey;
+        setModel(next);
 
-                    const nextTrim =
-                      vehicleTrims.find(
-                        (vehicleTrim) =>
-                          vehicleTrim.make === make && vehicleTrim.model === next
-                      )?.trim ?? "";
+        const nextTrim =
+          vehicleTrims.find(
+            (vehicleTrim) =>
+              vehicleTrim.make === make && vehicleTrim.model === next
+          )?.trim ?? "";
 
-                    setTrim(nextTrim);
-                  }}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-                >
-                  <select ...>
-  {availableModels.map((item) => {
-    const modelObj = vehicleModels.find(
-      (m) => m.make === make && m.model === item
-    );
+        setTrim(nextTrim);
+      }}
+      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
+    >
+      {availableModels.map((item) => {
+        const modelObj = vehicleModels.find(
+          (m) => m.make === make && m.model === item
+        );
 
-    return (
-      <option key={item} value={item}>
-        {modelObj?.display_name ?? item}
-      </option>
-    );
-  })}
-</select>
+        return (
+          <option key={item} value={item}>
+            {modelObj?.display_name ?? item}
+          </option>
+        );
+      })}
+    </select>
+
+    <select
+      value={safeTrim}
+      onChange={(e) => setTrim(e.target.value)}
+      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
+    >
+      {vehicleTrims
+        .filter((item) => item.make === make && item.model === safeModel)
+        .map((item) => (
+          <option key={item.trim} value={item.trim}>
+            {item.display_name ?? item.trim}
+          </option>
+        ))}
+    </select>
+  </div>
+</Panel>
 
                 <select
                   value={safeTrim}
