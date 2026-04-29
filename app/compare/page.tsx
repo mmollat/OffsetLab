@@ -309,7 +309,7 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function Spec({ label, value }: { label: string }) {
+function Spec({ label, value }: { label: string; value?: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
       <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>
