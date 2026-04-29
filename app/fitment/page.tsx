@@ -9,8 +9,6 @@ import { galleryExamples } from "../data/gallery";
 import {
   getDefaultModelForMake,
   getModelsForMake,
-  getTrimData,
-  getTrims,
   makes,
   MakeKey,
   ModelKey,
@@ -19,7 +17,9 @@ import {
   normalizeModel,
   normalizeStyle,
   StyleKey,
+  TrimData,
 } from "../data/fitment";
+import { getFitmentData } from "../lib/getFitmentData";
 
 type ConfigurationKey = "staggered" | "square";
 type DrivingGoalKey = "street" | "track";
@@ -307,8 +307,34 @@ export default function FitmentPage() {
   const [copied, setCopied] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
   const [approvedBuilds, setApprovedBuilds] = useState<any[]>([]);
+  const [fitmentDb, setFitmentDb] = useState<Record<ModelKey, TrimData[]> | null>(null);
+  useEffect(() => {
+  let cancelled = false;
+
+  async function loadFitmentData() {
+    const data = await getFitmentData();
+    if (!cancelled) setFitmentDb(data);
+  }
+
+  loadFitmentData();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+  function getLoadedTrims(model: ModelKey): string[] {
+  return fitmentDb?.[model]?.map((entry) => entry.trim) ?? [];
+}
+
+function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
+  const entries = fitmentDb?.[model];
+  if (!entries || entries.length === 0) return null;
+  return entries.find((entry) => entry.trim === trim) ?? entries[0];
+}
 
   useEffect(() => {
+  if (!fitmentDb) return;
+  
   const params = new URLSearchParams(window.location.search);
   const rawMake = params.get("make");
 
@@ -333,9 +359,9 @@ export default function FitmentPage() {
       : recommendedConfiguration
   );
 
-  const availableTrims = getTrims(urlModel);
+  const availableTrims = getLoadedTrims(urlModel);
   setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
-}, []);
+}, [fitmentDb]);
 
   const availableModels = useMemo(
   () => (make ? getModelsForMake(make) : []),
@@ -349,8 +375,8 @@ const safeModel =
       ? getDefaultModelForMake(make)
       : null;
   const trims = useMemo(
-  () => (safeModel ? getTrims(safeModel) : []),
-  [safeModel]
+  () => (safeModel ? getLoadedTrims(safeModel) : []),
+  [safeModel, fitmentDb]
 );
 
 const safeTrim =
@@ -361,8 +387,8 @@ const safeTrim =
       : "";
 
 const trimData = useMemo(
-  () => (safeModel && safeTrim ? getTrimData(safeModel, safeTrim) : null),
-  [safeModel, safeTrim]
+  () => (safeModel && safeTrim ? getLoadedTrimData(safeModel, safeTrim) : null),
+  [safeModel, safeTrim, fitmentDb]
 );
   const current = trimData?.presets?.[style];
 
@@ -567,6 +593,15 @@ match: normalize(String(row.fitment_style || "")) === normalizedStyle ? "Close M
   if (navigator.share) await navigator.share(data);
   else await copyLink();
 }
+if (!fitmentDb) {
+  return (
+    <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
+      <div className="mx-auto max-w-7xl text-white/60">
+        Loading fitment data...
+      </div>
+    </main>
+  );
+}
 if (!make || !safeModel || !trimData || !current || !displayedFitment) {
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
@@ -594,7 +629,7 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
                   setMake(item.label);
                   const nextModel = getDefaultModelForMake(item.label);
                   setModel(nextModel);
-                  setTrim(getTrims(nextModel)[0]);
+                  setTrim(getLoadedTrims(nextModel)[0] ?? "");
                   setConfiguration(getRecommendedConfiguration(nextModel, goal));
                 }}
                 className={`rounded-xl border px-3 py-2 text-sm transition ${
@@ -642,7 +677,7 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
         setMake(item.label);
         const nextModel = getDefaultModelForMake(item.label);
         setModel(nextModel);
-        setTrim(getTrims(nextModel)[0]);
+        setTrim(getLoadedTrims(nextModel)[0] ?? "");
         setConfiguration(getRecommendedConfiguration(nextModel, goal));
       }}
       className={`rounded-xl border px-3 py-2 text-sm transition ${
@@ -666,11 +701,11 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
                 <select
                   value={safeModel ?? ""}
                   onChange={(e) => {
-                    const next = e.target.value as ModelKey;
-                    setModel(next);
-                    setTrim(getTrims(next)[0]);
-                    setConfiguration(getRecommendedConfiguration(next, goal));
-                  }}
+  const next = e.target.value as ModelKey;
+  setModel(next);
+  setTrim(getLoadedTrims(next)[0] ?? "");
+  setConfiguration(getRecommendedConfiguration(next, goal));
+}}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
                 >
                   {availableModels.map((item) => (
