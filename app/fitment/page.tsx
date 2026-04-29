@@ -749,45 +749,43 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
             </Panel>
 
             <Panel title="2. Select Vehicle">
-              <div className="space-y-3">
-                <select
-                  value={safeModel ?? ""}
-                  onChange={(e) => {
-  const next = e.target.value as ModelKey;
-  setModel(next);
-  setTrim(getLoadedTrims(next)[0] ?? "");
-  setConfiguration(getRecommendedConfiguration(next, goal));
-}}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-                >
-                  <select ...>
-  {availableModels.map((item) => {
-    const modelObj = vehicleModels.find(
-      (m) => m.make === make && m.model === item
-    );
+  <div className="space-y-3">
+    <select
+      value={safeModel ?? ""}
+      onChange={(e) => {
+        const next = e.target.value as ModelKey;
+        setModel(next);
+        setTrim(getLoadedTrims(next)[0] ?? "");
+        setConfiguration(getRecommendedConfiguration(next, goal));
+      }}
+      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
+    >
+      {availableModels.map((item) => {
+        const modelObj = vehicleModels.find(
+          (m) => m.make === make && m.model === item
+        );
 
-    return (
-      <option key={item} value={item}>
-        {modelObj?.display_name ?? item}
-      </option>
-    );
-  })}
-</select>
+        return (
+          <option key={item} value={item}>
+            {modelObj?.display_name ?? item}
+          </option>
+        );
+      })}
+    </select>
 
-                <select
-                  value={safeTrim}
-                  onChange={(e) => setTrim(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-                >
-                  {trims.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </Panel>
-
+    <select
+      value={safeTrim}
+      onChange={(e) => setTrim(e.target.value)}
+      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
+    >
+      {trims.map((item) => (
+        <option key={item} value={item}>
+          {item}
+        </option>
+      ))}
+    </select>
+  </div>
+</Panel>
             <Panel title="3. Select Style">
               <div className="space-y-2">
                 {([
