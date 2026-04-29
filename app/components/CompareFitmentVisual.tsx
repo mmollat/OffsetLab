@@ -132,7 +132,7 @@ export default function CompareFitmentVisual({
         <div className="relative mx-auto aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-2xl bg-white">
           <svg viewBox="0 0 1000 562" className="block h-full w-full" preserveAspectRatio="xMidYMid meet">
             <image
-              href="/compare/cross_section_suspension.png"
+              xlinkHref="/compare/cross_section_suspension.png"
               x="0"
               y="-20"
               width="1000"
