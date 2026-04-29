@@ -1,15 +1,9 @@
 import { supabase } from "./supabase";
-import {
-  fitmentData,
-  ModelKey,
-  StyleKey,
-  TrimData,
-  Preset,
-} from "../data/fitment";
+import { ModelKey, StyleKey, TrimData, Preset } from "../data/fitment";
 
 type FitmentPresetRow = {
   make: string;
-  model: ModelKey;
+  model: string;
   trim: string;
   style: StyleKey;
   baseline_front: string;
@@ -32,8 +26,10 @@ type FitmentPresetRow = {
   daily: number;
   risk: string;
   verdict: string;
-  warnings: string[];
+  warnings: string[] | null;
   alternate: string;
+  active: boolean;
+  sort_order: number;
 };
 
 function rowToPreset(row: FitmentPresetRow): Preset {
@@ -53,7 +49,7 @@ function rowToPreset(row: FitmentPresetRow): Preset {
     daily: row.daily,
     risk: row.risk,
     verdict: row.verdict,
-    warnings: row.warnings,
+    warnings: row.warnings ?? [],
     alternate: row.alternate,
   };
 }
@@ -66,18 +62,22 @@ export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
     .order("sort_order", { ascending: true });
 
   if (error || !data) {
-    console.warn("Using hardcoded fitment fallback:", error);
-    return fitmentData;
+    console.error("Error fetching fitment presets:", error);
+    return {};
   }
 
-  const merged: Record<ModelKey, TrimData[]> = { ...fitmentData };
+  const fitmentByModel: Record<ModelKey, TrimData[]> = {};
 
   for (const row of data as FitmentPresetRow[]) {
-    if (!merged[row.model]) {
-      merged[row.model] = [];
+    const model = row.model as ModelKey;
+
+    if (!fitmentByModel[model]) {
+      fitmentByModel[model] = [];
     }
 
-    let trimEntry = merged[row.model].find((entry) => entry.trim === row.trim);
+    let trimEntry = fitmentByModel[model].find(
+      (entry) => entry.trim === row.trim
+    );
 
     if (!trimEntry) {
       trimEntry = {
@@ -96,11 +96,11 @@ export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
         },
       };
 
-      merged[row.model].push(trimEntry);
+      fitmentByModel[model].push(trimEntry);
     }
 
     trimEntry.presets[row.style] = rowToPreset(row);
   }
 
-  return merged;
+  return fitmentByModel;
 }
