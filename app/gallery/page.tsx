@@ -3,14 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { galleryExamples } from "../data/gallery";
 import { supabase } from "../lib/supabase";
-import {
-  getDefaultModelForMake,
-  getModelsForMake,
-  makes,
-  MakeKey,
-  ModelKey,
-  StyleKey,
-} from "../data/fitment";
+import { MakeKey, ModelKey, StyleKey } from "../data/fitment";
+import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
 
 const styleLabels: Record<StyleKey, string> = {
   oemplus: "OEM+",
@@ -55,16 +49,71 @@ function sourceBadgeClass(build: GalleryBuild) {
 }
 
 export default function GalleryPage() {
-  const [make, setMake] = useState<MakeKey>("Tesla");
-  const [model, setModel] = useState<ModelKey>("Model 3");
+  const [make, setMake] = useState<MakeKey | null>(null);
+  const [model, setModel] = useState<ModelKey | null>(null);
+  const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
   const [submittedBuilds, setSubmittedBuilds] = useState<GalleryBuild[]>([]);
 
-  const availableModels = useMemo(() => getModelsForMake(make), [make]);
-  const safeModel = availableModels.includes(model)
-    ? model
-    : getDefaultModelForMake(make);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadVehicleModels() {
+      const data = await getVehicleModels();
+
+      if (cancelled) return;
+
+      setVehicleModels(data);
+
+      const firstVehicle = data[0];
+
+      if (firstVehicle) {
+        setMake(firstVehicle.make as MakeKey);
+        setModel(firstVehicle.model as ModelKey);
+      }
+    }
+
+    loadVehicleModels();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const activeMakes = useMemo(() => {
+    const uniqueMakes = Array.from(
+      new Map(
+        vehicleModels.map((item) => [
+          item.make,
+          {
+            label: item.make as MakeKey,
+            active: item.active,
+            sort_order: item.sort_order,
+          },
+        ])
+      ).values()
+    );
+
+    return uniqueMakes.sort((a, b) => a.sort_order - b.sort_order);
+  }, [vehicleModels]);
+
+  const availableModels = useMemo(() => {
+    if (!make) return [];
+
+    return vehicleModels
+      .filter((item) => item.make === make && item.active)
+      .map((item) => item.model as ModelKey);
+  }, [make, vehicleModels]);
+
+  const safeModel =
+    model && availableModels.includes(model)
+      ? model
+      : availableModels.length > 0
+        ? availableModels[0]
+        : null;
 
   useEffect(() => {
+    if (!safeModel) return;
+
     let cancelled = false;
 
     async function loadSubmittedBuilds() {
@@ -138,6 +187,8 @@ export default function GalleryPage() {
   }, [safeModel]);
 
   const referenceBuilds = useMemo<GalleryBuild[]>(() => {
+    if (!safeModel) return [];
+
     const modelBuilds = galleryExamples[safeModel];
 
     if (!modelBuilds) return [];
@@ -169,6 +220,16 @@ export default function GalleryPage() {
     return [...submittedBuilds, ...referenceBuilds];
   }, [submittedBuilds, referenceBuilds]);
 
+  if (vehicleModels.length === 0) {
+    return (
+      <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
+        <div className="mx-auto max-w-7xl text-white/60">
+          Loading gallery data...
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
       <div className="mx-auto max-w-7xl">
@@ -196,24 +257,27 @@ export default function GalleryPage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            {makes
-              .filter((item) => item.active)
-              .map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    setMake(item.label);
-                    setModel(getDefaultModelForMake(item.label));
-                  }}
-                  className={`rounded-2xl border px-5 py-3 font-semibold transition ${
-                    make === item.label
-                      ? "border-red-500/60 bg-red-500/15 text-red-300"
-                      : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
+            {activeMakes.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => {
+                  setMake(item.label);
+
+                  const nextModel = vehicleModels.find(
+                    (vehicle) => vehicle.make === item.label && vehicle.active
+                  )?.model as ModelKey | undefined;
+
+                  setModel(nextModel ?? null);
+                }}
+                className={`rounded-2xl border px-5 py-3 font-semibold transition ${
+                  make === item.label
+                    ? "border-red-500/60 bg-red-500/15 text-red-300"
+                    : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
 
           <div className="mt-5 flex flex-wrap gap-3">
@@ -235,7 +299,9 @@ export default function GalleryPage() {
 
         {builds.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center">
-            <p className="text-xl font-bold">No verified gallery images yet for {safeModel}.</p>
+            <p className="text-xl font-bold">
+              No verified gallery images yet for {safeModel}.
+            </p>
             <p className="mt-2 text-white/50">
               Add approved submissions or reference photos to make this gallery feel complete.
             </p>
