@@ -399,7 +399,9 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
 }, [fitmentDb, vehicleTrims]);
 
   const availableMakes = useMemo(() => {
-  return Array.from(new Set(vehicleModels.map((vehicle) => vehicle.make))) as MakeKey[];
+  return (Array.from(new Set(vehicleModels.map((vehicle) => vehicle.make))) as MakeKey[]).sort(
+    (a, b) => String(a).localeCompare(String(b))
+  );
 }, [vehicleModels]);
 
 const availableModels = useMemo(() => {
