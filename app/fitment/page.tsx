@@ -7,7 +7,6 @@ import SubmitBuildModal from "../components/SubmitBuildModal";
 import { supabase } from "../lib/supabase";
 import { galleryExamples } from "../data/gallery";
 import {
-  makes,
   MakeKey,
   ModelKey,
   modelSlug,
@@ -399,7 +398,11 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
   setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
 }, [fitmentDb, vehicleTrims]);
 
-  const availableModels = useMemo(() => {
+  const availableMakes = useMemo(() => {
+  return Array.from(new Set(vehicleModels.map((vehicle) => vehicle.make))) as MakeKey[];
+}, [vehicleModels]);
+
+const availableModels = useMemo(() => {
   if (!make) return [];
 
   return vehicleModels
@@ -659,33 +662,35 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
 
         <Panel title="1. Select Make">
           <div className="flex flex-wrap gap-2">
-            {makes.map((item) => (
-              <button
-                key={item.label}
-                disabled={!item.active}
-                onClick={() => {
-                  if (!item.active) return;
-                  setMake(item.label);
-                  const nextModel = vehicleModels.find(
-  (vehicle) => vehicle.make === item.label
-)?.model as ModelKey;
+            {availableMakes.map((makeName) => {
+  const isSelected = make === makeName;
 
-if (!nextModel) return;
+  return (
+    <button
+      key={makeName}
+      onClick={() => {
+        setMake(makeName);
 
-setModel(nextModel);
-setTrim(getLoadedTrims(nextModel, item.label)[0] ?? "");
-setConfiguration(getRecommendedConfiguration(nextModel, goal));
-                }}
-                className={`rounded-xl border px-3 py-2 text-sm transition ${
-                  !item.active
-                    ? "border-white/10 bg-white/[0.02] text-white/45"
-                    : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
-                }`}
-              >
-                {item.label}
-                {!item.active ? " • Soon" : ""}
-              </button>
-            ))}
+        const nextModel = vehicleModels.find(
+          (vehicle) => vehicle.make === makeName
+        )?.model as ModelKey;
+
+        if (!nextModel) return;
+
+        setModel(nextModel);
+        setTrim(getLoadedTrims(nextModel, makeName)[0] ?? "");
+        setConfiguration(getRecommendedConfiguration(nextModel, goal));
+      }}
+      className={`rounded-xl border px-3 py-2 text-sm transition ${
+        isSelected
+          ? "border-red-500/60 bg-red-500/15 text-white"
+          : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
+      }`}
+    >
+      {makeName}
+    </button>
+  );
+})}
           </div>
         </Panel>
       </div>
@@ -709,36 +714,36 @@ setConfiguration(getRecommendedConfiguration(nextModel, goal));
           <aside className="space-y-5">
             <Panel title="1. Select Make">
               <div className="flex flex-wrap gap-2">
-{makes.map((item) => {
-  const isSelected = make === item.label;
+{availableMakes.map((makeName) => {
+  const isSelected = make === makeName;
 
   return (
     <button
-      key={item.label}
-      disabled={!item.active}
+      key={makeName}
       onClick={() => {
-        if (!item.active) return;
-        setMake(item.label);
-        const nextModel = vehicleModels.find((vehicle) => vehicle.make === item.label)?.model as ModelKey;
+        setMake(makeName);
+
+        const nextModel = vehicleModels.find(
+          (vehicle) => vehicle.make === makeName
+        )?.model as ModelKey;
+
         if (!nextModel) return;
+
         setModel(nextModel);
-        setTrim(getLoadedTrims(nextModel, item.label)[0] ?? "");
+        setTrim(getLoadedTrims(nextModel, makeName)[0] ?? "");
         setConfiguration(getRecommendedConfiguration(nextModel, goal));
       }}
       className={`rounded-xl border px-3 py-2 text-sm transition ${
-        !item.active
-          ? "border-white/10 bg-white/[0.02] text-white/45"
-          : isSelected
-            ? "border-red-500/60 bg-red-500/15 text-white"
-            : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
+        isSelected
+          ? "border-red-500/60 bg-red-500/15 text-white"
+          : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
       }`}
     >
-      {item.label}
-      {!item.active ? " • Soon" : ""}
+      {makeName}
     </button>
   );
 })}
-              </div>
+                </div>
             </Panel>
 
             <Panel title="2. Select Vehicle">
