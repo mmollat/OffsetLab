@@ -56,8 +56,7 @@ function WheelDiagram({
 }) {
   const pokeValue = parseMm(poke);
   const innerValue = parseMm(inner);
-  const BASELINE_FLUSH_OFFSET = 0;
-  const wheelShift = clamp((pokeValue + BASELINE_FLUSH_OFFSET) * -2.2, -60, 60);
+  const wheelShift = clamp(pokeValue * -1.1, -36, 36);
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/30 p-5">
