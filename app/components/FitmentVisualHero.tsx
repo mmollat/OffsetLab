@@ -118,7 +118,7 @@ function WheelDiagram({ label, poke, inner }: { label: string; poke: string; inn
           Fender
         </div>
 
-        <div className="absolute right-[7%] top-10 h-44 w-32 opacity-80">
+        <div className="absolute right-[2%] top-8 h-52 w-40 opacity-100">
           <SuspensionSvg />
         </div>
 
