@@ -24,6 +24,8 @@ function parseMm(value?: string) {
 
   const normalized = value.toLowerCase();
 
+  if (normalized.includes("flush+")) return 4;   // OEM+
+  if (normalized.includes("flush")) return 12;   // Flush
   if (normalized.includes("safe")) return -6;
   if (normalized.includes("tight")) return -10;
   if (normalized.includes("moderate")) return 8;
