@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "../components/GalleryCard";
 import TrustStrip from "../components/TrustStrip";
 import SubmitBuildModal from "../components/SubmitBuildModal";
+import FitmentVisualHero from "../components/FitmentVisualHero";
 import { supabase } from "../lib/supabase";
 import { galleryExamples } from "../data/gallery";
 import {
@@ -880,7 +881,22 @@ if (!make || !safeModel || !trimData || !current || !displayedFitment) {
           </aside>
 
           <section>
-            <div className="mb-6 grid gap-4 md:grid-cols-3">
+            <FitmentVisualHero
+  title={displayedFitment.title}
+  subtitle={displayedFitment.subtitle}
+  frontWheel={displayedFitment.front}
+  rearWheel={displayedFitment.rear}
+  frontTire={displayedFitment.frontTire}
+  rearTire={displayedFitment.rearTire}
+  pokeFront={displayedFitment.pokeFront}
+  pokeRear={displayedFitment.pokeRear}
+  innerFront={displayedFitment.innerFront}
+  innerRear={displayedFitment.innerRear}
+  aggression={displayedFitment.aggression}
+  daily={displayedFitment.daily}
+  risk={displayedFitment.risk}
+/>
+            <div className="mb-6 mt-6 grid gap-4 md:grid-cols-3">
               <Metric label="Front Poke" value={displayedFitment.pokeFront} />
               <Metric label="Rear Poke" value={displayedFitment.pokeRear} />
               <Metric label="Diameter" value={displayedFitment.diameter} />
