@@ -81,7 +81,7 @@ const canCompare = Boolean(parsedOem && parsedSelected);
 
   const scale = 0.64;
 const hubFaceX = 483;
-const visualOffset = -36;
+const visualOffset = -30;
 const overlayLift = 36;
 
   const oemOuter =
