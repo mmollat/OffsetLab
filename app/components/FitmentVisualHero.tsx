@@ -80,7 +80,7 @@ function TireSvg() {
         />
       ))}
 
-      <line x1="60" y1="34" x2="60" y2="166" stroke="white" strokeOpacity="0.18" />
+      <line x1="60" y1="34" x2="60" y2="166" stroke="white" strokeOpacity="0.35" />
     </svg>
   );
 }
@@ -88,8 +88,8 @@ function TireSvg() {
 function SuspensionSvg() {
   return (
     <svg viewBox="0 0 160 220" className="h-full w-full" fill="none">
-      <path d="M96 18 C122 32 122 56 96 70 C70 84 70 108 96 122 C122 136 122 160 96 174" stroke="white" strokeOpacity="0.18" strokeWidth="5" />
-      <line x1="96" y1="20" x2="96" y2="188" stroke="white" strokeOpacity="0.18" strokeWidth="4" />
+      <path d="M96 18 C122 32 122 56 96 70 C70 84 70 108 96 122 C122 136 122 160 96 174" stroke="white" strokeOpacity="0.35" strokeWidth="5" />
+      <line x1="96" y1="20" x2="96" y2="188" stroke="white" strokeOpacity="0.35" strokeWidth="4" />
       <path d="M96 126 L38 154" stroke="white" strokeOpacity="0.16" strokeWidth="4" />
       <path d="M96 150 L142 176" stroke="white" strokeOpacity="0.16" strokeWidth="4" />
       <circle cx="96" cy="126" r="9" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
