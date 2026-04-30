@@ -67,7 +67,6 @@ function WheelDiagram({
   inner?: string;
 }) {
   const pokeValue = parseMm(poke);
-  const innerValue = parseMm(inner);
   const VISUAL_BASELINE_OFFSET = -23;
 const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
 
@@ -88,11 +87,7 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
         </div>
 
         {/* Suspension line */}
-        <div className="absolute right-[18%] top-8 h-48 w-px border-r border-dashed border-blue-400/50" />
-        <div className="absolute right-[11%] top-8 text-xs uppercase tracking-wide text-blue-300">
-          Inner
-        </div>
-
+        
         {/* Suspension sketch */}
         <div className="absolute right-[12%] top-24 h-28 w-16 rounded-full border border-white/15 opacity-50" />
         <div className="absolute right-[13%] top-32 h-20 w-20 rotate-[-18deg] border-t border-white/15" />
@@ -119,9 +114,7 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
         </p>
 
         {/* Inner measurement */}
-        <p className="absolute bottom-5 right-5 text-xs text-blue-300">
-          Inner {inner || `${innerValue}mm`}
-        </p>
+      
       </div>
     </div>
   );
