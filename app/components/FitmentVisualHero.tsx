@@ -24,10 +24,11 @@ function parseMm(value?: string) {
 
   const normalized = value.toLowerCase();
 
-  if (normalized.includes("flush+")) return 4;   // OEM+
-  if (normalized.includes("flush")) return 12;   // Flush
+  if (normalized.includes("flush+")) return 4;
+  if (normalized.includes("flush")) return 12;
   if (normalized.includes("safe")) return -6;
   if (normalized.includes("tight")) return -10;
+  if (normalized.includes("very tight")) return -14;
   if (normalized.includes("moderate")) return 8;
   if (normalized.includes("aggressive")) return 22;
 
@@ -68,8 +69,12 @@ function WheelDiagram({
 }) {
   const pokeValue = parseMm(poke);
   const innerValue = parseMm(inner);
-  const VISUAL_BASELINE_OFFSET = -23;
-const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
+
+  // Wheel movement (tuned for good visual spacing)
+  const wheelShift = clamp(pokeValue * -1.1, -36, 36);
+
+  // NEW: Inner line movement
+  const innerOffset = clamp(innerValue * -2, -40, 40);
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/30 p-5">
@@ -81,14 +86,18 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
       </div>
 
       <div className="relative h-64 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent">
+        
         {/* Fender line */}
         <div className="absolute left-[42%] top-8 h-48 w-px bg-red-500/70" />
         <div className="absolute left-[42%] top-8 text-xs uppercase tracking-wide text-red-400">
           Fender
         </div>
 
-        {/* Suspension line */}
-        <div className="absolute right-[18%] top-8 h-48 w-px border-r border-dashed border-blue-400/50" />
+        {/* INNER LINE (NOW MOVES) */}
+        <div
+          className="absolute top-8 h-48 w-px border-r border-dashed border-blue-400/50"
+          style={{ right: `calc(18% + ${innerOffset}px)` }}
+        />
         <div className="absolute right-[11%] top-8 text-xs uppercase tracking-wide text-blue-300">
           Inner
         </div>
@@ -97,7 +106,7 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
         <div className="absolute right-[12%] top-24 h-28 w-16 rounded-full border border-white/15 opacity-50" />
         <div className="absolute right-[13%] top-32 h-20 w-20 rotate-[-18deg] border-t border-white/15" />
 
-        {/* Wheel/tire */}
+        {/* Wheel */}
         <div
           className="absolute top-16 h-40 w-24 rounded-[2rem] border-4 border-blue-500 bg-blue-500/10 shadow-[0_0_30px_rgba(59,130,246,0.35)] transition-all duration-500"
           style={{ left: `calc(42% + ${wheelShift}px)` }}
@@ -106,7 +115,7 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
           <div className="absolute left-1/2 top-4 h-32 w-px -translate-x-1/2 bg-white/15" />
         </div>
 
-        {/* Poke measurement */}
+        {/* Poke line */}
         <div
           className="absolute top-48 h-px bg-red-500"
           style={{
@@ -118,7 +127,7 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
           Poke {poke}
         </p>
 
-        {/* Inner measurement */}
+        {/* Inner label */}
         <p className="absolute bottom-5 right-5 text-xs text-blue-300">
           Inner {inner || `${innerValue}mm`}
         </p>
@@ -144,6 +153,7 @@ export default function FitmentVisualHero({
 }: Props) {
   return (
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20">
+      
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.25em] text-red-400/70">
@@ -159,12 +169,14 @@ export default function FitmentVisualHero({
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
+        
         <div className="grid gap-5 md:grid-cols-2">
           <WheelDiagram label="Front View" poke={pokeFront} inner={innerFront} />
           <WheelDiagram label="Rear View" poke={pokeRear} inner={innerRear} />
         </div>
 
         <div className="space-y-5 rounded-3xl border border-white/10 bg-black/30 p-5">
+          
           <div>
             <p className="text-xs uppercase tracking-wide text-white/35">
               Front Setup
