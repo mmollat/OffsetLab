@@ -18,8 +18,18 @@ type Props = {
 
 function parseMm(value?: string) {
   if (!value) return 0;
+
   const match = value.match(/-?\d+/);
-  return match ? Number(match[0]) : 0;
+  if (match) return Number(match[0]);
+
+  const normalized = value.toLowerCase();
+
+  if (normalized.includes("safe")) return -6;
+  if (normalized.includes("tight")) return -10;
+  if (normalized.includes("moderate")) return 8;
+  if (normalized.includes("aggressive")) return 22;
+
+  return 0;
 }
 
 function clamp(value: number, min: number, max: number) {
