@@ -1,18 +1,13 @@
 import { supabase } from "./supabase";
-import { ModelKey, StyleKey, TrimData, Preset } from "../data/fitment";
+import { ModelKey, StyleKey, TrimData } from "../data/fitment";
 
-type FitmentPresetRow = {
+type FitmentRow = {
   make: string;
-  model: string;
+  model: ModelKey;
   trim: string;
   style: StyleKey;
-  baseline_front: string;
-  baseline_rear: string;
-  baseline_tire: string;
-  bolt_pattern: string;
-  center_bore: string;
-  title: string;
-  subtitle: string;
+  title: string | null;
+  subtitle: string | null;
   front: string;
   rear: string;
   front_tire: string;
@@ -26,81 +21,80 @@ type FitmentPresetRow = {
   daily: number;
   risk: string;
   verdict: string;
-  warnings: string[] | null;
   alternate: string;
-  active: boolean;
-  sort_order: number;
+  warnings: string[] | null;
+  bolt_pattern: string | null;
+  center_bore: string | null;
 };
-
-function rowToPreset(row: FitmentPresetRow): Preset {
-  return {
-    title: row.title,
-    subtitle: row.subtitle,
-    front: row.front,
-    rear: row.rear,
-    frontTire: row.front_tire,
-    rearTire: row.rear_tire,
-    pokeFront: row.poke_front,
-    pokeRear: row.poke_rear,
-    innerFront: row.inner_front,
-    innerRear: row.inner_rear,
-    diameter: row.diameter,
-    aggression: row.aggression,
-    daily: row.daily,
-    risk: row.risk,
-    verdict: row.verdict,
-    warnings: row.warnings ?? [],
-    alternate: row.alternate,
-  };
-}
 
 export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
   const { data, error } = await supabase
     .from("fitment_presets")
     .select("*")
-    .eq("active", true)
-    .order("sort_order", { ascending: true });
+    .order("make", { ascending: true })
+    .order("model", { ascending: true })
+    .order("trim", { ascending: true });
 
   if (error || !data) {
-    console.error("Error fetching fitment presets:", error);
+    console.error("Error loading fitment data:", error);
     return {};
   }
 
-  const fitmentByModel: Record<ModelKey, TrimData[]> = {};
+  const grouped: Record<ModelKey, Record<string, TrimData>> = {} as any;
 
-  for (const row of data as FitmentPresetRow[]) {
-    const model = row.model as ModelKey;
+  (data as FitmentRow[]).forEach((row) => {
+    if (!grouped[row.model]) grouped[row.model] = {};
 
-    if (!fitmentByModel[model]) {
-      fitmentByModel[model] = [];
-    }
-
-    let trimEntry = fitmentByModel[model].find(
-      (entry) => entry.trim === row.trim
-    );
-
-    if (!trimEntry) {
-      trimEntry = {
+    if (!grouped[row.model][row.trim]) {
+      grouped[row.model][row.trim] = {
         trim: row.trim,
         baseline: {
-          front: row.baseline_front,
-          rear: row.baseline_rear,
-          tire: row.baseline_tire,
-          boltPattern: row.bolt_pattern,
-          centerBore: row.center_bore,
+          front: row.front,
+          rear: row.rear,
+          tire: row.front_tire,
+          boltPattern: row.bolt_pattern ?? "",
+          centerBore: row.center_bore ?? "",
         },
-        presets: {
-          oemplus: rowToPreset(row),
-          flush: rowToPreset(row),
-          aggressive: rowToPreset(row),
-        },
+        presets: {} as any,
       };
-
-      fitmentByModel[model].push(trimEntry);
     }
 
-    trimEntry.presets[row.style] = rowToPreset(row);
-  }
+    if (row.style === "oemplus") {
+      grouped[row.model][row.trim].baseline = {
+        front: row.front,
+        rear: row.rear,
+        tire: row.front_tire,
+        boltPattern: row.bolt_pattern ?? "",
+        centerBore: row.center_bore ?? "",
+      };
+    }
 
-  return fitmentByModel;
+    grouped[row.model][row.trim].presets[row.style] = {
+      title: row.title ?? row.style.toUpperCase(),
+      subtitle: row.subtitle ?? "",
+      front: row.front,
+      rear: row.rear,
+      frontTire: row.front_tire,
+      rearTire: row.rear_tire,
+      pokeFront: row.poke_front,
+      pokeRear: row.poke_rear,
+      innerFront: row.inner_front,
+      innerRear: row.inner_rear,
+      diameter: row.diameter,
+      aggression: row.aggression,
+      daily: row.daily,
+      risk: row.risk,
+      verdict: row.verdict,
+      warnings: row.warnings ?? [],
+      alternate: row.alternate,
+    };
+  });
+
+  const result: Record<ModelKey, TrimData[]> = {} as any;
+
+  Object.entries(grouped).forEach(([model, trims]) => {
+    result[model as ModelKey] = Object.values(trims);
+  });
+
+  return result;
 }
