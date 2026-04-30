@@ -202,12 +202,24 @@ export default function GalleryPage() {
 
     return (Object.keys(modelBuilds) as StyleKey[]).flatMap((style) =>
       modelBuilds[style]
-        .filter((b) => b.imageStatus === "verified" && b.imageUrl)
-        .map((b) => ({
-          ...b,
-          model: safeModel,
-          style,
-        }))
+        .filter((b) => b.imageStatus === "verified" && Boolean(b.imageUrl))
+.map((b): GalleryBuild => ({
+  label: b.label,
+  imageUrl: b.imageUrl,
+  imageStatus: "verified",
+  sourceType: b.sourceType ?? "community",
+  sourceName: b.sourceName,
+  sourceUrl: b.sourceUrl,
+  wheel: b.wheel,
+  tire: b.tire,
+  suspension: b.suspension,
+  note: b.note,
+  verificationNote: b.verificationNote,
+  tags: b.tags,
+  match: b.match,
+  model: safeModel,
+  style,
+}))
     );
   }, [safeModel]);
 
