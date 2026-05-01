@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 function Nav() {
   return (
     <nav className="w-full border-b border-neutral-800 bg-black px-6 py-4 flex items-center justify-between">
-      <a href="/" className="flex items-center">
+      <Link href="/" className="flex items-center">
         <Image
           src="/logos/offset-lab-secondary-logo.png"
           alt="Offset Lab"
@@ -19,18 +20,18 @@ function Nav() {
           height={40}
           priority
         />
-      </a>
+      </Link>
 
       <div className="flex gap-6 text-sm text-neutral-400">
-        <a href="/fitment" className="hover:text-white transition">
+        <Link href="/fitment" className="hover:text-white transition">
           Fitment
-        </a>
-        <a href="/compare" className="hover:text-white transition">
+        </Link>
+        <Link href="/compare" className="hover:text-white transition">
           Compare
-        </a>
-        <a href="/gallery" className="hover:text-white transition">
+        </Link>
+        <Link href="/gallery" className="hover:text-white transition">
           Gallery
-        </a>
+        </Link>
       </div>
     </nav>
   )
