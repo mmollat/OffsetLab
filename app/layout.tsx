@@ -22,11 +22,11 @@ function Nav() {
       </a>
 
       <div className="flex gap-6 text-sm text-neutral-400">
-        <a href="/" className="hover:text-white transition">
-          Home
-        </a>
         <a href="/fitment" className="hover:text-white transition">
           Fitment
+        </a>
+        <a href="/compare" className="hover:text-white transition">
+          Compare
         </a>
         <a href="/gallery" className="hover:text-white transition">
           Gallery
