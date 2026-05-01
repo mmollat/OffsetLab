@@ -225,7 +225,7 @@ export default function GalleryPage() {
     );
   }, [safeModel]);
 
-  const builds = [...submittedBuilds, ...referenceBuilds];
+  const builds = submittedBuilds;
 
   if (vehicleModels.length === 0) {
     return (
