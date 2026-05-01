@@ -7,6 +7,11 @@ import { Analytics } from '@vercel/analytics/react'
 export const metadata: Metadata = {
   title: 'Offset Lab',
   description: 'Precision fitment tool',
+  icons: {
+    icon: '/logos/offsetlab-icon.svg',
+    shortcut: '/logos/offsetlab-icon.svg',
+    apple: '/logos/offset-lab-app-icon.png',
+  },
 }
 
 function Nav() {
