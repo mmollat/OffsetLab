@@ -7,6 +7,22 @@ export const metadata: Metadata = {
   description: 'Precision fitment tool',
 }
 
+function Nav() {
+  return (
+    <nav className="w-full border-b border-neutral-800 px-6 py-4 flex items-center justify-between">
+      <div className="text-white font-semibold tracking-wide">
+        OFFSET LAB
+      </div>
+
+      <div className="flex gap-6 text-sm text-neutral-400">
+        <a href="/" className="hover:text-white transition">Home</a>
+        <a href="/gallery" className="hover:text-white transition">Gallery</a>
+        <a href="/submit" className="hover:text-white transition">Submit</a>
+      </div>
+    </nav>
+  )
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -14,7 +30,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-black text-white">
+        <Nav />
         {children}
         <Analytics />
       </body>
