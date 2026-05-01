@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   title: 'Offset Lab',
   description: 'Precision fitment tool',
   icons: {
-    icon: '/logos/offsetlab-icon.svg',
-    shortcut: '/logos/offsetlab-icon.svg',
+    icon: '/logos/offset-lab-app-icon.png',
+    shortcut: '/logos/offset-lab-app-icon.png',
     apple: '/logos/offset-lab-app-icon.png',
   },
 }
