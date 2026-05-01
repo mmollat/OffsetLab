@@ -10,14 +10,20 @@ export const metadata: Metadata = {
 function Nav() {
   return (
     <nav className="w-full border-b border-neutral-800 px-6 py-4 flex items-center justify-between">
-      <div className="text-white font-semibold tracking-wide">
+      <a href="/" className="text-white font-semibold tracking-wide">
         OFFSET LAB
-      </div>
+      </a>
 
       <div className="flex gap-6 text-sm text-neutral-400">
-        <a href="/" className="hover:text-white transition">Home</a>
-        <a href="/gallery" className="hover:text-white transition">Gallery</a>
-        <a href="/submit" className="hover:text-white transition">Submit</a>
+        <a href="/" className="hover:text-white transition">
+          Home
+        </a>
+        <a href="/fitment" className="hover:text-white transition">
+          Fitment
+        </a>
+        <a href="/gallery" className="hover:text-white transition">
+          Gallery
+        </a>
       </div>
     </nav>
   )
