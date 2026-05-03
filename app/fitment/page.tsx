@@ -503,7 +503,7 @@ const trimData = useMemo(
   })
   : [];
 
-  const communityBuilds = [];
+  const communityBuilds: typeof referenceBuilds = [];
 
   const rawBuilds = [...referenceBuilds, ...communityBuilds];
 
