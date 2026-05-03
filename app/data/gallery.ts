@@ -17,7 +17,7 @@ export type GalleryBuild = {
 };
 
 const verifiedModelSPlaidAggressive =
-  "/gallery/models.png"
+  "/gallery/models.png";
 function pending(
   label: string,
   wheel: string,
