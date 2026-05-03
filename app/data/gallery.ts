@@ -48,7 +48,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     oemplus: [
   {
     label: "Model 3 OEM+ Reference",
-    imageUrl: "/gallery/model3-oemplus.jpg",
+    imageUrl: "/gallery/model3-oemplus.png",
     imageStatus: "verified",
     sourceType: "community",
     sourceName: "Offset Lab",
