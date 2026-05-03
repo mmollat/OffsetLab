@@ -59,7 +59,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     note: "Clean OEM+ Model 3 stance with factory-plus proportions.",
     verificationNote:
       "Used as OEM+ reference. Matches square setup with conservative sizing and daily drivability.",
-    tags: ["Model 3", "OEM+", "Square"],
+    tags: ["Model 3", "OEM+"],
     match: "Close Match",
   },
 ],
