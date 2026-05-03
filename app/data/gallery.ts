@@ -60,7 +60,7 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     verificationNote:
       "Used as OEM+ reference. Matches square setup with conservative sizing and daily drivability.",
     tags: ["Model 3", "OEM+"],
-    match: "Close Match",
+    match: "Visual Reference",
   },
 ],
     flush: [
