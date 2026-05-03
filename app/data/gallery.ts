@@ -17,8 +17,7 @@ export type GalleryBuild = {
 };
 
 const verifiedModelSPlaidAggressive =
-  "https://strassewheels.com/wp-content/uploads/2022/10/Tesla-Model-S-Plaid-StrasseWheels-Mike08274-copy-7.jpg";
-
+  "/gallery/models.png"
 function pending(
   label: string,
   wheel: string,
