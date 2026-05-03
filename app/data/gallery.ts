@@ -46,14 +46,23 @@ function pending(
 export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>> = {
   "Model 3": {
     oemplus: [
-      pending(
-        "Model 3 OEM+ Verified Photo Pending",
-        "19x8.5 +35",
-        "245/40R19",
-        "OEM+ Model 3 should use a square, conservative setup only. No wide rear or deep concave staggered photos.",
-        ["Model 3", "OEM+", "Square", "Strict Match"]
-      ),
-    ],
+  {
+    label: "Model 3 OEM+ Reference",
+    imageUrl: "/gallery/model3-oemplus.jpg",
+    imageStatus: "verified",
+    sourceType: "community",
+    sourceName: "Offset Lab",
+    sourceUrl: "#",
+    wheel: "19x8.5 +35",
+    tire: "245/40R19",
+    suspension: "Stock / Mild drop",
+    note: "Clean OEM+ Model 3 stance with factory-plus proportions.",
+    verificationNote:
+      "Used as OEM+ reference. Matches square setup with conservative sizing and daily drivability.",
+    tags: ["Model 3", "OEM+", "Square"],
+    match: "Close Match",
+  },
+],
     flush: [
       pending(
         "Model 3 Flush Verified Photo Pending",
