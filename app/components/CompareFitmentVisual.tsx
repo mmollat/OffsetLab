@@ -79,8 +79,8 @@ export default function CompareFitmentVisual({
   const outerChange =
     selectedWidth / 2 - selected.offset - (oemWidth / 2 - oem.offset);
 
-  const scale = 0.7;
-  const hubFaceX = 500;
+  const scale = 0.6;
+  const hubFaceX = 455;
 
   const oemOuter =
     hubFaceX - (oemWidth / 2 - oem.offset) * scale;
