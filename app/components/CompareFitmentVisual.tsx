@@ -81,7 +81,7 @@ export default function CompareFitmentVisual({
 
   // 🔥 Horizontal alignment
   const scale = 0.6;
-  const hubFaceX = 455;
+  const hubFaceX = 470;
 
   // 🔥 Vertical alignment (THIS is what you tweak)
   const overlayY = 28;
