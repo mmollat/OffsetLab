@@ -4,14 +4,16 @@ import type { CSSProperties } from "react";
 
 type Props = {
   baselineFront?: string;
+  baselineRear?: string;
   selectedFront: string;
-
-  // future ready
+  selectedRear?: string;
+  pokeFront?: string;
+  pokeRear?: string;
   baselineTire?: string;
   selectedTire?: string;
-
-  // fallback support
   oemFront?: string;
+  oemRear?: string;
+  selectedLabel?: string;
 };
 
 type WheelSpec = {
