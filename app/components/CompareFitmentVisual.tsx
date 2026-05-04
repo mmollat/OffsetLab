@@ -79,8 +79,12 @@ export default function CompareFitmentVisual({
   const outerChange =
     selectedWidth / 2 - selected.offset - (oemWidth / 2 - oem.offset);
 
+  // 🔥 Horizontal alignment
   const scale = 0.6;
   const hubFaceX = 455;
+
+  // 🔥 Vertical alignment (THIS is what you tweak)
+  const overlayY = 28;
 
   const oemOuter =
     hubFaceX - (oemWidth / 2 - oem.offset) * scale;
@@ -97,10 +101,10 @@ export default function CompareFitmentVisual({
   const oemWidthPx = oemInner - oemOuter;
   const selectedWidthPx = selectedInner - selectedOuter;
 
-  // 🔥 improved tire scaling (more noticeable difference)
   const tireBase = 26;
   const oemTireThickness = tireBase + (oemTire.width - 235) * 0.08;
-  const selectedTireThickness = tireBase + (selectedTireParsed.width - 235) * 0.08;
+  const selectedTireThickness =
+    tireBase + (selectedTireParsed.width - 235) * 0.08;
 
   const transitionStyle: CSSProperties = {
     transition: "all 500ms cubic-bezier(0.22, 1, 0.36, 1)",
@@ -122,16 +126,14 @@ export default function CompareFitmentVisual({
             backgroundImage: "url('/compare/cross_section_suspension.png')",
           }}
         >
-          <svg
-            viewBox="0 0 1000 562"
-            className="absolute inset-0 h-full w-full"
-          >
+          <svg viewBox="0 0 1000 562" className="absolute inset-0 h-full w-full">
+
             {/* HUB LINE */}
             <line
               x1={hubFaceX}
-              y1="90"
+              y1={90 + overlayY}
               x2={hubFaceX}
-              y2="480"
+              y2={480 + overlayY}
               stroke="rgba(0,0,0,0.35)"
               strokeDasharray="6 6"
             />
@@ -139,7 +141,7 @@ export default function CompareFitmentVisual({
             {/* OEM TIRE */}
             <rect
               x={oemOuter - oemTireThickness / 2}
-              y={140}
+              y={140 + overlayY}
               width={oemWidthPx + oemTireThickness}
               height="350"
               rx="50"
@@ -152,7 +154,7 @@ export default function CompareFitmentVisual({
             {/* OEM WHEEL */}
             <rect
               x={oemOuter}
-              y={175}
+              y={175 + overlayY}
               width={oemWidthPx}
               height="280"
               rx="22"
@@ -165,7 +167,7 @@ export default function CompareFitmentVisual({
             {/* SELECTED TIRE */}
             <rect
               x={selectedOuter - selectedTireThickness / 2}
-              y={130}
+              y={130 + overlayY}
               width={selectedWidthPx + selectedTireThickness}
               height="380"
               rx="60"
@@ -178,7 +180,7 @@ export default function CompareFitmentVisual({
             {/* SELECTED WHEEL */}
             <rect
               x={selectedOuter}
-              y={170}
+              y={170 + overlayY}
               width={selectedWidthPx}
               height="300"
               rx="25"
@@ -191,9 +193,9 @@ export default function CompareFitmentVisual({
             {/* OUTER LINE */}
             <line
               x1={oemOuter}
-              y1="520"
+              y1={520 + overlayY}
               x2={selectedOuter}
-              y2="520"
+              y2={520 + overlayY}
               stroke="#3b82f6"
               strokeWidth="3"
             />
@@ -201,9 +203,9 @@ export default function CompareFitmentVisual({
             {/* INNER LINE */}
             <line
               x1={oemInner}
-              y1="540"
+              y1={540 + overlayY}
               x2={selectedInner}
-              y2="540"
+              y2={540 + overlayY}
               stroke="#ef4444"
               strokeWidth="3"
             />
