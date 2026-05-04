@@ -84,7 +84,7 @@ export default function CompareFitmentVisual({
   const hubFaceX = 480;
 
   // 🔥 Vertical alignment (THIS is what you tweak)
-  const overlayY = 28;
+  const overlayY = 38;
 
   const oemOuter =
     hubFaceX - (oemWidth / 2 - oem.offset) * scale;
