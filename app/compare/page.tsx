@@ -277,13 +277,11 @@ export default function ComparePage() {
 
               <div className="mt-6">
                 <CompareFitmentVisual
-                  baselineFront={trimData.baseline.front ?? ""}
-                  baselineRear={trimData.baseline.rear ?? ""}
-                  selectedFront={current.front ?? ""}
-                  selectedRear={current.rear ?? ""}
-                  pokeFront={current.pokeFront ?? ""}
-                  pokeRear={current.pokeRear ?? ""}
-                />
+  baselineFront={trimData.baseline.front ?? ""}
+  selectedFront={current.front ?? ""}
+  baselineTire={trimData.baseline.tire ?? ""}
+  selectedTire={current.frontTire ?? ""}
+/>
               </div>
             </div>
 
