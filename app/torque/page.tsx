@@ -170,20 +170,33 @@ export default function TorquePage() {
       </select>
 
       {/* RESULTS */}
-      <div className="mt-6">
-        {specs.map((s) => (
-          <div key={s.id} className="border-b py-3">
-            <div className="font-semibold">{s.component}</div>
-            <div className="text-sm text-gray-400">{s.fastener}</div>
-            <div className="mt-1">
-              {s.torque_ft_lb} ft-lb / {s.torque_nm} Nm
-            </div>
-            {s.notes && (
-              <div className="text-xs text-gray-500 mt-1">{s.notes}</div>
-            )}
-          </div>
-        ))}
+      <div className="mt-8 grid gap-4">
+  {specs.map((s) => (
+    <div
+      key={s.id}
+      className="bg-neutral-900 border border-neutral-800 rounded-xl p-4"
+    >
+      <div className="text-sm text-gray-400">{s.component}</div>
+
+      <div className="text-lg font-semibold mt-1">
+        {s.fastener}
       </div>
+
+      <div className="text-xl mt-2">
+        {s.torque_ft_lb} ft-lb
+        <span className="text-gray-500 text-sm ml-2">
+          ({s.torque_nm} Nm)
+        </span>
+      </div>
+
+      {s.notes && (
+        <div className="text-xs text-gray-500 mt-2">
+          {s.notes}
+        </div>
+      )}
+    </div>
+  ))}
+</div>
     </div>
   );
 }
