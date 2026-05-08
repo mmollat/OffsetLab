@@ -31,7 +31,7 @@ function Nav() {
         <Link href="/fitment" className="hover:text-white transition">
           Fitment
         </Link>
-        <Link href="/torque-hub" className="hover:text-white transition">
+        <Link href="/torque" className="hover:text-white transition">
           Torque Hub
         </Link>
         <Link href="/compare" className="hover:text-white transition">
