@@ -32,7 +32,7 @@ function Nav() {
           Fitment
         </Link>
         <Link href="/torque-hub" className="hover:text-white transition">
-          Torque Hub1
+          Torque Hub
         </Link>
         <Link href="/compare" className="hover:text-white transition">
           Compare
