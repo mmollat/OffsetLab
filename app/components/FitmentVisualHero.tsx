@@ -19,17 +19,17 @@ type Props = {
 function parseMm(value?: string) {
   if (!value) return 0;
 
-  const match = value.match(/-?\d+/);
-  if (match) return Number(match[0]);
-
   const normalized = value.toLowerCase();
 
-  if (normalized.includes("flush+")) return 4;   // OEM+
-  if (normalized.includes("flush")) return 12;   // Flush
+  if (normalized.includes("flush+")) return 4;
+  if (normalized.includes("flush")) return 12;
   if (normalized.includes("safe")) return -6;
   if (normalized.includes("tight")) return -10;
   if (normalized.includes("moderate")) return 8;
   if (normalized.includes("aggressive")) return 22;
+
+  const match = value.match(/-?\d+/);
+  if (match) return Number(match[0]);
 
   return 0;
 }
@@ -48,27 +48,19 @@ function Meter({ label, value }: { label: string; value: number }) {
         <span className="text-white/70">{value}/10</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/10">
-        <div
-          className="h-full rounded-full bg-red-500"
-          style={{ width: `${width}%` }}
-        />
+        <div className="h-full rounded-full bg-red-500" style={{ width: `${width}%` }} />
       </div>
     </div>
   );
 }
 
-function WheelDiagram({
-  label,
-  poke,
-  inner,
-}: {
-  label: string;
-  poke: string;
-  inner?: string;
-}) {
+function WheelDiagram({ label, poke }: { label: string; poke: string; inner?: string }) {
   const pokeValue = parseMm(poke);
-  const VISUAL_BASELINE_OFFSET = -8;
-const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
+
+  // Fender is at 42%. Wheel left is the OUTER tire edge reference.
+  // Negative = tucked/inboard, positive = outward/poke.
+  const wheelShift = clamp(pokeValue * 1.15, -18, 34);
+  const measurementWidth = Math.max(18, Math.abs(wheelShift));
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/30 p-5">
@@ -80,19 +72,14 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
       </div>
 
       <div className="relative h-64 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent">
-        {/* Fender line */}
         <div className="absolute left-[42%] top-8 h-48 w-px bg-red-500/70" />
         <div className="absolute left-[42%] top-8 text-xs uppercase tracking-wide text-red-400">
           Fender
         </div>
 
-        {/* Suspension line */}
-        
-        {/* Suspension sketch */}
         <div className="absolute right-[12%] top-24 h-28 w-16 rounded-full border border-white/15 opacity-50" />
         <div className="absolute right-[13%] top-32 h-20 w-20 rotate-[-18deg] border-t border-white/15" />
 
-        {/* Wheel/tire */}
         <div
           className="absolute top-16 h-40 w-24 rounded-[2rem] border-4 border-blue-500 bg-blue-500/10 shadow-[0_0_30px_rgba(59,130,246,0.35)] transition-all duration-500"
           style={{ left: `calc(42% + ${wheelShift}px)` }}
@@ -101,20 +88,14 @@ const wheelShift = clamp((pokeValue + VISUAL_BASELINE_OFFSET) * -1.1, -36, 36);
           <div className="absolute left-1/2 top-4 h-32 w-px -translate-x-1/2 bg-white/15" />
         </div>
 
-        {/* Poke measurement */}
         <div
           className="absolute top-48 h-px bg-red-500"
           style={{
-            left: "42%",
-            width: `${Math.max(24, Math.abs(wheelShift))}px`,
+            left: wheelShift >= 0 ? "42%" : `calc(42% + ${wheelShift}px)`,
+            width: `${measurementWidth}px`,
           }}
         />
-        <p className="absolute left-[44%] top-52 text-xs text-red-400">
-          Poke {poke}
-        </p>
-
-        {/* Inner measurement */}
-      
+        <p className="absolute left-[44%] top-52 text-xs text-red-400">Poke {poke}</p>
       </div>
     </div>
   );
@@ -159,17 +140,13 @@ export default function FitmentVisualHero({
 
         <div className="space-y-5 rounded-3xl border border-white/10 bg-black/30 p-5">
           <div>
-            <p className="text-xs uppercase tracking-wide text-white/35">
-              Front Setup
-            </p>
+            <p className="text-xs uppercase tracking-wide text-white/35">Front Setup</p>
             <p className="mt-2 text-2xl font-bold text-white">{frontWheel}</p>
             <p className="text-white/50">{frontTire}</p>
           </div>
 
           <div className="border-t border-white/10 pt-5">
-            <p className="text-xs uppercase tracking-wide text-white/35">
-              Rear Setup
-            </p>
+            <p className="text-xs uppercase tracking-wide text-white/35">Rear Setup</p>
             <p className="mt-2 text-2xl font-bold text-white">{rearWheel}</p>
             <p className="text-white/50">{rearTire}</p>
           </div>
