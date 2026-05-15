@@ -16,6 +16,8 @@ type Props = {
   risk: string;
 };
 
+type Axle = "front" | "rear";
+
 function parseMm(value?: string) {
   if (!value) return 0;
 
@@ -27,6 +29,7 @@ function parseMm(value?: string) {
   if (normalized.includes("tight")) return -10;
   if (normalized.includes("moderate")) return 8;
   if (normalized.includes("aggressive")) return 22;
+  if (normalized.includes("strong")) return 24;
 
   const match = value.match(/-?\d+/);
   if (match) return Number(match[0]);
@@ -36,6 +39,18 @@ function parseMm(value?: string) {
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
+}
+
+function getWheelShift(pokeValue: number, axle: Axle) {
+  if (axle === "front") {
+    if (pokeValue <= 4) return -38;
+    if (pokeValue <= 14) return -26;
+    return -16;
+  }
+
+  if (pokeValue <= 4) return -36;
+  if (pokeValue <= 14) return -20;
+  return -6;
 }
 
 function Meter({ label, value }: { label: string; value: number }) {
@@ -54,17 +69,23 @@ function Meter({ label, value }: { label: string; value: number }) {
   );
 }
 
-function WheelDiagram({ label, poke }: { label: string; poke: string; inner?: string }) {
+function WheelDiagram({
+  label,
+  poke,
+  axle,
+}: {
+  label: string;
+  poke: string;
+  inner?: string;
+  axle: Axle;
+}) {
   const pokeValue = parseMm(poke);
-
-  // Fender is at 42%. Wheel left is the OUTER tire edge reference.
-  // Negative = tucked/inboard, positive = outward/poke.
-  const wheelShift = clamp(pokeValue * 1.15, -18, 34);
+  const wheelShift = getWheelShift(pokeValue, axle);
   const measurementWidth = Math.max(18, Math.abs(wheelShift));
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/30 p-5">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/45">
           {label}
         </p>
@@ -82,7 +103,7 @@ function WheelDiagram({ label, poke }: { label: string; poke: string; inner?: st
 
         <div
           className="absolute top-16 h-40 w-24 rounded-[2rem] border-4 border-blue-500 bg-blue-500/10 shadow-[0_0_30px_rgba(59,130,246,0.35)] transition-all duration-500"
-          style={{ left: `calc(42% + ${wheelShift}px)` }}
+          style={{ left: `calc(42% - 48px + ${wheelShift}px)` }}
         >
           <div className="absolute inset-3 rounded-[1.4rem] border-2 border-blue-400/80" />
           <div className="absolute left-1/2 top-4 h-32 w-px -translate-x-1/2 bg-white/15" />
@@ -91,11 +112,14 @@ function WheelDiagram({ label, poke }: { label: string; poke: string; inner?: st
         <div
           className="absolute top-48 h-px bg-red-500"
           style={{
-            left: wheelShift >= 0 ? "42%" : `calc(42% + ${wheelShift}px)`,
+            left: `calc(42% + ${Math.min(wheelShift, 0)}px)`,
             width: `${measurementWidth}px`,
           }}
         />
-        <p className="absolute left-[44%] top-52 text-xs text-red-400">Poke {poke}</p>
+
+        <p className="absolute left-[44%] top-52 max-w-[11rem] text-xs leading-4 text-red-400">
+          Poke {poke}
+        </p>
       </div>
     </div>
   );
@@ -134,8 +158,8 @@ export default function FitmentVisualHero({
 
       <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
         <div className="grid gap-5 md:grid-cols-2">
-          <WheelDiagram label="Front View" poke={pokeFront} inner={innerFront} />
-          <WheelDiagram label="Rear View" poke={pokeRear} inner={innerRear} />
+          <WheelDiagram label="Front View" poke={pokeFront} inner={innerFront} axle="front" />
+          <WheelDiagram label="Rear View" poke={pokeRear} inner={innerRear} axle="rear" />
         </div>
 
         <div className="space-y-5 rounded-3xl border border-white/10 bg-black/30 p-5">
