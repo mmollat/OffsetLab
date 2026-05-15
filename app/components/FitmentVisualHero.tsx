@@ -21,18 +21,18 @@ type Axle = "front" | "rear";
 function parseMm(value?: string) {
   if (!value) return 0;
 
-  const normalized = value.toLowerCase();
-
-  if (normalized.includes("flush+")) return 4;
-  if (normalized.includes("flush")) return 12;
-  if (normalized.includes("safe")) return -6;
-  if (normalized.includes("tight")) return -10;
-  if (normalized.includes("moderate")) return 8;
-  if (normalized.includes("aggressive")) return 22;
-  if (normalized.includes("strong")) return 24;
-
   const match = value.match(/-?\d+/);
   if (match) return Number(match[0]);
+
+  const normalized = value.toLowerCase();
+
+  if (normalized.includes("flush+")) return 2;
+  if (normalized.includes("flush")) return 14;
+  if (normalized.includes("safe")) return -6;
+  if (normalized.includes("tight")) return -10;
+  if (normalized.includes("moderate")) return 10;
+  if (normalized.includes("aggressive")) return 22;
+  if (normalized.includes("strong")) return 24;
 
   return 0;
 }
@@ -42,15 +42,17 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function getWheelShift(pokeValue: number, axle: Axle) {
+  // This value positions the tire's OUTER EDGE relative to the fender line.
+  // Positive = tucked inside the fender.
+  // Zero = flush with fender.
+  // Negative = poking past the fender.
+  const rawShift = 22 - pokeValue * 1.15;
+
   if (axle === "front") {
-    if (pokeValue <= 4) return -38;
-    if (pokeValue <= 14) return -26;
-    return -16;
+    return clamp(rawShift, -4, 26);
   }
 
-  if (pokeValue <= 4) return -36;
-  if (pokeValue <= 14) return -20;
-  return -6;
+  return clamp(rawShift, -10, 26);
 }
 
 function Meter({ label, value }: { label: string; value: number }) {
@@ -103,7 +105,7 @@ function WheelDiagram({
 
         <div
           className="absolute top-16 h-40 w-24 rounded-[2rem] border-4 border-blue-500 bg-blue-500/10 shadow-[0_0_30px_rgba(59,130,246,0.35)] transition-all duration-500"
-          style={{ left: `calc(42% - 48px + ${wheelShift}px)` }}
+          style={{ left: `calc(42% + ${wheelShift}px)` }}
         >
           <div className="absolute inset-3 rounded-[1.4rem] border-2 border-blue-400/80" />
           <div className="absolute left-1/2 top-4 h-32 w-px -translate-x-1/2 bg-white/15" />
@@ -112,7 +114,7 @@ function WheelDiagram({
         <div
           className="absolute top-48 h-px bg-red-500"
           style={{
-            left: `calc(42% + ${Math.min(wheelShift, 0)}px)`,
+            left: wheelShift >= 0 ? "42%" : `calc(42% + ${wheelShift}px)`,
             width: `${measurementWidth}px`,
           }}
         />
