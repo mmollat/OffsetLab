@@ -51,11 +51,11 @@ const squareOverrides: GoalOverrideMap = {
       note: "Square flush alternative for better rotation and balanced handling.",
     },
     aggressive: {
-      front: "19x10 +25",
-      rear: "19x10 +25",
-      frontTire: "275/35R19",
-      rearTire: "275/35R19",
-      note: "Square aggressive Tesla setup prioritizing balance and rotation over rear stagger.",
+      front: "19x9.5 +22",
+      rear: "19x9.5 +22",
+      frontTire: "265/35R19",
+      rearTire: "265/35R19",
+      note: "Aggressive square Tesla setup with improved balance, rotation capability, and cleaner real-world street fitment.",
     },
   },
   "Model Y": {
