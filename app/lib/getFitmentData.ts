@@ -28,23 +28,36 @@ type FitmentRow = {
 };
 
 export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
-  const { data, error } = await supabase
-  .from("fitment_presets")
-  .select("*")
-  .eq("active", true)
-  .order("make", { ascending: true })
-  .order("model", { ascending: true })
-  .order("trim", { ascending: true })
-  .order("style", { ascending: true });
-  
-  if (error || !data) {
-    console.error("Error loading fitment data:", error);
-    return {};
+  const pageSize = 1000;
+  let from = 0;
+  let allRows: FitmentRow[] = [];
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("fitment_presets")
+      .select("*")
+      .eq("active", true)
+      .order("make", { ascending: true })
+      .order("model", { ascending: true })
+      .order("trim", { ascending: true })
+      .order("style", { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    if (error || !data) {
+      console.error("Error loading fitment data:", error);
+      return {};
+    }
+
+    allRows = [...allRows, ...(data as FitmentRow[])];
+
+    if (data.length < pageSize) break;
+
+    from += pageSize;
   }
 
   const grouped: Record<ModelKey, Record<string, TrimData>> = {} as any;
 
-  (data as FitmentRow[]).forEach((row) => {
+  allRows.forEach((row) => {
     if (!grouped[row.model]) grouped[row.model] = {};
 
     if (!grouped[row.model][row.trim]) {
