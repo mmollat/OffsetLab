@@ -410,6 +410,12 @@ const availableModels = useMemo(() => {
 
   return vehicleModels
     .filter((item) => item.make === make)
+    .sort((a, b) =>
+      (a.display_name ?? a.model).localeCompare(b.display_name ?? b.model, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    )
     .map((item) => item.model as ModelKey);
 }, [make, vehicleModels]);
 
