@@ -29,12 +29,14 @@ type FitmentRow = {
 
 export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
   const { data, error } = await supabase
-    .from("fitment_presets")
-    .select("*")
-    .order("make", { ascending: true })
-    .order("model", { ascending: true })
-    .order("trim", { ascending: true });
-
+  .from("fitment_presets")
+  .select("*")
+  .eq("active", true)
+  .order("make", { ascending: true })
+  .order("model", { ascending: true })
+  .order("trim", { ascending: true })
+  .order("style", { ascending: true });
+  
   if (error || !data) {
     console.error("Error loading fitment data:", error);
     return {};
