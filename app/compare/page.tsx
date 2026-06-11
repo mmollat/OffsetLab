@@ -11,7 +11,7 @@ export default function ComparePage() {
   const [make, setMake] = useState<MakeKey | null>(null);
   const [model, setModel] = useState<ModelKey | null>(null);
   const [trim, setTrim] = useState("");
-  const [style, setStyle] = useState<StyleKey>("aggressive");
+  const [style, setStyle] = useState<StyleKey>("flush");
 
   const [fitmentDb, setFitmentDb] = useState<Record<ModelKey, TrimData[]> | null>(null);
   const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
@@ -90,6 +90,13 @@ export default function ComparePage() {
   }, [fitmentDb, safeModel, safeTrim]);
 
   const current = trimData?.presets?.[style];
+  const selectedModelLabel =
+    vehicleModels.find(
+      (vehicle) => vehicle.make === make && vehicle.model === safeModel
+    )?.display_name ?? safeModel;
+
+  const selectedTrimLabel =
+    trimsForModel.find((item) => item.trim === safeTrim)?.display_name ?? safeTrim;
 
   if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     return (
@@ -109,209 +116,299 @@ export default function ComparePage() {
     );
   }
 
+  function handleMakeChange(nextMake: string) {
+    setMake(nextMake as MakeKey);
+
+    const nextModel = vehicleModels.find(
+      (vehicle) => vehicle.make === nextMake
+    )?.model as ModelKey | undefined;
+
+    if (!nextModel) return;
+    setModel(nextModel);
+
+    const nextTrim =
+      vehicleTrims.find(
+        (vehicleTrim) =>
+          vehicleTrim.make === nextMake && vehicleTrim.model === nextModel
+      )?.trim ?? "";
+
+    setTrim(nextTrim);
+  }
+
+  function handleModelChange(nextModel: ModelKey) {
+    setModel(nextModel);
+
+    const nextTrim =
+      vehicleTrims.find(
+        (vehicleTrim) =>
+          vehicleTrim.make === make && vehicleTrim.model === nextModel
+      )?.trim ?? "";
+
+    setTrim(nextTrim);
+  }
+
   return (
-    <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-red-400/70">
-            Offset Lab Compare
-          </p>
+    <main className="min-h-screen bg-[#050609] text-white">
+      <section className="relative isolate min-h-[520px] overflow-hidden border-b border-white/10">
+        <img
+          src="/compare-hero.jpg"
+          alt=""
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center]"
+        />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(3,4,6,0.99)_0%,rgba(3,4,6,0.92)_38%,rgba(3,4,6,0.28)_70%,rgba(3,4,6,0.58)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,rgba(5,6,9,1)_0%,transparent_48%,rgba(5,6,9,0.16)_100%)]" />
 
-          <h1 className="mt-2 text-3xl font-bold md:text-5xl">
-            {safeModel} {safeTrim}{" "}
-            <span className="text-red-500">| {current.title}</span>
-          </h1>
+        <div className="mx-auto flex min-h-[520px] max-w-7xl flex-col justify-center px-5 py-12 md:px-8">
+          <div className="max-w-xl">
+            <p className="text-xs font-bold uppercase tracking-[0.38em] text-red-400/80">
+              Offset Lab Compare
+            </p>
+            <h1 className="mt-4 text-5xl font-black leading-[0.94] tracking-[-0.04em] md:text-6xl">
+              See the
+              <br />
+              Difference.
+            </h1>
+            <p className="mt-5 text-base leading-7 text-white/60 md:text-lg">
+              Compare factory fitment against your next setup.
+            </p>
+          </div>
 
-          <p className="mt-3 text-white/55">
-            Compare factory baseline specs against your selected fitment.
-          </p>
-        </div>
+          <div className="mt-8 rounded-[1.5rem] border border-white/15 bg-black/75 p-4 shadow-2xl shadow-black/50 backdrop-blur-xl md:p-5">
+            <div className="grid gap-3 lg:grid-cols-[0.8fr_1.1fr_1fr_1.35fr_auto] lg:items-end">
+              <SelectControl
+                label="Make"
+                value={make}
+                onChange={handleMakeChange}
+              >
+                {makes.map((makeName) => (
+                  <option key={makeName} value={makeName}>
+                    {makeName}
+                  </option>
+                ))}
+              </SelectControl>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-          <aside className="space-y-5">
-            <Panel title="1. Select Make">
-              <div className="flex flex-wrap gap-2">
-                {makes.map((makeName) => {
-                  const isSelected = make === makeName;
+              <SelectControl
+                label="Vehicle"
+                value={safeModel}
+                onChange={(value) => handleModelChange(value as ModelKey)}
+              >
+                {availableModels.map((item) => {
+                  const modelObj = vehicleModels.find(
+                    (vehicle) =>
+                      vehicle.make === make && vehicle.model === item
+                  );
 
                   return (
-                    <button
-                      key={makeName}
-                      onClick={() => {
-                        setMake(makeName as MakeKey);
-
-                        const nextModel = vehicleModels.find(
-                          (vehicle) => vehicle.make === makeName
-                        )?.model as ModelKey | undefined;
-
-                        if (!nextModel) return;
-
-                        setModel(nextModel);
-
-                        const nextTrim =
-                          vehicleTrims.find(
-                            (vehicleTrim) =>
-                              vehicleTrim.make === makeName &&
-                              vehicleTrim.model === nextModel
-                          )?.trim ?? "";
-
-                        setTrim(nextTrim);
-                      }}
-                      className={`rounded-xl border px-3 py-2 text-sm transition ${
-                        isSelected
-                          ? "border-red-500/60 bg-red-500/15 text-white"
-                          : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
-                      }`}
-                    >
-                      {makeName}
-                    </button>
+                    <option key={item} value={item}>
+                      {modelObj?.display_name ?? item}
+                    </option>
                   );
                 })}
-              </div>
-            </Panel>
+              </SelectControl>
 
-            <Panel title="2. Select Vehicle">
-              <div className="space-y-3">
-                <select
-                  value={safeModel ?? ""}
-                  onChange={(e) => {
-                    const next = e.target.value as ModelKey;
-                    setModel(next);
-
-                    const nextTrim =
-                      vehicleTrims.find(
-                        (vehicleTrim) =>
-                          vehicleTrim.make === make &&
-                          vehicleTrim.model === next
-                      )?.trim ?? "";
-
-                    setTrim(nextTrim);
-                  }}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-                >
-                  {availableModels.map((item) => {
-                    const modelObj = vehicleModels.find(
-                      (vehicle) => vehicle.make === make && vehicle.model === item
-                    );
-
-                    return (
-                      <option key={item} value={item}>
-                        {modelObj?.display_name ?? item}
-                      </option>
-                    );
-                  })}
-                </select>
-
-                <select
-                  value={safeTrim}
-                  onChange={(e) => setTrim(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-                >
-                  {trimsForModel.map((item) => (
-                    <option key={item.trim} value={item.trim}>
-                      {item.display_name ?? item.trim}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </Panel>
-
-            <Panel title="3. Select Style">
-              <div className="space-y-2">
-                {([
-                  ["oemplus", "OEM+", "Subtle & Clean"],
-                  ["flush", "Flush", "Balanced stance"],
-                  ["aggressive", "Aggressive", "Max fitment"],
-                ] as const).map(([key, label, sub]) => (
-                  <button
-                    key={key}
-                    onClick={() => setStyle(key)}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${
-                      style === key
-                        ? "border-red-500/60 bg-red-500/10"
-                        : "border-white/10 bg-black/30 hover:border-white/25"
-                    }`}
-                  >
-                    <p className="font-semibold">{label}</p>
-                    <p className="mt-1 text-sm text-white/45">{sub}</p>
-                  </button>
+              <SelectControl
+                label="Trim"
+                value={safeTrim}
+                onChange={setTrim}
+              >
+                {trimsForModel.map((item) => (
+                  <option key={item.trim} value={item.trim}>
+                    {item.display_name ?? item.trim}
+                  </option>
                 ))}
+              </SelectControl>
+
+              <div>
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+                  Style
+                </p>
+                <div className="grid h-14 grid-cols-3 rounded-xl border border-white/10 bg-[#111216] p-1">
+                  {([
+                    ["oemplus", "OEM+"],
+                    ["flush", "Flush"],
+                    ["aggressive", "Aggressive"],
+                  ] as const).map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setStyle(key)}
+                      className={`rounded-lg px-3 text-xs font-bold transition ${
+                        style === key
+                          ? "bg-red-500 text-white"
+                          : "text-white/45 hover:text-white"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </Panel>
-          </aside>
 
-          <section className="space-y-6">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-sm uppercase tracking-wide text-white/40">Baseline</p>
-
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <Spec label="Front Wheel" value={trimData.baseline.front} />
-                <Spec label="Rear Wheel" value={trimData.baseline.rear} />
-                <Spec label="Factory Tire" value={trimData.baseline.tire} />
-                <Spec label="Bolt Pattern" value={trimData.baseline.boltPattern} />
-                <Spec label="Center Bore" value={trimData.baseline.centerBore} />
-              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  document
+                    .getElementById("comparison")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+                className="h-14 rounded-xl bg-red-500 px-6 text-xs font-black uppercase tracking-[0.16em] transition hover:bg-red-400"
+              >
+                Compare Setup
+              </button>
             </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-sm uppercase tracking-wide text-white/40">
-                Selected Fitment
-              </p>
-
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <Spec label="Front Wheel" value={current.front} />
-                <Spec label="Rear Wheel" value={current.rear} />
-                <Spec label="Front Tire" value={current.frontTire} />
-                <Spec label="Rear Tire" value={current.rearTire} />
-                <Spec label="Front Poke" value={current.pokeFront} />
-                <Spec label="Rear Poke" value={current.pokeRear} />
-                <Spec label="Diameter Change" value={current.diameter} />
-                <Spec label="Risk" value={current.risk} />
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-sm uppercase tracking-wide text-white/40">
-                Visual Compare
-              </p>
-
-              <div className="mt-6">
-                <CompareFitmentVisual
-  baselineFront={trimData.baseline.front ?? ""}
-  selectedFront={current.front ?? ""}
-  baselineTire={trimData.baseline.tire ?? ""}
-  selectedTire={current.frontTire ?? ""}
-/>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-sm uppercase tracking-wide text-white/40">Verdict</p>
-              <p className="mt-3 text-lg leading-8 text-white/80">
-                {current.verdict}
-              </p>
-            </div>
-          </section>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section
+        id="comparison"
+        className="scroll-mt-20 px-5 py-14 md:px-8 md:py-20"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-4 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.32em] text-red-400/70">
+                Factory vs Selected
+              </p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight md:text-5xl">
+                {selectedTrimLabel}
+              </h2>
+              <p className="mt-3 text-sm text-white/45">
+                {make} / {selectedModelLabel} / {current.title}
+              </p>
+            </div>
+            <div className="w-fit rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300">
+              Risk: {current.risk}
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <CompareCard title="Factory Baseline">
+              <Spec label="Front Wheel" value={trimData.baseline.front} />
+              <Spec label="Rear Wheel" value={trimData.baseline.rear} />
+              <Spec label="Factory Tire" value={trimData.baseline.tire} />
+              <Spec label="Bolt Pattern" value={trimData.baseline.boltPattern} />
+              <Spec label="Center Bore" value={trimData.baseline.centerBore} />
+            </CompareCard>
+
+            <CompareCard title="Selected Fitment" selected>
+              <Spec label="Front Wheel" value={current.front} selected />
+              <Spec label="Rear Wheel" value={current.rear} selected />
+              <Spec label="Front Tire" value={current.frontTire} selected />
+              <Spec label="Rear Tire" value={current.rearTire} selected />
+              <Spec label="Front Poke" value={current.pokeFront} selected />
+              <Spec label="Rear Poke" value={current.pokeRear} selected />
+              <Spec label="Diameter Change" value={current.diameter} selected />
+            </CompareCard>
+          </div>
+
+          <div className="mt-6 rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-4 md:p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.26em] text-white/35">
+              Technical View
+            </p>
+            <div className="mt-5">
+              <CompareFitmentVisual
+                baselineFront={trimData.baseline.front ?? ""}
+                selectedFront={current.front ?? ""}
+                baselineTire={trimData.baseline.tire ?? ""}
+                selectedTire={current.frontTire ?? ""}
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-[1.6rem] border border-red-500/20 bg-[linear-gradient(135deg,rgba(239,68,68,0.1),rgba(255,255,255,0.025))] p-6 md:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.26em] text-red-300/70">
+              Offset Lab Verdict
+            </p>
+            <p className="mt-4 max-w-4xl text-lg leading-8 text-white/80 md:text-xl">
+              {current.verdict}
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+function SelectControl({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string | null;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
-      <p className="mb-4 text-sm uppercase tracking-wide text-white/40">{title}</p>
-      {children}
-    </section>
+    <label>
+      <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+        {label}
+      </span>
+      <select
+        value={value ?? ""}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-14 w-full appearance-none rounded-xl border border-white/10 bg-[#111216] px-4 text-sm font-semibold outline-none transition focus:border-red-500/60"
+      >
+        {children}
+      </select>
+    </label>
   );
 }
 
-function Spec({ label, value }: { label: string; value?: string }) {
+function CompareCard({
+  title,
+  selected = false,
+  children,
+}: {
+  title: string;
+  selected?: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-      <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>
-      <p className="mt-2 font-semibold text-white">{value || "—"}</p>
+    <article
+      className={`rounded-[1.6rem] border p-5 md:p-6 ${
+        selected
+          ? "border-red-500/25 bg-red-500/[0.045]"
+          : "border-white/10 bg-white/[0.025]"
+      }`}
+    >
+      <p
+        className={`text-xs font-bold uppercase tracking-[0.26em] ${
+          selected ? "text-red-300/70" : "text-white/35"
+        }`}
+      >
+        {title}
+      </p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">{children}</div>
+    </article>
+  );
+}
+
+function Spec({
+  label,
+  value,
+  selected = false,
+}: {
+  label: string;
+  value?: string;
+  selected?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-4 ${
+        selected
+          ? "border-red-500/15 bg-red-500/[0.035]"
+          : "border-white/10 bg-black/25"
+      }`}
+    >
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">
+        {label}
+      </p>
+      <p className={`mt-2 font-bold ${selected ? "text-red-100" : "text-white"}`}>
+        {value || "—"}
+      </p>
     </div>
   );
 }
