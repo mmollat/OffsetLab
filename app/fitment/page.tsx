@@ -1015,9 +1015,8 @@ function WheelRecommendation({
 
   return (
     <article className="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.065] to-white/[0.015] p-6 sm:p-8">
-      <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-white/[0.025]" />
       <div className="relative flex items-start justify-between gap-5">
-        <div>
+        <div className="relative z-10">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-white/42">{axle} Setup</p>
           <div className="mt-6 flex flex-wrap items-end gap-x-3">
             <span className="text-5xl font-black tracking-[-0.05em] sm:text-6xl">{parts.size}</span>
@@ -1025,7 +1024,7 @@ function WheelRecommendation({
           </div>
           <p className="mt-3 text-lg font-bold text-white/68">{tire}</p>
         </div>
-        <WheelGlyph />
+        <WheelGraphic />
       </div>
 
       <div className="relative mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10">
@@ -1045,18 +1044,74 @@ function parseWheel(value: string) {
   return { size: match[1], offset };
 }
 
-function WheelGlyph() {
+function WheelGraphic() {
+  const spokes = Array.from({ length: 10 }, (_, index) => index * 36);
+
   return (
-    <div className="relative mt-1 hidden h-24 w-24 shrink-0 items-center justify-center rounded-full border-[7px] border-white/20 sm:flex">
-      <div className="absolute inset-2 rounded-full border border-white/20" />
-      {[0, 45, 90, 135].map((rotation) => (
-        <span
-          key={rotation}
-          className="absolute h-[2px] w-14 bg-white/22"
-          style={{ transform: `rotate(${rotation}deg)` }}
-        />
-      ))}
-      <span className="relative h-5 w-5 rounded-full border-2 border-red-500/70 bg-[#111]" />
+    <div className="pointer-events-none absolute -right-3 -top-4 hidden h-48 w-48 opacity-90 sm:block lg:-right-1 lg:h-52 lg:w-52">
+      <svg viewBox="0 0 220 220" aria-hidden="true" className="h-full w-full drop-shadow-[0_12px_22px_rgba(0,0,0,0.7)]">
+        <defs>
+          <radialGradient id="tireSurface" cx="42%" cy="36%" r="68%">
+            <stop offset="0" stopColor="#34343a" />
+            <stop offset="0.58" stopColor="#17181c" />
+            <stop offset="1" stopColor="#07080a" />
+          </radialGradient>
+          <radialGradient id="wheelFace" cx="40%" cy="35%" r="70%">
+            <stop offset="0" stopColor="#62646b" />
+            <stop offset="0.45" stopColor="#292b31" />
+            <stop offset="1" stopColor="#0b0c0f" />
+          </radialGradient>
+          <linearGradient id="spokeMetal" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#a8abb2" />
+            <stop offset="0.25" stopColor="#45474e" />
+            <stop offset="0.68" stopColor="#17191e" />
+            <stop offset="1" stopColor="#777980" />
+          </linearGradient>
+        </defs>
+
+        <circle cx="110" cy="110" r="100" fill="url(#tireSurface)" stroke="#404147" strokeWidth="3" />
+        <circle cx="110" cy="110" r="88" fill="none" stroke="#0a0b0e" strokeWidth="11" strokeDasharray="3 5" opacity="0.9" />
+        <circle cx="110" cy="110" r="76" fill="#090a0d" stroke="#696b72" strokeWidth="3" />
+        <circle cx="110" cy="110" r="68" fill="url(#wheelFace)" stroke="#24262b" strokeWidth="3" />
+
+        <circle cx="110" cy="110" r="53" fill="#17191d" stroke="#4b4d53" strokeWidth="2" />
+        <circle cx="110" cy="110" r="45" fill="none" stroke="#6e7076" strokeWidth="2" strokeDasharray="2 5" opacity="0.55" />
+        <path d="M148 79 C159 88 163 102 160 119 L150 119 C152 102 149 91 140 84 Z" fill="#d92d35" opacity="0.9" />
+
+        {spokes.map((rotation) => (
+          <g key={rotation} transform={`rotate(${rotation} 110 110)`}>
+            <path
+              d="M104 106 L94 48 Q96 42 103 40 L110 101 Z"
+              fill="url(#spokeMetal)"
+              stroke="#777980"
+              strokeWidth="0.8"
+            />
+            <path
+              d="M116 106 L126 48 Q124 42 117 40 L110 101 Z"
+              fill="#202228"
+              stroke="#55575e"
+              strokeWidth="0.7"
+            />
+          </g>
+        ))}
+
+        <circle cx="110" cy="110" r="22" fill="#121318" stroke="#7b7d84" strokeWidth="2" />
+        <circle cx="110" cy="110" r="10" fill="#050609" stroke="#ef4444" strokeWidth="2.5" />
+        {[0, 72, 144, 216, 288].map((rotation) => {
+          const radians = ((rotation - 90) * Math.PI) / 180;
+          return (
+            <circle
+              key={rotation}
+              cx={110 + Math.cos(radians) * 16}
+              cy={110 + Math.sin(radians) * 16}
+              r="2.2"
+              fill="#b5b7bd"
+            />
+          );
+        })}
+        <path d="M44 70 A82 82 0 0 1 88 31" fill="none" stroke="white" strokeWidth="2" opacity="0.13" />
+        <path d="M33 132 A82 82 0 0 0 58 171" fill="none" stroke="#ef4444" strokeWidth="2" opacity="0.22" />
+      </svg>
     </div>
   );
 }
