@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { StyleKey } from "../data/fitment";
+import { galleryExamples } from "../data/gallery";
 import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
 import { supabase } from "../lib/supabase";
 
@@ -15,6 +16,7 @@ type GalleryBuild = {
   id: string;
   label: string;
   imageUrl: string;
+  sourceType: "community" | "reference";
   sourceName: string;
   sourceUrl?: string;
   wheel: string;
@@ -70,6 +72,7 @@ function mapSubmission(row: SubmissionRow): GalleryBuild {
     id: String(row.id),
     label: `${model}${trim ? ` ${trim}` : ""}`,
     imageUrl: String(row.image_url || ""),
+    sourceType: "community",
     sourceName: handle ? `@${handle}` : "Offset Lab Community",
     sourceUrl: handle ? `https://instagram.com/${handle}` : undefined,
     wheel: combineFitment(row.front_wheel, row.rear_wheel),
@@ -83,7 +86,54 @@ function mapSubmission(row: SubmissionRow): GalleryBuild {
   };
 }
 
+function getReferenceBuilds(vehicleModels: VehicleModel[]): GalleryBuild[] {
+  return Object.entries(galleryExamples).flatMap(([model, styles]) => {
+    const normalizedModel = model.toLowerCase();
+    const vehicle = vehicleModels.find(
+      (item) =>
+        item.model === model ||
+        String(item.display_name || "")
+          .toLowerCase()
+          .includes(normalizedModel)
+    );
+    if (!vehicle) return [];
+
+    return (Object.entries(styles) as [
+      StyleKey,
+      (typeof styles)[StyleKey]
+    ][]).flatMap(([style, builds]) =>
+      builds.flatMap((build, index) => {
+        if (build.imageStatus !== "verified" || !build.imageUrl) return [];
+
+        return [
+          {
+            id: `reference-${model}-${style}-${index}`,
+            label: build.label,
+            imageUrl: build.imageUrl,
+            sourceType: "reference" as const,
+            sourceName: build.sourceName,
+            sourceUrl:
+              build.sourceUrl && build.sourceUrl !== "#"
+                ? build.sourceUrl
+                : undefined,
+            wheel: build.wheel,
+            tire: build.tire,
+            note: build.note,
+            tags: build.tags,
+            match: build.match,
+            make: vehicle.make,
+            model: vehicle.model,
+            style,
+          },
+        ];
+      })
+    );
+  });
+}
+
 function BuildCard({ build }: { build: GalleryBuild }) {
+  const isReference = build.sourceType === "reference";
+
   return (
     <article className="group overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#090a0d] text-white shadow-2xl shadow-black/30">
       <div className="aspect-[4/3] overflow-hidden bg-white/[0.03]">
@@ -97,8 +147,14 @@ function BuildCard({ build }: { build: GalleryBuild }) {
 
       <div className="p-5">
         <div className="mb-4 flex flex-wrap gap-2">
-          <span className="rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-red-300">
-            Community Build
+          <span
+            className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] ${
+              isReference
+                ? "border-sky-400/40 bg-sky-400/10 text-sky-300"
+                : "border-red-500/40 bg-red-500/10 text-red-300"
+            }`}
+          >
+            {isReference ? "Visual Reference" : "Community Build"}
           </span>
           <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/55">
             {styleLabels[build.style]}
@@ -128,6 +184,13 @@ function BuildCard({ build }: { build: GalleryBuild }) {
           </p>
         ) : null}
 
+        {isReference ? (
+          <p className="mt-4 rounded-xl border border-sky-400/15 bg-sky-400/[0.06] px-3 py-2 text-xs leading-5 text-sky-100/60">
+            Curated for visual guidance. Exact photographed specifications may
+            vary from the setup shown.
+          </p>
+        ) : null}
+
         <div className="mt-5 flex items-center justify-between gap-4 text-xs text-white/40">
           {build.sourceUrl ? (
             <a
@@ -141,7 +204,9 @@ function BuildCard({ build }: { build: GalleryBuild }) {
           ) : (
             <span className="truncate">{build.sourceName}</span>
           )}
-          <span className="shrink-0">Verified Build</span>
+          <span className="shrink-0">
+            {isReference ? "Source Attribution" : "Verified Build"}
+          </span>
         </div>
       </div>
     </article>
@@ -179,12 +244,14 @@ export default function GalleryPage() {
       setVehicleModels(models);
 
       if (submissions.data) {
-        setAllBuilds(
-          (submissions.data as SubmissionRow[])
-            .filter((row) => Boolean(row.image_url))
-            .map(mapSubmission)
-            .reverse()
-        );
+        const communityBuilds = (submissions.data as SubmissionRow[])
+          .filter((row) => Boolean(row.image_url))
+          .map(mapSubmission)
+          .reverse();
+
+        setAllBuilds([...communityBuilds, ...getReferenceBuilds(models)]);
+      } else {
+        setAllBuilds(getReferenceBuilds(models));
       }
 
       setIsLoading(false);
@@ -369,8 +436,8 @@ export default function GalleryPage() {
               </h2>
               <p className="mt-3 text-sm text-white/45">
                 {selectedVehicle
-                  ? `${filteredBuilds.length} verified ${
-                      filteredBuilds.length === 1 ? "build" : "builds"
+                  ? `${filteredBuilds.length} gallery ${
+                      filteredBuilds.length === 1 ? "result" : "results"
                     } found`
                   : "Real cars, real specifications, approved by Offset Lab."}
               </p>
@@ -407,7 +474,7 @@ export default function GalleryPage() {
             </div>
           ) : (
             <div className="mt-8 rounded-[1.6rem] border border-white/10 bg-white/[0.025] px-6 py-14 text-center">
-              <p className="text-2xl font-black">No verified builds yet.</p>
+              <p className="text-2xl font-black">No gallery references yet.</p>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/50">
                 {selectedVehicle
                   ? "This vehicle is waiting for its first approved community setup. View all builds or check back as the gallery grows."
