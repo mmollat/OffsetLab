@@ -265,58 +265,56 @@ export default function ComparePage() {
         className="scroll-mt-20 px-5 py-14 md:px-8 md:py-20"
       >
         <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-4 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.32em] text-red-400/70">
-                Factory vs Selected
-              </p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight md:text-5xl">
-                {selectedTrimLabel}
-              </h2>
-              <p className="mt-3 text-sm text-white/45">
-                {make} / {selectedModelLabel} / {current.title}
-              </p>
-            </div>
-            <div className="w-fit rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300">
-              Risk: {current.risk}
-            </div>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+            <h2 className="mr-2 text-2xl font-black tracking-tight md:text-3xl">
+              Factory vs Selected
+            </h2>
+            {[make, selectedModelLabel, selectedTrimLabel, current.title].map(
+              (item, index) => (
+                <div
+                  key={`${item}-${index}`}
+                  className="flex items-center gap-5 text-sm font-semibold text-white/45"
+                >
+                  {index > 0 ? <span className="text-white/25">›</span> : null}
+                  <span
+                    className={
+                      index === 3 ? "text-red-400" : "whitespace-nowrap"
+                    }
+                  >
+                    {item}
+                  </span>
+                </div>
+              )
+            )}
           </div>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <CompareCard title="Factory Baseline">
-              <Spec label="Front Wheel" value={trimData.baseline.front} />
-              <Spec label="Rear Wheel" value={trimData.baseline.rear} />
-              <Spec label="Factory Tire" value={trimData.baseline.tire} />
-              <Spec label="Bolt Pattern" value={trimData.baseline.boltPattern} />
-              <Spec label="Center Bore" value={trimData.baseline.centerBore} />
-            </CompareCard>
-
-            <CompareCard title="Selected Fitment" selected>
-              <Spec label="Front Wheel" value={current.front} selected />
-              <Spec label="Rear Wheel" value={current.rear} selected />
-              <Spec label="Front Tire" value={current.frontTire} selected />
-              <Spec label="Rear Tire" value={current.rearTire} selected />
-              <Spec label="Front Poke" value={current.pokeFront} selected />
-              <Spec label="Rear Poke" value={current.pokeRear} selected />
-              <Spec label="Diameter Change" value={current.diameter} selected />
-            </CompareCard>
-          </div>
-
-          <div className="mt-6 rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-4 md:p-6">
-            <p className="text-xs font-bold uppercase tracking-[0.26em] text-white/35">
-              Technical View
-            </p>
-            <div className="mt-5">
-              <CompareFitmentVisual
-                baselineFront={trimData.baseline.front ?? ""}
-                baselineRear={trimData.baseline.rear ?? ""}
-                selectedFront={current.front ?? ""}
-                selectedRear={current.rear ?? ""}
-                baselineTire={trimData.baseline.tire ?? ""}
-                selectedTire={current.frontTire ?? ""}
-                selectedRearTire={current.rearTire ?? ""}
-              />
-            </div>
+          <div className="mt-7 grid gap-5 xl:grid-cols-[0.92fr_0.92fr_1.1fr]">
+            <FitmentTable
+              title="Factory Baseline"
+              frontWheel={trimData.baseline.front}
+              rearWheel={trimData.baseline.rear}
+              frontTire={trimData.baseline.tire}
+              rearTire={trimData.baseline.tire}
+              boltPattern={trimData.baseline.boltPattern}
+            />
+            <FitmentTable
+              title="Selected Fitment"
+              frontWheel={current.front}
+              rearWheel={current.rear}
+              frontTire={current.frontTire}
+              rearTire={current.rearTire}
+              boltPattern={trimData.baseline.boltPattern}
+              selected
+            />
+            <CompareFitmentVisual
+              baselineFront={trimData.baseline.front ?? ""}
+              baselineRear={trimData.baseline.rear ?? ""}
+              selectedFront={current.front ?? ""}
+              selectedRear={current.rear ?? ""}
+              baselineTire={trimData.baseline.tire ?? ""}
+              selectedTire={current.frontTire ?? ""}
+              selectedRearTire={current.rearTire ?? ""}
+            />
           </div>
 
           <div className="mt-6 rounded-[1.6rem] border border-red-500/20 bg-[linear-gradient(135deg,rgba(239,68,68,0.1),rgba(255,255,255,0.025))] p-6 md:p-8">
@@ -360,58 +358,152 @@ function SelectControl({
   );
 }
 
-function CompareCard({
+function FitmentTable({
   title,
+  frontWheel,
+  rearWheel,
+  frontTire,
+  rearTire,
+  boltPattern,
   selected = false,
-  children,
 }: {
   title: string;
+  frontWheel: string;
+  rearWheel: string;
+  frontTire: string;
+  rearTire: string;
+  boltPattern: string;
   selected?: boolean;
-  children: React.ReactNode;
 }) {
+  const rows = [
+    { label: "Front Wheel", type: "wheel", value: frontWheel },
+    { label: "Rear Wheel", type: "wheel", value: rearWheel },
+    { label: "Front Tire", type: "tire", value: frontTire },
+    { label: "Rear Tire", type: "tire", value: rearTire },
+  ];
+
   return (
     <article
-      className={`rounded-[1.6rem] border p-5 md:p-6 ${
+      className={`overflow-hidden rounded-[1.25rem] border bg-[#090a0d] ${
         selected
-          ? "border-red-500/25 bg-red-500/[0.045]"
-          : "border-white/10 bg-white/[0.025]"
+          ? "border-red-500/70 shadow-[0_0_40px_rgba(239,68,68,0.05)]"
+          : "border-white/15"
       }`}
     >
       <p
-        className={`text-xs font-bold uppercase tracking-[0.26em] ${
-          selected ? "text-red-300/70" : "text-white/35"
+        className={`px-6 py-5 text-sm font-black uppercase tracking-[0.18em] ${
+          selected ? "text-red-400" : "text-white/60"
         }`}
       >
         {title}
       </p>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">{children}</div>
+      <div className="border-t border-white/10 px-5">
+        {rows.map((row) => (
+          <FitmentRow
+            key={row.label}
+            label={row.label}
+            type={row.type as "wheel" | "tire"}
+            value={row.value}
+            boltPattern={boltPattern}
+            selected={selected}
+          />
+        ))}
+      </div>
     </article>
   );
 }
 
-function Spec({
+function FitmentRow({
   label,
   value,
+  type,
+  boltPattern,
   selected = false,
 }: {
   label: string;
-  value?: string;
+  value: string;
+  type: "wheel" | "tire";
+  boltPattern: string;
   selected?: boolean;
 }) {
+  const wheel = parseWheelDisplay(value);
+  const tireDiameter = parseTireDiameter(value);
+
   return (
-    <div
-      className={`rounded-xl border p-4 ${
-        selected
-          ? "border-red-500/15 bg-red-500/[0.035]"
-          : "border-white/10 bg-black/25"
-      }`}
-    >
-      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">
-        {label}
-      </p>
-      <p className={`mt-2 font-bold ${selected ? "text-red-100" : "text-white"}`}>
-        {value || "—"}
-      </p>
+    <div className="grid min-h-[82px] grid-cols-[42px_1fr_auto] items-center gap-3 border-b border-white/10 last:border-b-0">
+      <FitmentIcon type={type} />
+      <p className="text-sm font-semibold text-white/70">{label}</p>
+      {type === "wheel" && wheel ? (
+        <div className="grid grid-cols-[auto_auto_auto] items-center gap-4 text-right text-sm font-semibold text-white/60">
+          <span>
+            {wheel.diameter} x{" "}
+            <strong className={selected ? "text-red-400" : "text-white/75"}>
+              {wheel.width}J
+            </strong>
+          </span>
+          <strong className={selected ? "text-red-400" : "text-white/75"}>
+            {wheel.offset > 0 ? "+" : ""}
+            {wheel.offset}mm
+          </strong>
+          <span className="text-white/50">{boltPattern || "—"}</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-[auto_auto] items-center gap-5 text-right text-sm font-semibold">
+          <strong className={selected ? "text-red-400" : "text-white/75"}>
+            {value}
+          </strong>
+          <span className="text-white/50">
+            {tireDiameter ? `${Math.round(tireDiameter)}mm` : "—"}
+          </span>
+        </div>
+      )}
     </div>
   );
+}
+
+function FitmentIcon({ type }: { type: "wheel" | "tire" }) {
+  if (type === "tire") {
+    return (
+      <svg viewBox="0 0 42 42" className="h-9 w-9 text-white/55" fill="none">
+        <ellipse cx="20" cy="21" rx="10" ry="16" stroke="currentColor" strokeWidth="2" />
+        <ellipse cx="23" cy="21" rx="8" ry="16" stroke="currentColor" />
+        <ellipse cx="26" cy="21" rx="6" ry="15" stroke="currentColor" opacity=".55" />
+        <path d="M12 9l7 3M10 15l8 2M10 22l8 1M11 29l8-1M14 35l6-3" stroke="currentColor" opacity=".6" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 42 42" className="h-9 w-9 text-white/55" fill="none">
+      <circle cx="21" cy="21" r="17" stroke="currentColor" strokeWidth="2" />
+      <circle cx="21" cy="21" r="12" stroke="currentColor" />
+      <circle cx="21" cy="21" r="3" stroke="currentColor" />
+      {[0, 72, 144, 216, 288].map((rotation) => (
+        <path
+          key={rotation}
+          d="M21 18L18 9L22 6L24 18"
+          stroke="currentColor"
+          transform={`rotate(${rotation} 21 21)`}
+        />
+      ))}
+    </svg>
+  );
+}
+
+function parseWheelDisplay(value: string) {
+  const match = value.match(
+    /(\d+\.?\d*)x(\d+\.?\d*)\s*(?:ET|\+|et)?\s*(-?\d+)/i
+  );
+  if (!match) return null;
+  return {
+    diameter: match[1],
+    width: match[2],
+    offset: Number(match[3]),
+  };
+}
+
+function parseTireDiameter(value: string) {
+  const match = value.match(/(\d{3})\/(\d{2})R(\d{2})/i);
+  if (!match) return null;
+  return Number(match[3]) * 25.4 + 2 * Number(match[1]) * (Number(match[2]) / 100);
 }

@@ -179,8 +179,8 @@ export default function CompareFitmentVisual({
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_250px]">
-        <div className="relative min-h-[390px] overflow-hidden border-b border-white/10 lg:border-b-0 lg:border-r">
+      <div className="grid lg:grid-cols-[1fr_190px]">
+        <div className="relative min-h-[300px] overflow-hidden border-b border-white/10 lg:border-b-0 lg:border-r">
           <svg
             viewBox="0 0 700 440"
             className="absolute inset-0 h-full w-full"
@@ -311,14 +311,6 @@ export default function CompareFitmentVisual({
           <Metric
             label="Track Width"
             value={formatMm(comparison.trackChange)}
-          />
-          <Metric
-            label="Tire Diameter"
-            value={
-              comparison.diameterChange === null
-                ? "—"
-                : formatMm(comparison.diameterChange)
-            }
           />
         </dl>
       </div>
