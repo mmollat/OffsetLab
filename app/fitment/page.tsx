@@ -369,7 +369,7 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
 }
 
   useEffect(() => {
-  if (!fitmentDb) return;
+  if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) return;
   
   const params = new URLSearchParams(window.location.search);
   const rawMake = params.get("make");
@@ -377,7 +377,15 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
   if (!rawMake) return;
 
   const urlMake = normalizeMake(rawMake);
-  const urlModel = normalizeModel(params.get("model"), urlMake);
+  const requestedModel = params.get("model");
+  const urlModel =
+    vehicleModels.find(
+      (item) =>
+        item.make === urlMake &&
+        (modelSlug(item.model) === modelSlug(requestedModel ?? "") ||
+          modelSlug(item.display_name ?? "") === modelSlug(requestedModel ?? ""))
+    )?.model as ModelKey ||
+    normalizeModel(requestedModel, urlMake);
   const urlStyle = normalizeStyle(params.get("style"));
   const urlTrim = params.get("trim");
   const urlGoal = params.get("goal");
@@ -397,7 +405,7 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
 
   const availableTrims = getLoadedTrims(urlModel, urlMake);
   setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
-}, [fitmentDb, vehicleTrims]);
+}, [fitmentDb, vehicleModels, vehicleTrims]);
 
   const availableMakes = useMemo(() => {
   return (Array.from(new Set(vehicleModels.map((vehicle) => vehicle.make))) as MakeKey[]).sort(
@@ -653,347 +661,463 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     </main>
   );
 }
-if (!make || !safeModel || !trimData || !current || !displayedFitment) {
-  return (
-    <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-red-400/70">
-            Offset Lab Gallery
-          </p>
-          <h1 className="mt-2 text-3xl font-bold md:text-5xl">
-            Select Your <span className="text-red-500">Platform</span>
-          </h1>
-          <p className="mt-3 text-white/55">
-            Choose a make to start building your fitment recommendation.
-          </p>
-        </div>
-
-        <Panel title="1. Select Make">
-          <div className="flex flex-wrap gap-2">
-            {availableMakes.map((makeName) => {
-  const isSelected = make === makeName;
+  const selectedModelName =
+    vehicleModels.find((item) => item.make === make && item.model === safeModel)?.display_name ??
+    safeModel;
+  const hasRecommendation = Boolean(make && safeModel && safeTrim && trimData && displayedFitment);
 
   return (
-    <button
-      key={makeName}
-      onClick={() => {
-        setMake(makeName);
+    <main className="min-h-[calc(100vh-73px)] bg-[#050506] text-white">
+      <section className="relative isolate overflow-hidden border-b border-white/10">
+        <div
+          className="absolute inset-0 -z-30 bg-cover bg-[72%_center] md:bg-center"
+          style={{ backgroundImage: "url('/fitment-hero.png')" }}
+        />
+        <div className="absolute inset-0 -z-20 bg-gradient-to-r from-black via-black/85 to-black/10" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#050506] via-transparent to-black/30" />
 
-        const nextModel = vehicleModels.find(
-          (vehicle) => vehicle.make === makeName
-        )?.model as ModelKey;
-
-        if (!nextModel) return;
-
-        setModel(nextModel);
-        setTrim(getLoadedTrims(nextModel, makeName)[0] ?? "");
-        setConfiguration(getRecommendedConfiguration(nextModel, goal));
-      }}
-      className={`rounded-xl border px-3 py-2 text-sm transition ${
-        isSelected
-          ? "border-red-500/60 bg-red-500/15 text-white"
-          : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
-      }`}
-    >
-      {makeName}
-    </button>
-  );
-})}
+        <div className="mx-auto flex min-h-[410px] max-w-7xl items-center px-5 pb-12 pt-16 lg:min-h-[520px] lg:px-8 lg:pb-36">
+          <div className="max-w-2xl">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-red-500">
+              Offset Lab Fitment
+            </p>
+            <h1 className="mt-5 text-5xl font-black leading-[0.96] tracking-[-0.045em] sm:text-6xl">
+              Dial In Your
+              <span className="block text-red-500">Fitment.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-white/60 sm:text-lg">
+              Vehicle-specific wheel and tire recommendations without the guesswork.
+            </p>
           </div>
-        </Panel>
-      </div>
-    </main>
-  );
-}
-  return (
-    <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-red-400/70">Offset Lab Gallery</p>
-          <h1 className="mt-2 text-3xl font-bold md:text-5xl">
-            {safeModel} {safeTrim} <span className="text-red-500">| {displayedFitment.title}</span>
-          </h1>
-          <p className="mt-3 text-white/55">
-            Real-world visual references paired with specs, scores, and fitment notes.
-          </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-          <aside className="space-y-5">
-            <Panel title="1. Select Make">
-              <div className="flex flex-wrap gap-2">
-{availableMakes.map((makeName) => {
-  const isSelected = make === makeName;
+        <div className="relative lg:absolute lg:inset-x-0 lg:bottom-0">
+          <div className="mx-auto max-w-7xl px-5 lg:px-8">
+            <div className="grid gap-px overflow-hidden rounded-t-xl border border-b-0 border-white/12 bg-white/10 shadow-2xl shadow-black/50 backdrop-blur-xl lg:grid-cols-[1fr_1.4fr_1fr_2.1fr_auto]">
+              <Selector label="Make">
+                <select
+                  value={make ?? ""}
+                  onChange={(event) => {
+                    const nextMake = event.target.value as MakeKey;
+                    const nextModel = vehicleModels.find((vehicle) => vehicle.make === nextMake)?.model as ModelKey;
+                    setMake(nextMake);
+                    setModel(nextModel ?? null);
+                    setTrim(nextModel ? getLoadedTrims(nextModel, nextMake)[0] ?? "" : "");
+                    if (nextModel) setConfiguration(getRecommendedConfiguration(nextModel, goal));
+                  }}
+                  className="w-full bg-transparent text-sm font-bold outline-none"
+                >
+                  <option value="" disabled>Select make</option>
+                  {availableMakes.map((item) => <option key={item}>{item}</option>)}
+                </select>
+              </Selector>
 
-  return (
-    <button
-      key={makeName}
-      onClick={() => {
-        setMake(makeName);
+              <Selector label="Vehicle">
+                <select
+                  value={safeModel ?? ""}
+                  disabled={!make}
+                  onChange={(event) => {
+                    const nextModel = event.target.value as ModelKey;
+                    setModel(nextModel);
+                    setTrim(getLoadedTrims(nextModel)[0] ?? "");
+                    setConfiguration(getRecommendedConfiguration(nextModel, goal));
+                  }}
+                  className="w-full bg-transparent text-sm font-bold outline-none disabled:text-white/30"
+                >
+                  <option value="" disabled>Select vehicle</option>
+                  {availableModels.map((item) => {
+                    const entry = vehicleModels.find((vehicle) => vehicle.make === make && vehicle.model === item);
+                    return <option key={item} value={item}>{entry?.display_name ?? item}</option>;
+                  })}
+                </select>
+              </Selector>
 
-        const nextModel = vehicleModels.find(
-          (vehicle) => vehicle.make === makeName
-        )?.model as ModelKey;
+              <Selector label="Trim">
+                <select
+                  value={safeTrim}
+                  disabled={!safeModel}
+                  onChange={(event) => setTrim(event.target.value)}
+                  className="w-full bg-transparent text-sm font-bold outline-none disabled:text-white/30"
+                >
+                  <option value="" disabled>Select trim</option>
+                  {vehicleTrims
+                    .filter((item) => item.make === make && item.model === safeModel)
+                    .map((item) => <option key={item.trim} value={item.trim}>{item.display_name ?? item.trim}</option>)}
+                </select>
+              </Selector>
 
-        if (!nextModel) return;
-
-        setModel(nextModel);
-        setTrim(getLoadedTrims(nextModel, makeName)[0] ?? "");
-        setConfiguration(getRecommendedConfiguration(nextModel, goal));
-      }}
-      className={`rounded-xl border px-3 py-2 text-sm transition ${
-        isSelected
-          ? "border-red-500/60 bg-red-500/15 text-white"
-          : "border-white/10 bg-black/30 text-white/70 hover:border-white/25"
-      }`}
-    >
-      {makeName}
-    </button>
-  );
-})}
+              <div className="bg-[#09090b]/95 px-5 py-4">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Style</p>
+                <div className="grid grid-cols-3 gap-1 rounded-md border border-white/10 bg-black/35 p-1">
+                  {([
+                    ["oemplus", "OEM+"],
+                    ["flush", "Flush"],
+                    ["aggressive", "Aggressive"],
+                  ] as const).map(([key, label]) => (
+                    <button
+                      key={key}
+                      onClick={() => setStyle(key)}
+                      className={`rounded px-3 py-2 text-xs font-black transition ${
+                        style === key ? "bg-red-600 text-white" : "text-white/45 hover:text-white"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
-            </Panel>
-
-            <Panel title="2. Select Vehicle">
-  <div className="space-y-3">
-    <select
-      value={safeModel ?? ""}
-      onChange={(e) => {
-        const next = e.target.value as ModelKey;
-        setModel(next);
-        setTrim(getLoadedTrims(next)[0] ?? "");
-        setConfiguration(getRecommendedConfiguration(next, goal));
-      }}
-      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-    >
-      {availableModels.map((item) => {
-        const modelObj = vehicleModels.find(
-          (m) => m.make === make && m.model === item
-        );
-
-        return (
-          <option key={item} value={item}>
-            {modelObj?.display_name ?? item}
-          </option>
-        );
-      })}
-    </select>
-
-    <select
-  value={safeTrim}
-  onChange={(e) => setTrim(e.target.value)}
-  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
->
-  {vehicleTrims
-    .filter((item) => item.make === make && item.model === safeModel)
-    .map((item) => (
-      <option key={item.trim} value={item.trim}>
-        {item.display_name ?? item.trim}
-      </option>
-    ))}
-</select>
-  </div>
-</Panel>
-            <Panel title="3. Select Style">
-              <div className="space-y-2">
-                {([
-                  ["oemplus", "OEM+", "Subtle & Clean"],
-                  ["flush", "Flush", "Balanced stance"],
-                  ["aggressive", "Aggressive", "Max fitment"],
-                ] as const).map(([key, label, sub]) => (
-                  <button
-                    key={key}
-                    onClick={() => setStyle(key)}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${style === key ? "border-red-500/60 bg-red-500/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
-                  >
-                    <p className="font-semibold">{label}</p>
-                    <p className="mt-1 text-sm text-white/45">{sub}</p>
-                  </button>
-                ))}
               </div>
-            </Panel>
 
-            <Panel title="4. Driving Goal">
-              <div className="space-y-2">
-                {([
-                  ["street", "Street", "Visual stance + daily usability"],
-                  ["track", "Track", "Performance + balance"],
-                ] as const).map(([key, label, sub]) => (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setGoal(key);
-                      setConfiguration(getRecommendedConfiguration(safeModel as ModelKey, key));
-                    }}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${goal === key ? "border-red-500/60 bg-red-500/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
-                  >
-                    <p className="font-semibold">{label}</p>
-                    <p className="mt-1 text-sm text-white/45">{sub}</p>
-                  </button>
-                ))}
-              </div>
-              {goal === "track" ? <p className="mt-4 text-sm text-red-300/80">{getGoalMessage(make)}</p> : null}
-            </Panel>
-
-            <Panel title="5. Configuration">
-              <div className="space-y-2">
-                {([
-                  ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered", goal)],
-                  ["square", "Square Setup", getConfigurationHint(safeModel, "square", goal)],
-                ] as const).map(([key, label, sub]) => (
-                  <button
-                    key={key}
-                    onClick={() => setConfiguration(key)}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${configuration === key ? "border-red-500/60 bg-red-500/10" : "border-white/10 bg-black/30 hover:border-white/25"}`}
-                  >
-                    <p className="font-semibold">{label}</p>
-                    <p className="mt-1 text-sm text-white/45">{sub}</p>
-                  </button>
-                ))}
-              </div>
-            </Panel>
-
-            <Panel title="6. Your Fitment">
-              <div className="space-y-4">
-                <FitLine label="Front" wheel={displayedFitment.front} tire={displayedFitment.frontTire} />
-                <FitLine label="Rear" wheel={displayedFitment.rear} tire={displayedFitment.rearTire} />
-              </div>
-              <button onClick={copyLink} className="mt-5 w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold hover:bg-white/5">
-                {copied ? "Link Copied" : "Copy Link"}
+              <button
+                onClick={() => document.getElementById("recommendation")?.scrollIntoView({ behavior: "smooth" })}
+                disabled={!hasRecommendation}
+                className="min-h-24 bg-red-600 px-7 text-xs font-black uppercase tracking-[0.13em] transition hover:bg-red-500 disabled:cursor-not-allowed disabled:bg-red-950 disabled:text-white/35"
+              >
+                Build My Setup
               </button>
-              <button onClick={shareBuild} className="mt-3 w-full rounded-2xl bg-red-500 px-4 py-3 text-sm font-bold text-black hover:bg-red-400">
-                Share Build
-              </button>
-            </Panel>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <Panel title="Fitment Summary">
-              <div className="space-y-3 text-sm text-white/70">
-                <p>
-                  Risk: <span className={`rounded-full border px-2 py-1 ${riskPill(displayedFitment.risk)}`}>{displayedFitment.risk}</span>
+      {!hasRecommendation || !make || !safeModel || !trimData || !displayedFitment ? (
+        <section className="mx-auto max-w-7xl px-5 py-20 text-center lg:px-8">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Choose Your Platform</p>
+          <h2 className="mt-4 text-3xl font-black">Your recommendation starts above.</h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-white/45">
+            Select a make, vehicle, trim, and stance style to build a vehicle-specific setup.
+          </p>
+        </section>
+      ) : (
+        <>
+          <section id="recommendation" className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+            <div className="flex flex-col gap-5 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Your Recommended Setup</p>
+                <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] sm:text-5xl">
+                  {displayedFitment.title}
+                </h2>
+                <p className="mt-3 text-sm text-white/45">
+                  {make} <span className="px-2 text-white/20">/</span> {selectedModelName}
+                  <span className="px-2 text-white/20">/</span> {safeTrim}
+                  <span className="px-2 text-white/20">/</span> {style === "oemplus" ? "OEM+" : style}
                 </p>
-                <p>
-                  Visual Aggression: <span className={scoreColor(displayedFitment.aggression)}>{displayedFitment.aggression}/10</span>
-                </p>
-                <p>
-                  Daily Drivability: <span className={scoreColor(displayedFitment.daily)}>{displayedFitment.daily}/10</span>
-                </p>
-                <p>Driving Goal: {goal === "track" ? "Track" : "Street"}</p>
-                <p>Configuration: {configuration === "square" ? "Square" : "Staggered"}</p>
-                <p>Bolt Pattern: {trimData.baseline.boltPattern}</p>
-                <p>Center Bore: {trimData.baseline.centerBore}</p>
               </div>
-            </Panel>
-          </aside>
-
-          <section>
-            <FitmentVisualHero
-  title={displayedFitment.title}
-  subtitle={displayedFitment.subtitle}
-  frontWheel={displayedFitment.front}
-  rearWheel={displayedFitment.rear}
-  frontTire={displayedFitment.frontTire}
-  rearTire={displayedFitment.rearTire}
-  pokeFront={displayedFitment.pokeFront}
-  pokeRear={displayedFitment.pokeRear}
-  innerFront={displayedFitment.innerFront}
-  innerRear={displayedFitment.innerRear}
-  aggression={displayedFitment.aggression}
-  daily={displayedFitment.daily}
-  risk={displayedFitment.risk}
-/>
-            <div className="mb-6 mt-6 grid gap-4 md:grid-cols-3">
-              <Metric label="Front Poke" value={displayedFitment.pokeFront} />
-              <Metric label="Rear Poke" value={displayedFitment.pokeRear} />
-              <Metric label="Diameter" value={displayedFitment.diameter} />
+              <span className={`w-fit rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] ${riskPill(displayedFitment.risk)}`}>
+                {displayedFitment.daily >= 7 ? "Daily-Friendly" : "Performance-Focused"}
+              </span>
             </div>
 
-            <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-sm uppercase tracking-wide text-white/40">Verdict</p>
-              <p className="mt-3 text-lg leading-8 text-white/80">{displayedFitment.verdict}</p>
-            </div>
-            <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-sm uppercase tracking-wide text-white/40">Alternate Setup</p>
-              <p className="mt-3 text-lg leading-8 text-white/80">{displayedFitment.alternate}</p>
+            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+              <WheelRecommendation
+                axle="Front"
+                wheel={displayedFitment.front}
+                tire={displayedFitment.frontTire}
+                poke={displayedFitment.pokeFront}
+                inner={displayedFitment.innerFront}
+                risk={displayedFitment.risk}
+              />
+              <WheelRecommendation
+                axle="Rear"
+                wheel={displayedFitment.rear}
+                tire={displayedFitment.rearTire}
+                poke={displayedFitment.pokeRear}
+                inner={displayedFitment.innerRear}
+                risk={displayedFitment.risk}
+              />
             </div>
 
-            <div className="grid gap-6">
-              {builds.length > 0 ? (
-                builds.map((build) => <GalleryCard key={build.label} build={build} />)
-              ) : (
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/50">
-                  No visual reference available yet for this setup.
-                </div>
-              )}
+            <div className="mt-5 grid overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 sm:gap-px">
+              <SummaryMetric label="Outer Poke" value={`${displayedFitment.pokeFront} / ${displayedFitment.pokeRear}`} sub="Front / Rear" />
+              <SummaryMetric label="Inner Clearance" value={`${displayedFitment.innerFront} / ${displayedFitment.innerRear}`} sub="Front / Rear" />
+              <SummaryMetric label="Diameter Change" value={displayedFitment.diameter} sub={`${trimData.baseline.boltPattern} bolt pattern`} />
             </div>
 
-            <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="text-xl font-bold">Have a setup like this?</p>
-                  <p className="mt-2 text-sm text-white/55">Share your build with the community and get featured.</p>
-                </div>
-                <button onClick={() => setSubmitOpen(true)} className="rounded-2xl border border-red-500/40 px-5 py-3 text-center font-semibold text-red-400 hover:bg-red-500/10">
-                  Submit Your Build
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <a href="/compare" className="text-sm font-bold text-white/65 transition hover:text-red-400">
+                Compare against factory -&gt;
+              </a>
+              <div className="flex gap-3">
+                <button onClick={copyLink} className="rounded-md border border-white/15 px-5 py-2.5 text-xs font-black uppercase tracking-[0.12em] hover:bg-white/5">
+                  {copied ? "Link Copied" : "Copy Link"}
+                </button>
+                <button onClick={shareBuild} className="rounded-md bg-red-600 px-5 py-2.5 text-xs font-black uppercase tracking-[0.12em] hover:bg-red-500">
+                  Share Build
                 </button>
               </div>
-            </section>
-
-            <TrustStrip />
+            </div>
           </section>
-        </div>
-      </div>
 
-      <SubmitBuildModal
-        open={submitOpen}
-        onClose={() => setSubmitOpen(false)}
-        defaults={{
-          year: "",
-          make,
-          model: safeModel,
-          trim: safeTrim,
-          fitmentStyle:
-            goal === "track"
-              ? configuration === "square"
-                ? `${style} track square`
-                : `${style} track staggered`
-              : configuration === "square"
-                ? `${style} square`
-                : style,
-          frontWheel: displayedFitment.front,
-          rearWheel: displayedFitment.rear,
-          frontTire: displayedFitment.frontTire,
-          rearTire: displayedFitment.rearTire,
-        }}
-      />
+          <section className="border-y border-white/10 bg-[#08080a]">
+            <div className="mx-auto grid max-w-7xl gap-5 px-5 py-10 lg:grid-cols-2 lg:px-8">
+              <ChoicePanel title="Driving Goal">
+                {([
+                  ["street", "Street", "Daily usability and visual stance"],
+                  ["track", "Track", "Performance, balance, and repeatability"],
+                ] as const).map(([key, label, sub]) => (
+                  <ChoiceButton
+                    key={key}
+                    active={goal === key}
+                    label={label}
+                    sub={sub}
+                    onClick={() => {
+                      setGoal(key);
+                      setConfiguration(getRecommendedConfiguration(safeModel, key));
+                    }}
+                  />
+                ))}
+              </ChoicePanel>
+              <ChoicePanel title="Wheel Configuration">
+                {([
+                  ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered", goal)],
+                  ["square", "Square", getConfigurationHint(safeModel, "square", goal)],
+                ] as const).map(([key, label, sub]) => (
+                  <ChoiceButton
+                    key={key}
+                    active={configuration === key}
+                    label={label}
+                    sub={sub}
+                    onClick={() => setConfiguration(key)}
+                  />
+                ))}
+              </ChoicePanel>
+              {goal === "track" ? (
+                <p className="text-sm text-red-300/75 lg:col-span-2">{getGoalMessage(make)}</p>
+              ) : null}
+            </div>
+          </section>
+
+          <section className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
+            <div className="mb-7">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Visual Analysis</p>
+              <h2 className="mt-3 text-3xl font-black tracking-[-0.03em]">See What the Numbers Mean.</h2>
+            </div>
+
+            <FitmentVisualHero
+              title={displayedFitment.title}
+              subtitle={displayedFitment.subtitle}
+              frontWheel={displayedFitment.front}
+              rearWheel={displayedFitment.rear}
+              frontTire={displayedFitment.frontTire}
+              rearTire={displayedFitment.rearTire}
+              pokeFront={displayedFitment.pokeFront}
+              pokeRear={displayedFitment.pokeRear}
+              innerFront={displayedFitment.innerFront}
+              innerRear={displayedFitment.innerRear}
+              aggression={displayedFitment.aggression}
+              daily={displayedFitment.daily}
+              risk={displayedFitment.risk}
+            />
+
+            <div className="mt-6 grid gap-5 lg:grid-cols-2">
+              <DetailCard title="Verdict" copy={displayedFitment.verdict} />
+              <DetailCard title="Alternate Setup" copy={displayedFitment.alternate} />
+            </div>
+
+            {displayedFitment.warnings.length > 0 ? (
+              <div className="mt-5 rounded-xl border border-yellow-500/20 bg-yellow-500/[0.05] p-6">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-300">Fitment Notes</p>
+                <div className="mt-3 space-y-2 text-sm leading-6 text-white/58">
+                  {displayedFitment.warnings.map((warning) => <p key={warning}>{warning}</p>)}
+                </div>
+              </div>
+            ) : null}
+          </section>
+
+          <section className="border-t border-white/10 bg-[#08080a]">
+            <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
+              <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Visual References</p>
+                  <h2 className="mt-3 text-3xl font-black tracking-[-0.03em]">See It on the Car.</h2>
+                </div>
+                <p className="text-sm text-white/40">{builds.length} matched build{builds.length === 1 ? "" : "s"}</p>
+              </div>
+
+              <div className="grid gap-6">
+                {builds.length > 0 ? (
+                  builds.map((build) => <GalleryCard key={build.label} build={build} />)
+                ) : (
+                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-10 text-center text-white/45">
+                    No visual reference available yet for this setup.
+                  </div>
+                )}
+              </div>
+
+              <section className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-6">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-xl font-black">Have a setup like this?</p>
+                    <p className="mt-2 text-sm text-white/50">Share your build with the community and get featured.</p>
+                  </div>
+                  <button onClick={() => setSubmitOpen(true)} className="rounded-md border border-red-500/40 px-5 py-3 text-sm font-bold text-red-400 hover:bg-red-500/10">
+                    Submit Your Build
+                  </button>
+                </div>
+              </section>
+
+              <TrustStrip />
+            </div>
+          </section>
+
+          <SubmitBuildModal
+            open={submitOpen}
+            onClose={() => setSubmitOpen(false)}
+            defaults={{
+              year: "",
+              make,
+              model: safeModel,
+              trim: safeTrim,
+              fitmentStyle:
+                goal === "track"
+                  ? configuration === "square"
+                    ? `${style} track square`
+                    : `${style} track staggered`
+                  : configuration === "square"
+                    ? `${style} square`
+                    : style,
+              frontWheel: displayedFitment.front,
+              rearWheel: displayedFitment.rear,
+              frontTire: displayedFitment.frontTire,
+              rearTire: displayedFitment.rearTire,
+            }}
+          />
+        </>
+      )}
     </main>
   );
 }
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+function Selector({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
-      <p className="mb-4 text-sm uppercase tracking-wide text-white/40">{title}</p>
+    <label className="bg-[#09090b]/95 px-5 py-4">
+      <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.2em] text-white/35">{label}</span>
       {children}
-    </section>
+    </label>
   );
 }
 
-function FitLine({ label, wheel, tire }: { label: string; wheel: string; tire: string }) {
+function WheelRecommendation({
+  axle,
+  wheel,
+  tire,
+  poke,
+  inner,
+  risk,
+}: {
+  axle: string;
+  wheel: string;
+  tire: string;
+  poke: string;
+  inner: string;
+  risk: string;
+}) {
+  const parts = parseWheel(wheel);
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-      <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>
-      <p className="mt-2 font-semibold text-white">{wheel}</p>
-      <p className="mt-1 text-sm text-white/55">{tire}</p>
+    <article className="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.065] to-white/[0.015] p-6 sm:p-8">
+      <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[34px] border-white/[0.025]" />
+      <div className="relative flex items-start justify-between gap-5">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-white/42">{axle} Setup</p>
+          <div className="mt-6 flex flex-wrap items-end gap-x-3">
+            <span className="text-5xl font-black tracking-[-0.05em] sm:text-6xl">{parts.size}</span>
+            <span className="pb-1 text-2xl font-black text-red-500">{parts.offset}</span>
+          </div>
+          <p className="mt-3 text-lg font-bold text-white/68">{tire}</p>
+        </div>
+        <WheelGlyph />
+      </div>
+
+      <div className="relative mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10">
+        <CardStat label="Poke" value={poke} />
+        <CardStat label="Inner" value={inner} />
+        <CardStat label="Risk" value={risk} small />
+      </div>
+    </article>
+  );
+}
+
+function parseWheel(value: string) {
+  const match = value.match(/^(.+?)\s+((?:ET)?[+-]?\d+)$/i);
+  if (!match) return { size: value, offset: "" };
+  const rawOffset = match[2];
+  const offset = rawOffset.toUpperCase().startsWith("ET") ? rawOffset.toUpperCase() : `${rawOffset}mm`;
+  return { size: match[1], offset };
+}
+
+function WheelGlyph() {
+  return (
+    <div className="relative mt-1 hidden h-24 w-24 shrink-0 items-center justify-center rounded-full border-[7px] border-white/20 sm:flex">
+      <div className="absolute inset-2 rounded-full border border-white/20" />
+      {[0, 45, 90, 135].map((rotation) => (
+        <span
+          key={rotation}
+          className="absolute h-[2px] w-14 bg-white/22"
+          style={{ transform: `rotate(${rotation}deg)` }}
+        />
+      ))}
+      <span className="relative h-5 w-5 rounded-full border-2 border-red-500/70 bg-[#111]" />
     </div>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function CardStat({ label, value, small = false }: { label: string; value: string; small?: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>
-      <p className="mt-2 text-2xl font-bold">{value}</p>
+    <div className="bg-[#09090b] px-3 py-4">
+      <p className="text-[9px] font-black uppercase tracking-[0.17em] text-white/30">{label}</p>
+      <p className={`mt-1 font-black text-white/75 ${small ? "text-xs" : "text-base"}`}>{value}</p>
+    </div>
+  );
+}
+
+function SummaryMetric({ label, value, sub }: { label: string; value: string; sub: string }) {
+  return (
+    <div className="bg-[#09090b] p-5 sm:p-6">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/32">{label}</p>
+      <p className="mt-2 text-xl font-black">{value}</p>
+      <p className="mt-1 text-xs text-white/30">{sub}</p>
+    </div>
+  );
+}
+
+function ChoicePanel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.025] p-5">
+      <p className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-white/38">{title}</p>
+      <div className="grid gap-2 sm:grid-cols-2">{children}</div>
+    </div>
+  );
+}
+
+function ChoiceButton({
+  active,
+  label,
+  sub,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  sub: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-lg border p-4 text-left transition ${
+        active ? "border-red-500/55 bg-red-500/10" : "border-white/10 bg-black/25 hover:border-white/25"
+      }`}
+    >
+      <p className="font-black">{label}</p>
+      <p className="mt-1 text-xs leading-5 text-white/42">{sub}</p>
+    </button>
+  );
+}
+
+function DetailCard({ title, copy }: { title: string; copy: string }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.025] p-6">
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-white/38">{title}</p>
+      <p className="mt-3 leading-7 text-white/70">{copy}</p>
     </div>
   );
 }

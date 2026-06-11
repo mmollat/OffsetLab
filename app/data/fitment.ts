@@ -74,7 +74,10 @@ export function getTrimData(model: ModelKey, trim: string): TrimData | null {
 }
 
 export function modelSlug(model: ModelKey): string {
-  return model.toLowerCase().replace(/\s+/g, "-");
+  return model
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 export function normalizeModel(value: string | null, make: MakeKey = "Tesla"): ModelKey {
