@@ -16,8 +16,7 @@ export type GalleryBuild = {
   match: "Exact Match" | "Close Match" | "Visual Reference";
 };
 
-const verifiedModelSPlaidAggressive =
-  "/models.png";
+const verifiedModelSPlaidAggressive = "/gallery/models.png";
 function pending(
   label: string,
   wheel: string,
@@ -310,11 +309,12 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
   oemplus: [
     {
       label: "GR Corolla OEM+ Reference",
-      imageUrl: "https://images.fitmentindustries.com/web-compressed/2303120-1-2023-corolla-toyota-core-stock-stock-enkei-tsr-x.jpg",
+      imageUrl: "/gallery/gr-corolla-oemplus.jpg",
       imageStatus: "verified",
-      sourceType: "community",
-      sourceName: "Fitment Industries",
-      sourceUrl: "https://www.fitmentindustries.com/",
+      sourceType: "official",
+      sourceName: "Elise240SX / Wikimedia Commons",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:2024_Toyota_GR_Corolla_Core_in_Black,_Front_Right,_10-29-2023.jpg",
       wheel: "18x8.5 +30",
       tire: "245/40R18",
       suspension: "Stock / Mild drop",
@@ -329,11 +329,12 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
   flush: [
     {
       label: "GR Corolla Flush Reference",
-      imageUrl: "https://images.fitmentindustries.com/web-compressed/2359981-1-2023-corolla-toyota-core-te37sl-ray-volk-bronze.jpg",
+      imageUrl: "/gallery/gr-corolla-flush.jpg",
       imageStatus: "verified",
-      sourceType: "community",
-      sourceName: "Fitment Industries",
-      sourceUrl: "https://www.fitmentindustries.com/",
+      sourceType: "official",
+      sourceName: "Elise240SX / Wikimedia Commons",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:2024_Toyota_GR_Corolla_Circuit_Edition_in_Blue_Flame,_front_right,_2024-06-30.jpg",
       wheel: "18x9.5 +30",
       tire: "255/35R18",
       suspension: "Lowered",
@@ -348,11 +349,12 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
   aggressive: [
     {
       label: "GR Corolla Aggressive Reference",
-      imageUrl: "https://images.fitmentindustries.com/web-compressed/2411123-1-2023-corolla-toyota-core-work-meister-s1-3p-polished.jpg",
+      imageUrl: "/gallery/gr-corolla-aggressive.jpg",
       imageStatus: "verified",
-      sourceType: "community",
-      sourceName: "Fitment Industries",
-      sourceUrl: "https://www.fitmentindustries.com/",
+      sourceType: "official",
+      sourceName: "TTTNIS / Wikimedia Commons",
+      sourceUrl:
+        "https://commons.wikimedia.org/wiki/File:Toyota_GR_Corolla_Morizo_Edition.jpg",
       wheel: "18x9.5 +22",
       tire: "265/35R18",
       suspension: "Coilovers",
