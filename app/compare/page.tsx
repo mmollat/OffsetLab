@@ -28,18 +28,6 @@ export default function ComparePage() {
       setFitmentDb(fitment);
       setVehicleModels(models);
       setVehicleTrims(trims);
-
-      const first = models[0];
-
-      if (first) {
-        setMake(first.make as MakeKey);
-        setModel(first.model as ModelKey);
-
-        const firstTrim =
-          trims.find((t) => t.make === first.make && t.model === first.model)?.trim ?? "";
-
-        setTrim(firstTrim);
-      }
     }
 
     loadData();
@@ -102,16 +90,6 @@ export default function ComparePage() {
     return (
       <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8 text-white">
         <div className="mx-auto max-w-7xl text-white/60">Loading compare data...</div>
-      </main>
-    );
-  }
-
-  if (!make || !safeModel || !safeTrim || !trimData || !current) {
-    return (
-      <main className="min-h-[calc(100vh-73px)] bg-[#050609] px-5 py-8 text-white">
-        <div className="mx-auto max-w-7xl">
-          No compare data found for this setup.
-        </div>
       </main>
     );
   }
@@ -180,6 +158,9 @@ export default function ComparePage() {
                 value={make}
                 onChange={handleMakeChange}
               >
+                <option value="" disabled>
+                  Select make
+                </option>
                 {makes.map((makeName) => (
                   <option key={makeName} value={makeName}>
                     {makeName}
@@ -191,7 +172,11 @@ export default function ComparePage() {
                 label="Vehicle"
                 value={safeModel}
                 onChange={(value) => handleModelChange(value as ModelKey)}
+                disabled={!make}
               >
+                <option value="" disabled>
+                  Select vehicle
+                </option>
                 {availableModels.map((item) => {
                   const modelObj = vehicleModels.find(
                     (vehicle) =>
@@ -210,7 +195,11 @@ export default function ComparePage() {
                 label="Trim"
                 value={safeTrim}
                 onChange={setTrim}
+                disabled={!safeModel}
               >
+                <option value="" disabled>
+                  Select trim
+                </option>
                 {trimsForModel.map((item) => (
                   <option key={item.trim} value={item.trim}>
                     {item.display_name ?? item.trim}
@@ -251,7 +240,8 @@ export default function ComparePage() {
                     .getElementById("comparison")
                     ?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
-                className="h-14 rounded-xl bg-red-500 px-6 text-xs font-black uppercase tracking-[0.16em] transition hover:bg-red-400"
+                disabled={!make || !safeModel || !safeTrim || !current}
+                className="h-14 rounded-xl bg-red-500 px-6 text-xs font-black uppercase tracking-[0.16em] transition hover:bg-red-400 disabled:cursor-not-allowed disabled:bg-red-950 disabled:text-white/35"
               >
                 Compare Setup
               </button>
@@ -260,73 +250,89 @@ export default function ComparePage() {
         </div>
       </section>
 
-      <section
-        id="comparison"
-        className="scroll-mt-20 px-5 py-14 md:px-8 md:py-20"
-      >
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-            <h2 className="mr-2 text-2xl font-black tracking-tight md:text-3xl">
-              Factory vs Selected
-            </h2>
-            {[make, selectedModelLabel, selectedTrimLabel, current.title].map(
-              (item, index) => (
-                <div
-                  key={`${item}-${index}`}
-                  className="flex items-center gap-5 text-sm font-semibold text-white/45"
-                >
-                  {index > 0 ? <span className="text-white/25">›</span> : null}
-                  <span
-                    className={
-                      index === 3 ? "text-red-400" : "whitespace-nowrap"
-                    }
+      {make && safeModel && safeTrim && trimData && current ? (
+        <section
+          id="comparison"
+          className="scroll-mt-20 px-5 py-14 md:px-8 md:py-20"
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+              <h2 className="mr-2 text-2xl font-black tracking-tight md:text-3xl">
+                Factory vs Selected
+              </h2>
+              {[make, selectedModelLabel, selectedTrimLabel, current.title].map(
+                (item, index) => (
+                  <div
+                    key={`${item}-${index}`}
+                    className="flex items-center gap-5 text-sm font-semibold text-white/45"
                   >
-                    {item}
-                  </span>
-                </div>
-              )
-            )}
-          </div>
+                    {index > 0 ? <span className="text-white/25">›</span> : null}
+                    <span
+                      className={
+                        index === 3 ? "text-red-400" : "whitespace-nowrap"
+                      }
+                    >
+                      {item}
+                    </span>
+                  </div>
+                )
+              )}
+            </div>
 
-          <div className="mt-7 grid gap-5 xl:grid-cols-[0.92fr_0.92fr_1.1fr]">
-            <FitmentTable
-              title="Factory Baseline"
-              frontWheel={trimData.baseline.front}
-              rearWheel={trimData.baseline.rear}
-              frontTire={trimData.baseline.tire}
-              rearTire={trimData.baseline.tire}
-              boltPattern={trimData.baseline.boltPattern}
-            />
-            <FitmentTable
-              title="Selected Fitment"
-              frontWheel={current.front}
-              rearWheel={current.rear}
-              frontTire={current.frontTire}
-              rearTire={current.rearTire}
-              boltPattern={trimData.baseline.boltPattern}
-              selected
-            />
-            <CompareFitmentVisual
-              baselineFront={trimData.baseline.front ?? ""}
-              baselineRear={trimData.baseline.rear ?? ""}
-              selectedFront={current.front ?? ""}
-              selectedRear={current.rear ?? ""}
-              baselineTire={trimData.baseline.tire ?? ""}
-              selectedTire={current.frontTire ?? ""}
-              selectedRearTire={current.rearTire ?? ""}
-            />
-          </div>
+            <div className="mt-7 grid gap-5 xl:grid-cols-[0.92fr_0.92fr_1.1fr]">
+              <FitmentTable
+                title="Factory Baseline"
+                frontWheel={trimData.baseline.front}
+                rearWheel={trimData.baseline.rear}
+                frontTire={trimData.baseline.tire}
+                rearTire={trimData.baseline.tire}
+                boltPattern={trimData.baseline.boltPattern}
+              />
+              <FitmentTable
+                title="Selected Fitment"
+                frontWheel={current.front}
+                rearWheel={current.rear}
+                frontTire={current.frontTire}
+                rearTire={current.rearTire}
+                boltPattern={trimData.baseline.boltPattern}
+                selected
+              />
+              <CompareFitmentVisual
+                baselineFront={trimData.baseline.front ?? ""}
+                baselineRear={trimData.baseline.rear ?? ""}
+                selectedFront={current.front ?? ""}
+                selectedRear={current.rear ?? ""}
+                baselineTire={trimData.baseline.tire ?? ""}
+                selectedTire={current.frontTire ?? ""}
+                selectedRearTire={current.rearTire ?? ""}
+              />
+            </div>
 
-          <div className="mt-6 rounded-[1.6rem] border border-red-500/20 bg-[linear-gradient(135deg,rgba(239,68,68,0.1),rgba(255,255,255,0.025))] p-6 md:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.26em] text-red-300/70">
-              Offset Lab Verdict
+            <div className="mt-6 rounded-[1.6rem] border border-red-500/20 bg-[linear-gradient(135deg,rgba(239,68,68,0.1),rgba(255,255,255,0.025))] p-6 md:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.26em] text-red-300/70">
+                Offset Lab Verdict
+              </p>
+              <p className="mt-4 max-w-4xl text-lg leading-8 text-white/80 md:text-xl">
+                {current.verdict}
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="px-5 py-16 md:px-8 md:py-24">
+          <div className="mx-auto max-w-7xl rounded-[1.6rem] border border-dashed border-white/15 bg-white/[0.025] px-6 py-16 text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-red-400/75">
+              Start Your Comparison
             </p>
-            <p className="mt-4 max-w-4xl text-lg leading-8 text-white/80 md:text-xl">
-              {current.verdict}
+            <h2 className="mt-4 text-3xl font-black tracking-tight">
+              Choose a vehicle above.
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-white/45">
+              We will load its factory baseline and your selected fitment side by side.
             </p>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </main>
   );
 }
@@ -335,11 +341,13 @@ function SelectControl({
   label,
   value,
   onChange,
+  disabled = false,
   children,
 }: {
   label: string;
   value: string | null;
   onChange: (value: string) => void;
+  disabled?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -350,7 +358,8 @@ function SelectControl({
       <select
         value={value ?? ""}
         onChange={(event) => onChange(event.target.value)}
-        className="h-14 w-full appearance-none rounded-xl border border-white/10 bg-[#111216] px-4 text-sm font-semibold outline-none transition focus:border-red-500/60"
+        disabled={disabled}
+        className="h-14 w-full appearance-none rounded-xl border border-white/10 bg-[#111216] px-4 text-sm font-semibold outline-none transition focus:border-red-500/60 disabled:cursor-not-allowed disabled:text-white/25"
       >
         {children}
       </select>
