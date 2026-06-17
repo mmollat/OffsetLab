@@ -2,26 +2,31 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { ModelKey, modelSlug } from "../data/fitment";
+import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
+import { getVehicleTrims, VehicleTrim } from "../lib/getVehicleTrims";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-type Make = {
+type TorqueMake = {
   id: string;
   name: string;
   slug: string;
 };
 
-type Model = {
+type TorqueModel = {
   id: string;
+  make_id: string;
   name: string;
   slug: string;
 };
 
-type Generation = {
+type TorqueGeneration = {
   id: string;
+  model_id: string;
   name: string;
   slug: string;
   start_year?: number;
@@ -65,23 +70,104 @@ function sourceClass(status: Spec["source_status"]) {
   return "border-yellow-500/30 bg-yellow-500/10 text-yellow-300";
 }
 
+function normalizeLookup(value: string | null | undefined) {
+  return modelSlug(value ?? "");
+}
+
+function splitFitmentVehicle(vehicle: VehicleModel) {
+  const label = vehicle.display_name ?? vehicle.model;
+  const [generationLabel, modelLabel] = label.includes(" - ")
+    ? label.split(" - ", 2)
+    : ["", label];
+
+  return {
+    label,
+    generationLabel: generationLabel.trim(),
+    modelLabel: modelLabel.trim(),
+    modelKey: vehicle.model,
+  };
+}
+
+function resolveTorqueMatch(
+  vehicle: VehicleModel,
+  torqueMakes: TorqueMake[],
+  torqueModels: TorqueModel[],
+  torqueGenerations: TorqueGeneration[]
+) {
+  const parts = splitFitmentVehicle(vehicle);
+  const torqueMake = torqueMakes.find(
+    (make) => normalizeLookup(make.name) === normalizeLookup(vehicle.make)
+  );
+
+  if (!torqueMake) return null;
+
+  const modelCandidates = [
+    parts.modelLabel,
+    parts.modelKey,
+    parts.label,
+  ].map(normalizeLookup);
+
+  const torqueModel =
+    torqueModels.find(
+      (model) =>
+        model.make_id === torqueMake.id &&
+        modelCandidates.includes(normalizeLookup(model.name))
+    ) ??
+    torqueModels.find(
+      (model) =>
+        model.make_id === torqueMake.id &&
+        modelCandidates.includes(normalizeLookup(model.slug))
+    );
+
+  if (!torqueModel) return null;
+
+  const generations = torqueGenerations.filter(
+    (generation) => generation.model_id === torqueModel.id
+  );
+  const generationCandidates = [
+    parts.generationLabel,
+    parts.generationLabel.replace(/\bgen\b/i, "Generation"),
+    parts.modelKey,
+    parts.label,
+  ]
+    .filter(Boolean)
+    .map(normalizeLookup);
+  const preferredGeneration =
+    generations.find((generation) =>
+      generationCandidates.includes(normalizeLookup(generation.name))
+    ) ??
+    generations.find((generation) =>
+      generationCandidates.includes(normalizeLookup(generation.slug))
+    ) ??
+    (generations.length === 1 ? generations[0] : null);
+
+  return {
+    torqueMake,
+    torqueModel,
+    generations,
+    preferredGeneration,
+  };
+}
+
 export default function TorquePage() {
-  const [makes, setMakes] = useState<Make[]>([]);
-  const [models, setModels] = useState<Model[]>([]);
-  const [generations, setGenerations] = useState<Generation[]>([]);
+  const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
+  const [vehicleTrims, setVehicleTrims] = useState<VehicleTrim[]>([]);
+  const [torqueMakes, setTorqueMakes] = useState<TorqueMake[]>([]);
+  const [torqueModels, setTorqueModels] = useState<TorqueModel[]>([]);
+  const [torqueGenerations, setTorqueGenerations] = useState<TorqueGeneration[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [specs, setSpecs] = useState<Spec[]>([]);
 
   const [selectedMake, setSelectedMake] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
+  const [selectedTrim, setSelectedTrim] = useState("");
   const [selectedGeneration, setSelectedGeneration] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const [loadingSpecs, setLoadingSpecs] = useState(false);
 
   useEffect(() => {
-    fetchMakes();
-    fetchCategories();
+    fetchInitialData();
   }, []);
 
   useEffect(() => {
@@ -90,61 +176,87 @@ export default function TorquePage() {
     }
   }, [selectedGeneration, selectedCategory]);
 
-  const selectedMakeName = useMemo(() => {
-    return makes.find((make) => make.id === selectedMake)?.name;
-  }, [makes, selectedMake]);
+  const makes = useMemo(() => {
+    return Array.from(new Set(vehicleModels.map((item) => item.make))).sort((a, b) =>
+      String(a).localeCompare(String(b))
+    );
+  }, [vehicleModels]);
 
-  const selectedModelName = useMemo(() => {
-    return models.find((model) => model.id === selectedModel)?.name;
-  }, [models, selectedModel]);
+  const models = useMemo(() => {
+    if (!selectedMake) return [];
 
+    return vehicleModels
+      .filter((item) => item.make === selectedMake)
+      .sort((a, b) => a.sort_order - b.sort_order);
+  }, [selectedMake, vehicleModels]);
+
+  const selectedVehicle = useMemo(() => {
+    return (
+      vehicleModels.find(
+        (vehicle) => vehicle.make === selectedMake && vehicle.model === selectedModel
+      ) ?? null
+    );
+  }, [selectedMake, selectedModel, vehicleModels]);
+
+  const trims = useMemo(() => {
+    if (!selectedMake || !selectedModel) return [];
+
+    return vehicleTrims.filter(
+      (item) => item.make === selectedMake && item.model === selectedModel
+    );
+  }, [selectedMake, selectedModel, vehicleTrims]);
+
+  const torqueMatch = useMemo(() => {
+    if (!selectedVehicle) return null;
+    return resolveTorqueMatch(selectedVehicle, torqueMakes, torqueModels, torqueGenerations);
+  }, [selectedVehicle, torqueMakes, torqueModels, torqueGenerations]);
+
+  const selectedMakeName = selectedMake || undefined;
+  const selectedModelName = selectedVehicle
+    ? selectedVehicle.display_name ?? selectedVehicle.model
+    : undefined;
+  const selectedTrimName =
+    trims.find((trim) => trim.trim === selectedTrim)?.display_name ?? selectedTrim;
   const selectedGenerationName = useMemo(() => {
-    return generations.find((generation) => generation.id === selectedGeneration)
+    return torqueMatch?.generations.find((generation) => generation.id === selectedGeneration)
       ?.name;
-  }, [generations, selectedGeneration]);
+  }, [torqueMatch, selectedGeneration]);
 
-  async function fetchMakes() {
-    const { data, error } = await supabase
-      .from("torque_vehicle_makes")
-      .select("*")
-      .order("name", { ascending: true });
+  async function fetchInitialData() {
+    const [fitmentModels, fitmentTrims, torqueMakesResult, torqueModelsResult, torqueGenerationsResult] =
+      await Promise.all([
+        getVehicleModels(),
+        getVehicleTrims(),
+        supabase.from("torque_vehicle_makes").select("*").order("name", { ascending: true }),
+        supabase.from("torque_vehicle_models").select("*").order("name", { ascending: true }),
+        supabase
+          .from("torque_vehicle_generations")
+          .select("*")
+          .order("start_year", { ascending: true }),
+      ]);
 
-    if (error) {
-      console.error("Error fetching makes:", error);
-      return;
+    setVehicleModels(fitmentModels);
+    setVehicleTrims(fitmentTrims);
+
+    if (torqueMakesResult.error) {
+      console.error("Error fetching torque makes:", torqueMakesResult.error);
+    } else {
+      setTorqueMakes((torqueMakesResult.data || []) as TorqueMake[]);
     }
 
-    setMakes(data || []);
-  }
-
-  async function fetchModels(makeId: string) {
-    const { data, error } = await supabase
-      .from("torque_vehicle_models")
-      .select("*")
-      .eq("make_id", makeId)
-      .order("name", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching models:", error);
-      return;
+    if (torqueModelsResult.error) {
+      console.error("Error fetching torque models:", torqueModelsResult.error);
+    } else {
+      setTorqueModels((torqueModelsResult.data || []) as TorqueModel[]);
     }
 
-    setModels(data || []);
-  }
-
-  async function fetchGenerations(modelId: string) {
-    const { data, error } = await supabase
-      .from("torque_vehicle_generations")
-      .select("*")
-      .eq("model_id", modelId)
-      .order("start_year", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching generations:", error);
-      return;
+    if (torqueGenerationsResult.error) {
+      console.error("Error fetching torque generations:", torqueGenerationsResult.error);
+    } else {
+      setTorqueGenerations((torqueGenerationsResult.data || []) as TorqueGeneration[]);
     }
 
-    setGenerations(data || []);
+    await fetchCategories();
   }
 
   async function fetchCategories() {
@@ -186,29 +298,35 @@ export default function TorquePage() {
   function handleMakeChange(makeId: string) {
     setSelectedMake(makeId);
     setSelectedModel("");
+    setSelectedTrim("");
     setSelectedGeneration("");
     setSelectedCategory("");
-    setModels([]);
-    setGenerations([]);
     setSpecs([]);
-
-    if (makeId) fetchModels(makeId);
   }
 
-  function handleModelChange(modelId: string) {
+  function handleModelChange(modelId: ModelKey) {
     setSelectedModel(modelId);
+    setSelectedTrim("");
     setSelectedGeneration("");
     setSelectedCategory("");
-    setGenerations([]);
     setSpecs([]);
 
-    if (modelId) fetchGenerations(modelId);
-  }
+    const nextTrim =
+      vehicleTrims.find(
+        (vehicleTrim) =>
+          vehicleTrim.make === selectedMake && vehicleTrim.model === modelId
+      )?.trim ?? "";
 
-  function handleGenerationChange(generationId: string) {
-    setSelectedGeneration(generationId);
-    setSelectedCategory("");
-    setSpecs([]);
+    setSelectedTrim(nextTrim);
+
+    const vehicle = vehicleModels.find(
+      (item) => item.make === selectedMake && item.model === modelId
+    );
+    const match = vehicle
+      ? resolveTorqueMatch(vehicle, torqueMakes, torqueModels, torqueGenerations)
+      : null;
+
+    setSelectedGeneration(match?.preferredGeneration?.id ?? "");
   }
 
   return (
@@ -247,7 +365,7 @@ export default function TorquePage() {
               Select Your Vehicle
             </div>
 
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <label>
                 <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
                   Make
@@ -259,8 +377,8 @@ export default function TorquePage() {
                 >
                   <option value="">Select make</option>
                   {makes.map((make) => (
-                    <option key={make.id} value={make.id}>
-                      {make.name}
+                    <option key={make} value={make}>
+                      {make}
                     </option>
                   ))}
                 </select>
@@ -268,18 +386,18 @@ export default function TorquePage() {
 
               <label>
                 <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-                  Model
+                  Vehicle
                 </span>
                 <select
                   value={selectedModel}
-                  onChange={(event) => handleModelChange(event.target.value)}
+                  onChange={(event) => handleModelChange(event.target.value as ModelKey)}
                   disabled={!selectedMake}
                   className="h-14 w-full appearance-none rounded-xl border border-white/10 bg-[#111216] px-4 text-sm font-semibold outline-none transition focus:border-red-500/60 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <option value="">Select model</option>
+                  <option value="">Select vehicle</option>
                   {models.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name}
+                    <option key={`${model.make}-${model.model}`} value={model.model}>
+                      {model.display_name ?? model.model}
                     </option>
                   ))}
                 </select>
@@ -287,18 +405,45 @@ export default function TorquePage() {
 
               <label>
                 <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-                  Generation
+                  Trim
                 </span>
                 <select
-                  value={selectedGeneration}
-                  onChange={(event) =>
-                    handleGenerationChange(event.target.value)
-                  }
+                  value={selectedTrim}
+                  onChange={(event) => setSelectedTrim(event.target.value)}
                   disabled={!selectedModel}
                   className="h-14 w-full appearance-none rounded-xl border border-white/10 bg-[#111216] px-4 text-sm font-semibold outline-none transition focus:border-red-500/60 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <option value="">Select generation</option>
-                  {generations.map((generation) => (
+                  <option value="">Select trim</option>
+                  {trims.map((trim) => (
+                    <option key={trim.trim} value={trim.trim}>
+                      {trim.display_name ?? trim.trim}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+                  Torque Match
+                </span>
+                <select
+                  value={selectedGeneration}
+                  onChange={(event) => {
+                    setSelectedGeneration(event.target.value);
+                    setSelectedCategory("");
+                    setSpecs([]);
+                  }}
+                  disabled={!torqueMatch || torqueMatch.generations.length === 0}
+                  className="h-14 w-full appearance-none rounded-xl border border-white/10 bg-[#111216] px-4 text-sm font-semibold outline-none transition focus:border-red-500/60 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <option value="">
+                    {selectedModel && torqueMatch?.generations.length
+                      ? "Select torque generation"
+                      : selectedModel
+                        ? "No torque specs yet"
+                        : "Select vehicle first"}
+                  </option>
+                  {torqueMatch?.generations.map((generation) => (
                     <option key={generation.id} value={generation.id}>
                       {generation.name}
                     </option>
@@ -308,7 +453,7 @@ export default function TorquePage() {
             </div>
 
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/10 pt-4 text-xs text-white/40">
-              <span>Vehicle-specific data</span>
+              <span>Same vehicle list as Fitment</span>
               <span>ft-lb and Nm values</span>
               <span>Source status on every spec</span>
             </div>
@@ -330,7 +475,7 @@ export default function TorquePage() {
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">
                 {selectedGeneration
-                  ? `${selectedMakeName} / ${selectedModelName} / ${selectedGenerationName}`
+                  ? `${selectedMakeName} / ${selectedModelName}${selectedTrimName ? ` / ${selectedTrimName}` : ""} / ${selectedGenerationName}`
                   : "Select your vehicle above, then choose the system you are working on."}
               </p>
             </div>
@@ -387,6 +532,12 @@ export default function TorquePage() {
               ))}
             </div>
           )}
+
+          {selectedModel && !selectedGeneration ? (
+            <div className="mt-8 rounded-[1.5rem] border border-yellow-500/20 bg-yellow-500/[0.06] p-6 text-sm leading-6 text-yellow-100/80">
+              This vehicle is available from the Fitment list, but torque specs have not been mapped for it yet.
+            </div>
+          ) : null}
 
           <div id="torque-results" className="scroll-mt-24 pt-10">
             {selectedGeneration && !selectedCategory ? (
