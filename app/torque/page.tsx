@@ -50,6 +50,10 @@ type Spec = {
   notes: string | null;
   warning: string | null;
   source_status: "verified" | "community" | "needs_review";
+  source_name: string | null;
+  source_url: string | null;
+  source_note: string | null;
+  source_checked_at: string | null;
 };
 
 function sourceLabel(status: Spec["source_status"]) {
@@ -68,6 +72,50 @@ function sourceClass(status: Spec["source_status"]) {
   }
 
   return "border-yellow-500/30 bg-yellow-500/10 text-yellow-300";
+}
+
+function displaySourceStatus(spec: Spec): Spec["source_status"] {
+  if (spec.source_status === "verified" && !spec.source_name?.trim()) {
+    return "needs_review";
+  }
+
+  return spec.source_status;
+}
+
+function sourceDescription(status: Spec["source_status"]) {
+  if (status === "verified") {
+    return "Checked against an identified manufacturer or service source.";
+  }
+
+  if (status === "community") {
+    return "Community-supplied information that has not received full source verification.";
+  }
+
+  return "A working reference that must be confirmed before use.";
+}
+
+function formatCheckedDate(value: string | null) {
+  if (!value) return null;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function isSafeSourceUrl(value: string | null) {
+  if (!value) return false;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
 }
 
 function normalizeLookup(value: string | null | undefined) {
@@ -455,7 +503,7 @@ export default function TorquePage() {
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/10 pt-4 text-xs text-white/40">
               <span>Same vehicle list as Fitment</span>
               <span>ft-lb and Nm values</span>
-              <span>Source status on every spec</span>
+              <span>Source and review status on every spec</span>
             </div>
           </div>
         </div>
@@ -482,35 +530,54 @@ export default function TorquePage() {
           </div>
 
           {selectedGeneration ? (
-            <div className="mt-8 flex flex-wrap gap-3">
-              {categories.map((category) => {
-                const isActive = selectedCategory === category.id;
+            <div className="mt-8">
+              <div className="flex flex-wrap gap-3">
+                {categories.map((category) => {
+                  const isActive = selectedCategory === category.id;
 
-                return (
-                  <button
-                    key={category.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedCategory(category.id);
-                      window.requestAnimationFrame(() => {
-                        document
-                          .getElementById("torque-results")
-                          ?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                          });
-                      });
-                    }}
-                    className={`rounded-xl border px-5 py-3 text-sm font-bold transition ${
-                      isActive
-                        ? "border-red-400 bg-red-500 text-white shadow-lg shadow-red-950/30"
-                        : "border-white/10 bg-white/[0.035] text-white/60 hover:border-white/25 hover:text-white"
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(category.id);
+                        window.requestAnimationFrame(() => {
+                          document
+                            .getElementById("torque-results")
+                            ?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                        });
+                      }}
+                      className={`rounded-xl border px-5 py-3 text-sm font-bold transition ${
+                        isActive
+                          ? "border-red-400 bg-red-500 text-white shadow-lg shadow-red-950/30"
+                          : "border-white/10 bg-white/[0.035] text-white/60 hover:border-white/25 hover:text-white"
+                      }`}
+                    >
+                      {category.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-7 grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/[0.025] p-5 sm:grid-cols-3">
+                {(["verified", "community", "needs_review"] as const).map((status) => (
+                  <div key={status} className="flex items-start gap-3">
+                    <span
+                      className={`mt-0.5 shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] ${sourceClass(
+                        status
+                      )}`}
+                    >
+                      {sourceLabel(status)}
+                    </span>
+                    <p className="text-xs leading-5 text-white/45">
+                      {sourceDescription(status)}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -564,11 +631,28 @@ export default function TorquePage() {
             ) : null}
 
             {!loadingSpecs && specs.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {specs.map((spec) => (
+              <>
+                <div className="mb-5 rounded-[1.3rem] border border-amber-400/20 bg-amber-400/[0.06] p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">
+                    Safety first
+                  </p>
+                  <p className="mt-2 max-w-4xl text-sm leading-6 text-amber-50/65">
+                    Confirm safety-critical values against the exact model-year service
+                    manual. Use the correct tightening sequence and a calibrated torque
+                    wrench; replace single-use hardware where specified.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {specs.map((spec) => {
+                    const checkedDate = formatCheckedDate(spec.source_checked_at);
+                    const sourceUrlAvailable = isSafeSourceUrl(spec.source_url);
+                    const displayedStatus = displaySourceStatus(spec);
+
+                    return (
                   <article
                     key={spec.id}
-                    className="rounded-[1.5rem] border border-white/10 bg-[#0a0b0e] p-6 shadow-2xl shadow-black/20"
+                    className="flex flex-col rounded-[1.5rem] border border-white/10 bg-[#0a0b0e] p-6 shadow-2xl shadow-black/20"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -582,10 +666,10 @@ export default function TorquePage() {
 
                       <span
                         className={`shrink-0 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${sourceClass(
-                          spec.source_status
+                          displayedStatus
                         )}`}
                       >
-                        {sourceLabel(spec.source_status)}
+                        {sourceLabel(displayedStatus)}
                       </span>
                     </div>
 
@@ -627,9 +711,51 @@ export default function TorquePage() {
                         {spec.warning}
                       </div>
                     ) : null}
+
+                    <div className="mt-auto pt-6">
+                      <div className="border-t border-white/10 pt-5">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+                            Source
+                          </p>
+                          {checkedDate ? (
+                            <p className="text-[10px] font-semibold text-white/30">
+                              Checked {checkedDate}
+                            </p>
+                          ) : null}
+                        </div>
+
+                        <p className="mt-2 text-sm font-semibold text-white/72">
+                          {spec.source_name || "Source not yet attached"}
+                        </p>
+
+                        {spec.source_note ? (
+                          <p className="mt-2 text-xs leading-5 text-white/38">
+                            {spec.source_note}
+                          </p>
+                        ) : null}
+
+                        {sourceUrlAvailable ? (
+                          <a
+                            href={spec.source_url!}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-red-400 transition hover:text-red-300"
+                          >
+                            Open source <span aria-hidden="true">-&gt;</span>
+                          </a>
+                        ) : (
+                          <p className="mt-4 text-xs font-semibold text-yellow-200/55">
+                            Direct source link pending
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </article>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              </>
             ) : null}
           </div>
         </div>
