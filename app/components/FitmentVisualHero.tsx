@@ -96,12 +96,15 @@ function WheelDiagram({
   const position = parsePosition(poke);
   const tireWidth = parseTireWidth(tire, wheel);
   const status = positionLabel(position);
-  const widthScale = clamp(tireWidth / 285, 0.88, 1.14);
-  const assemblyWidth = 330 * widthScale;
+  const tireScale = clamp(tireWidth / 285, 0.78, 1.28);
+  const assemblyWidth = 330;
   const assemblyHeight = 325;
   const assemblyX = 18;
   const assemblyY = 62;
-  const tireOuter = assemblyX + assemblyWidth * 0.985;
+  const tireX = assemblyX + assemblyWidth * (210 / 340);
+  const tireBaseWidth = assemblyWidth * (130 / 340);
+  const tireRenderWidth = tireBaseWidth * tireScale;
+  const tireOuter = tireX + tireRenderWidth;
   const fenderX = clamp(tireOuter + 16 + position * 0.55, tireOuter + 10, 412);
   const measureStart = tireOuter;
   const measureEnd = fenderX;
@@ -170,12 +173,20 @@ function WheelDiagram({
           />
 
           <image
-            href="/fitment-assembly-mockup.png"
+            href="/fitment-suspension-mockup.png"
             x={assemblyX}
             y={assemblyY}
             width={assemblyWidth}
             height={assemblyHeight}
             preserveAspectRatio="xMidYMid meet"
+          />
+          <image
+            href="/fitment-tire-mockup.png"
+            x={tireX}
+            y={assemblyY}
+            width={tireRenderWidth}
+            height={assemblyHeight}
+            preserveAspectRatio="none"
           />
 
           <line
