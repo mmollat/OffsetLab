@@ -810,7 +810,62 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
         </section>
       ) : (
         <>
-          <section id="recommendation" className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+          <section id="recommendation" className="border-y border-white/10 bg-[#08080a]">
+            <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+              <div className="mb-6">
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">
+                  Refine Your Setup
+                </p>
+                <h2 className="mt-3 text-2xl font-black tracking-[-0.03em] sm:text-3xl">
+                  How Do You Want to Drive It?
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
+                  Your driving goal and wheel configuration shape the recommendation below.
+                </p>
+              </div>
+
+              <div className="grid gap-5 lg:grid-cols-2">
+                <ChoicePanel title="Driving Goal">
+                  {([
+                    ["street", "Street", "Daily usability and visual stance"],
+                    ["track", "Track", "Performance, balance, and repeatability"],
+                  ] as const).map(([key, label, sub]) => (
+                    <ChoiceButton
+                      key={key}
+                      active={goal === key}
+                      label={label}
+                      sub={sub}
+                      onClick={() => {
+                        setGoal(key);
+                        setConfiguration(getRecommendedConfiguration(safeModel, key));
+                      }}
+                    />
+                  ))}
+                </ChoicePanel>
+                <ChoicePanel title="Wheel Configuration">
+                  {([
+                    ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered", goal)],
+                    ["square", "Square", getConfigurationHint(safeModel, "square", goal)],
+                  ] as const).map(([key, label, sub]) => (
+                    <ChoiceButton
+                      key={key}
+                      active={configuration === key}
+                      label={label}
+                      sub={sub}
+                      onClick={() => setConfiguration(key)}
+                    />
+                  ))}
+                </ChoicePanel>
+                {goal === "track" ? (
+                  <p className="text-sm text-red-300/75 lg:col-span-2">
+                    {getGoalMessage(make)}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </section>
+
+          <section className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
             <div className="flex flex-col gap-5 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Your Recommended Setup</p>
@@ -865,45 +920,6 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                   Share Build
                 </button>
               </div>
-            </div>
-          </section>
-
-          <section className="border-y border-white/10 bg-[#08080a]">
-            <div className="mx-auto grid max-w-7xl gap-5 px-5 py-10 lg:grid-cols-2 lg:px-8">
-              <ChoicePanel title="Driving Goal">
-                {([
-                  ["street", "Street", "Daily usability and visual stance"],
-                  ["track", "Track", "Performance, balance, and repeatability"],
-                ] as const).map(([key, label, sub]) => (
-                  <ChoiceButton
-                    key={key}
-                    active={goal === key}
-                    label={label}
-                    sub={sub}
-                    onClick={() => {
-                      setGoal(key);
-                      setConfiguration(getRecommendedConfiguration(safeModel, key));
-                    }}
-                  />
-                ))}
-              </ChoicePanel>
-              <ChoicePanel title="Wheel Configuration">
-                {([
-                  ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered", goal)],
-                  ["square", "Square", getConfigurationHint(safeModel, "square", goal)],
-                ] as const).map(([key, label, sub]) => (
-                  <ChoiceButton
-                    key={key}
-                    active={configuration === key}
-                    label={label}
-                    sub={sub}
-                    onClick={() => setConfiguration(key)}
-                  />
-                ))}
-              </ChoicePanel>
-              {goal === "track" ? (
-                <p className="text-sm text-red-300/75 lg:col-span-2">{getGoalMessage(make)}</p>
-              ) : null}
             </div>
           </section>
 
