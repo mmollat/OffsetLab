@@ -34,7 +34,7 @@ const tools = [
 export default function Home() {
   return (
     <main className="bg-[#050506] text-white">
-      <section className="relative isolate min-h-[740px] overflow-hidden border-b border-white/10">
+      <section className="relative isolate overflow-hidden border-b border-white/10 sm:min-h-[660px] lg:min-h-[calc(100svh-73px)]">
         <div
           className="absolute inset-0 -z-30 bg-cover bg-[72%_center] md:bg-center"
           style={{ backgroundImage: "url('/home-hero.png')" }}
@@ -42,7 +42,7 @@ export default function Home() {
         <div className="absolute inset-0 -z-20 bg-gradient-to-r from-black via-black/85 to-black/5" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#050506] via-transparent to-black/25" />
 
-        <div className="mx-auto flex min-h-[650px] max-w-7xl items-center px-6 pb-28 pt-20 lg:px-8">
+        <div className="mx-auto flex min-h-[620px] max-w-7xl items-center px-6 py-16 sm:min-h-[570px] sm:pb-28 sm:pt-20 lg:min-h-[calc(100svh-163px)] lg:px-8">
           <div className="max-w-3xl">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-red-500">
               Precision fitment. No guesswork.
@@ -79,7 +79,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-black/55 backdrop-blur-md">
+        <div className="relative border-t border-white/10 bg-black/75 backdrop-blur-md sm:absolute sm:inset-x-0 sm:bottom-0 sm:bg-black/55">
           <div className="mx-auto grid max-w-7xl divide-y divide-white/10 px-6 sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:px-8">
             <TrustItem label="Vehicle-Specific Data" copy="Built around your exact platform" />
             <TrustItem label="Real Fitment Math" copy="Poke, clearance, and diameter" />
