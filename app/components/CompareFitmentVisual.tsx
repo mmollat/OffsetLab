@@ -25,6 +25,10 @@ type TireSpec = {
   diameter: number;
 };
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
 function parseWheel(spec?: string): WheelSpec | null {
   if (!spec) return null;
 
@@ -125,22 +129,24 @@ export default function CompareFitmentVisual({
     selectedTire,
   ]);
 
-  const hubX = 360;
-  const scale = 0.72;
-  const baselineWidth = comparison.baselineWheel.width * 25.4;
-  const selectedWidth = comparison.selectedWheel.width * 25.4;
-  const baselineOuter =
-    hubX -
-    (baselineWidth / 2 - comparison.baselineWheel.offset) * scale;
-  const baselineInner =
-    hubX +
-    (baselineWidth / 2 + comparison.baselineWheel.offset) * scale;
-  const selectedOuter =
-    hubX -
-    (selectedWidth / 2 - comparison.selectedWheel.offset) * scale;
-  const selectedInner =
-    hubX +
-    (selectedWidth / 2 + comparison.selectedWheel.offset) * scale;
+  const baselineTireWidth =
+    comparison.factoryTire?.width ?? comparison.baselineWheel.width * 25.4;
+  const selectedTireWidth =
+    comparison.newTire?.width ?? comparison.selectedWheel.width * 25.4;
+  const suspensionX = 45;
+  const suspensionWidth = 430;
+  const hubMountX = suspensionX + suspensionWidth * (210 / 340);
+  const baseTireX = hubMountX - 18;
+  const tireHeight = 330;
+  const baselineRenderWidth = 122 * clamp(baselineTireWidth / 285, 0.76, 1.26);
+  const selectedRenderWidth = 122 * clamp(selectedTireWidth / 285, 0.76, 1.26);
+  const selectedShift = clamp(comparison.innerClearance * 0.7, -16, 16);
+  const baselineOuter = baseTireX + baselineRenderWidth;
+  const selectedX = baseTireX + selectedShift;
+  const selectedOuter = selectedX + selectedRenderWidth;
+  const measureStart = Math.min(baselineOuter, selectedOuter);
+  const measureEnd = Math.max(baselineOuter, selectedOuter);
+  const arrowId = `compare-arrow-${axle}`;
 
   return (
     <section className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#090a0d]">
@@ -180,105 +186,85 @@ export default function CompareFitmentVisual({
       </div>
 
       <div className="grid lg:grid-cols-[1fr_190px]">
-        <div className="relative min-h-[300px] overflow-hidden border-b border-white/10 lg:border-b-0 lg:border-r">
+        <div className="relative min-h-[390px] overflow-hidden border-b border-white/10 lg:border-b-0 lg:border-r">
           <svg
-            viewBox="0 0 700 440"
+            viewBox="0 0 620 430"
             className="absolute inset-0 h-full w-full"
             role="img"
             aria-label={`${axle} wheel fitment cross-section`}
           >
             <defs>
-              <linearGradient id="selectedFill" x1="0" x2="1">
-                <stop offset="0" stopColor="#ef4444" stopOpacity="0.03" />
-                <stop offset="1" stopColor="#ef4444" stopOpacity="0.13" />
-              </linearGradient>
-              <linearGradient id="factoryFill" x1="0" x2="1">
-                <stop offset="0" stopColor="#ffffff" stopOpacity="0.01" />
-                <stop offset="1" stopColor="#ffffff" stopOpacity="0.045" />
-              </linearGradient>
-              <filter id="redGlow">
-                <feGaussianBlur stdDeviation="4" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
+              <marker
+                id={arrowId}
+                viewBox="0 0 10 10"
+                refX="5"
+                refY="5"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+              </marker>
             </defs>
 
-            <g opacity="0.24" stroke="#9ca3af" fill="none">
-              <path
-                d="M155 79 C132 94 127 122 139 145 L151 171 L145 219 L128 261 L142 340"
-                strokeWidth="3"
-              />
-              <path d="M129 340 H357" strokeWidth="3" />
-              <path d="M170 102 H216 L245 158 L267 202" strokeWidth="2" />
-              <path d="M170 102 C185 73 214 66 238 83" strokeWidth="2" />
-              <path d="M178 119 H232 M173 130 H238 M170 141 H244 M169 152 H249" />
-              <circle cx="330" cy="220" r="44" strokeWidth="3" />
-              <circle cx="330" cy="220" r="17" strokeWidth="2" />
-              <path d="M267 202 L315 206 M267 236 L315 232" strokeWidth="4" />
-              <path d="M315 220 H580" strokeWidth="2" opacity="0.35" />
-            </g>
-
-            <line
-              x1={hubX}
-              y1="52"
-              x2={hubX}
-              y2="386"
-              stroke="rgba(255,255,255,0.62)"
-              strokeDasharray="7 7"
-              strokeWidth="2"
-            />
+            <text x="42" y="44" fill="#9097a3" fontSize="11" fontWeight="700" letterSpacing="1.3">
+              INBOARD
+            </text>
+            <path d="M42 56 H98" stroke="#777f8c" strokeWidth="1.5" />
+            <path d="M42 56 l9 -5 M42 56 l9 5" stroke="#777f8c" strokeWidth="1.5" />
             <text
-              x={hubX - 12}
-              y="38"
-              fill="rgba(255,255,255,0.35)"
+              x="578"
+              y="44"
+              fill="#9097a3"
               fontSize="11"
+              fontWeight="700"
+              letterSpacing="1.3"
               textAnchor="end"
             >
-              HUB FACE
+              OUTBOARD
             </text>
+            <path d="M522 56 H578" stroke="#777f8c" strokeWidth="1.5" />
+            <path d="M578 56 l-9 -5 M578 56 l-9 5" stroke="#777f8c" strokeWidth="1.5" />
 
-            <path
-              d={`M${baselineOuter} 92
-                  Q${baselineOuter - 18} 92 ${baselineOuter - 22} 122
-                  L${baselineOuter - 22} 318
-                  Q${baselineOuter - 18} 348 ${baselineOuter} 348
-                  L${baselineOuter + 18} 329
-                  L${baselineOuter + 32} 329
-                  L${baselineOuter + 48} 344
-                  L${baselineInner - 24} 344
-                  Q${baselineInner} 344 ${baselineInner} 318
-                  L${baselineInner} 122
-                  Q${baselineInner} 96 ${baselineInner - 24} 96
-                  L${baselineOuter + 48} 96
-                  L${baselineOuter + 32} 111
-                  L${baselineOuter + 18} 111 Z`}
-              fill="url(#factoryFill)"
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="3"
+            <image
+              href="/fitment-suspension-mockup.png"
+              x={suspensionX}
+              y="55"
+              width={suspensionWidth}
+              height={tireHeight}
+              preserveAspectRatio="xMidYMid meet"
             />
 
-            <path
-              d={`M${selectedOuter} 82
-                  Q${selectedOuter - 20} 82 ${selectedOuter - 24} 114
-                  L${selectedOuter - 24} 326
-                  Q${selectedOuter - 20} 358 ${selectedOuter} 358
-                  L${selectedOuter + 20} 337
-                  L${selectedOuter + 36} 337
-                  L${selectedOuter + 54} 353
-                  L${selectedInner - 26} 353
-                  Q${selectedInner} 353 ${selectedInner} 326
-                  L${selectedInner} 114
-                  Q${selectedInner} 86 ${selectedInner - 26} 86
-                  L${selectedOuter + 54} 86
-                  L${selectedOuter + 36} 103
-                  L${selectedOuter + 20} 103 Z`}
-              fill="url(#selectedFill)"
-              stroke="#ef4444"
-              strokeOpacity="0.8"
-              strokeWidth="3"
-              filter="url(#redGlow)"
+            <rect
+              x={baseTireX}
+              y="55"
+              width={baselineRenderWidth}
+              height={tireHeight}
+              rx="24"
+              fill="rgba(255,255,255,0.025)"
+              stroke="rgba(255,255,255,0.38)"
+              strokeWidth="2"
+              strokeDasharray="7 6"
+            />
+            <text
+              x={baseTireX + baselineRenderWidth / 2}
+              y="398"
+              fill="rgba(255,255,255,0.38)"
+              fontSize="10"
+              fontWeight="700"
+              letterSpacing="1"
+              textAnchor="middle"
+            >
+              FACTORY
+            </text>
+
+            <image
+              href="/fitment-tire-mockup.png"
+              x={selectedX}
+              y="55"
+              width={selectedRenderWidth}
+              height={tireHeight}
+              preserveAspectRatio="none"
               style={{
                 transition: "all 450ms cubic-bezier(0.22, 1, 0.36, 1)",
               }}
@@ -286,14 +272,51 @@ export default function CompareFitmentVisual({
 
             <line
               x1={baselineOuter}
+              y1="78"
+              x2={baselineOuter}
+              y2="365"
+              stroke="rgba(255,255,255,0.35)"
+              strokeDasharray="6 6"
+              strokeWidth="1.5"
+            />
+            <line
+              x1={selectedOuter}
+              y1="78"
               x2={selectedOuter}
-              y1="382"
-              y2="382"
+              y2="365"
               stroke="#ef4444"
               strokeWidth="2"
             />
-            <circle cx={baselineOuter} cy="382" r="3" fill="rgba(255,255,255,0.45)" />
-            <circle cx={selectedOuter} cy="382" r="3" fill="#ef4444" />
+
+            <line
+              x1={measureStart}
+              y1="105"
+              x2={measureEnd}
+              y2="105"
+              stroke="#ef4444"
+              strokeWidth="2"
+              markerStart={`url(#${arrowId})`}
+              markerEnd={`url(#${arrowId})`}
+            />
+            <text
+              x={(measureStart + measureEnd) / 2}
+              y="91"
+              fill="#fb6b73"
+              fontSize="12"
+              fontWeight="800"
+              textAnchor="middle"
+            >
+              {formatMm(comparison.outerPoke)}
+            </text>
+
+            <rect x="72" y="382" width="150" height="28" rx="14" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.18)" />
+            <text x="147" y="400" fill="rgba(255,255,255,0.45)" fontSize="10" fontWeight="800" letterSpacing="0.8" textAnchor="middle">
+              FACTORY BASELINE
+            </text>
+            <rect x="238" y="382" width="160" height="28" rx="14" fill="#190d0f" stroke="#ef4444" strokeOpacity="0.8" />
+            <text x="318" y="400" fill="#fb636c" fontSize="10" fontWeight="800" letterSpacing="0.8" textAnchor="middle">
+              SELECTED FITMENT
+            </text>
           </svg>
         </div>
 
