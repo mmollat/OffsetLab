@@ -105,9 +105,11 @@ function WheelDiagram({
   const tireBaseWidth = assemblyWidth * (130 / 340);
   const tireRenderWidth = tireBaseWidth * tireScale;
   const tireOuter = tireX + tireRenderWidth;
-  const fenderX = clamp(tireOuter + 16 + position * 0.55, tireOuter + 10, 412);
-  const measureStart = tireOuter;
-  const measureEnd = fenderX;
+  const stanceOffset = clamp(position * 0.38, -10, 12);
+  const fenderX = tireOuter - stanceOffset;
+  const measureStart = Math.min(tireOuter, fenderX);
+  const measureEnd = Math.max(tireOuter, fenderX);
+  const measurementLabelX = clamp(Math.max(tireOuter, fenderX) + 14, 360, 438);
   const scalePosition = clamp(((position + 15) / 45) * 100, 4, 96);
   const arrowId = `measureArrow-${axle}`;
 
@@ -163,15 +165,6 @@ function WheelDiagram({
           <path d="M422 55 H478" stroke="#777f8c" strokeWidth="1.5" />
           <path d="M478 55 l-9 -5 M478 55 l-9 5" stroke="#777f8c" strokeWidth="1.5" />
 
-          <rect
-            x={measureStart}
-            y="72"
-            width={Math.max(measureEnd - measureStart, 2)}
-            height="270"
-            fill="#ef4444"
-            opacity={position > 0 ? 0.14 : 0.055}
-          />
-
           <image
             href="/fitment-suspension-mockup.png"
             x={assemblyX}
@@ -187,6 +180,15 @@ function WheelDiagram({
             width={tireRenderWidth}
             height={assemblyHeight}
             preserveAspectRatio="none"
+          />
+
+          <rect
+            x={measureStart}
+            y="72"
+            width={Math.max(measureEnd - measureStart, 2)}
+            height="270"
+            fill="#ef4444"
+            opacity={position > 0 ? 0.18 : 0.07}
           />
 
           <line
@@ -220,16 +222,16 @@ function WheelDiagram({
             markerEnd={`url(#${arrowId})`}
           />
           <text
-            x={fenderX + 16}
+            x={measurementLabelX}
             y="165"
             fill="#aeb4bd"
-            fontSize="11"
+            fontSize="10"
             fontWeight="700"
           >
-            OUTER POSITION
+            VS FACTORY
           </text>
           <text
-            x={fenderX + 16}
+            x={measurementLabelX}
             y="190"
             fill="#ffffff"
             fontSize="20"
