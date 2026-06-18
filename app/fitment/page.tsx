@@ -11,8 +11,6 @@ import {
   MakeKey,
   ModelKey,
   modelSlug,
-  normalizeMake,
-  normalizeModel,
   normalizeStyle,
   StyleKey,
   TrimData,
@@ -301,7 +299,7 @@ export default function FitmentPage() {
   const [make, setMake] = useState<MakeKey | null>(null);
   const [model, setModel] = useState<ModelKey | null>(null);
   const [trim, setTrim] = useState<string>("");
-  const [style, setStyle] = useState<StyleKey>("aggressive");
+  const [style, setStyle] = useState<StyleKey>("flush");
   const [goal, setGoal] = useState<DrivingGoalKey>("street");
   const [configuration, setConfiguration] = useState<ConfigurationKey>("staggered");
   const [copied, setCopied] = useState(false);
@@ -376,7 +374,11 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
 
   if (!rawMake) return;
 
-  const urlMake = normalizeMake(rawMake);
+  const urlMake = vehicleModels.find(
+    (item) => item.make.toLowerCase() === rawMake.toLowerCase()
+  )?.make as MakeKey | undefined;
+  if (!urlMake) return;
+
   const requestedModel = params.get("model");
   const urlModel =
     vehicleModels.find(
@@ -384,19 +386,24 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
         item.make === urlMake &&
         (modelSlug(item.model) === modelSlug(requestedModel ?? "") ||
           modelSlug(item.display_name ?? "") === modelSlug(requestedModel ?? ""))
-    )?.model as ModelKey ||
-    normalizeModel(requestedModel, urlMake);
+    )?.model as ModelKey | undefined;
   const urlStyle = normalizeStyle(params.get("style"));
   const urlTrim = params.get("trim");
   const urlGoal = params.get("goal");
   const initialGoal: DrivingGoalKey = urlGoal === "track" ? "track" : "street";
   const urlConfiguration = params.get("configuration");
-  const recommendedConfiguration = getRecommendedConfiguration(urlModel, initialGoal);
 
   setMake(urlMake);
-  setModel(urlModel);
   setStyle(urlStyle);
   setGoal(initialGoal);
+  setModel(urlModel ?? null);
+
+  if (!urlModel) {
+    setTrim("");
+    return;
+  }
+
+  const recommendedConfiguration = getRecommendedConfiguration(urlModel, initialGoal);
   setConfiguration(
     urlConfiguration === "square" || urlConfiguration === "staggered"
       ? (urlConfiguration as ConfigurationKey)
@@ -404,7 +411,7 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
   );
 
   const availableTrims = getLoadedTrims(urlModel, urlMake);
-  setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : availableTrims[0]);
+  setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : "");
 }, [fitmentDb, vehicleModels, vehicleTrims]);
 
   const availableMakes = useMemo(() => {
@@ -430,9 +437,7 @@ const availableModels = useMemo(() => {
 const safeModel =
   make && model && availableModels.includes(model)
     ? model
-    : availableModels.length > 0
-      ? availableModels[0]
-      : null;
+    : null;
   const trims = useMemo(
   () => (safeModel ? getLoadedTrims(safeModel) : []),
   [safeModel, make, vehicleTrims]
@@ -441,9 +446,7 @@ const safeModel =
 const safeTrim =
   trim && trims.includes(trim)
     ? trim
-    : trims.length > 0
-      ? trims[0]
-      : "";
+    : "";
 
 const trimData = useMemo(
   () => (safeModel && safeTrim ? getLoadedTrimData(safeModel, safeTrim) : null),
@@ -665,6 +668,26 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     vehicleModels.find((item) => item.make === make && item.model === safeModel)?.display_name ??
     safeModel;
   const hasRecommendation = Boolean(make && safeModel && safeTrim && trimData && displayedFitment);
+  let compareHref = "/compare";
+
+  if (make && safeModel && safeTrim && displayedFitment) {
+    const params = new URLSearchParams({
+      make,
+      model: safeModel,
+      trim: safeTrim,
+      style,
+      goal,
+      configuration,
+      front: displayedFitment.front,
+      rear: displayedFitment.rear,
+      frontTire: displayedFitment.frontTire,
+      rearTire: displayedFitment.rearTire,
+      title: displayedFitment.title,
+      verdict: displayedFitment.verdict,
+    });
+
+    compareHref = `/compare?${params.toString()}`;
+  }
 
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050506] text-white">
@@ -699,11 +722,9 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                   value={make ?? ""}
                   onChange={(event) => {
                     const nextMake = event.target.value as MakeKey;
-                    const nextModel = vehicleModels.find((vehicle) => vehicle.make === nextMake)?.model as ModelKey;
                     setMake(nextMake);
-                    setModel(nextModel ?? null);
-                    setTrim(nextModel ? getLoadedTrims(nextModel, nextMake)[0] ?? "" : "");
-                    if (nextModel) setConfiguration(getRecommendedConfiguration(nextModel, goal));
+                    setModel(null);
+                    setTrim("");
                   }}
                   className="w-full bg-transparent text-sm font-bold outline-none"
                 >
@@ -719,7 +740,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                   onChange={(event) => {
                     const nextModel = event.target.value as ModelKey;
                     setModel(nextModel);
-                    setTrim(getLoadedTrims(nextModel)[0] ?? "");
+                    setTrim("");
                     setConfiguration(getRecommendedConfiguration(nextModel, goal));
                   }}
                   className="w-full bg-transparent text-sm font-bold outline-none disabled:text-white/30"
@@ -833,7 +854,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
             </div>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <a href="/compare" className="text-sm font-bold text-white/65 transition hover:text-red-400">
+              <a href={compareHref} className="text-sm font-bold text-white/65 transition hover:text-red-400">
                 Compare against factory -&gt;
               </a>
               <div className="flex gap-3">

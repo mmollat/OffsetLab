@@ -2,10 +2,26 @@
 
 import { useEffect, useMemo, useState } from "react";
 import CompareFitmentVisual from "../components/CompareFitmentVisual";
-import { MakeKey, ModelKey, StyleKey, TrimData } from "../data/fitment";
+import {
+  MakeKey,
+  ModelKey,
+  modelSlug,
+  normalizeStyle,
+  StyleKey,
+  TrimData,
+} from "../data/fitment";
 import { getFitmentData } from "../lib/getFitmentData";
 import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
 import { getVehicleTrims, VehicleTrim } from "../lib/getVehicleTrims";
+
+type HandoffSetup = {
+  front: string;
+  rear: string;
+  frontTire: string;
+  rearTire: string;
+  title: string;
+  verdict: string;
+};
 
 export default function ComparePage() {
   const [make, setMake] = useState<MakeKey | null>(null);
@@ -16,6 +32,11 @@ export default function ComparePage() {
   const [fitmentDb, setFitmentDb] = useState<Record<ModelKey, TrimData[]> | null>(null);
   const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
   const [vehicleTrims, setVehicleTrims] = useState<VehicleTrim[]>([]);
+  const [handoffSetup, setHandoffSetup] = useState<HandoffSetup | null>(null);
+  const [fitmentContext, setFitmentContext] = useState({
+    goal: "street",
+    configuration: "staggered",
+  });
 
   useEffect(() => {
     async function loadData() {
@@ -32,6 +53,60 @@ export default function ComparePage() {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const rawMake = params.get("make");
+    const requestedModel = params.get("model");
+    const requestedTrim = params.get("trim");
+
+    if (!rawMake || !requestedModel || !requestedTrim) return;
+
+    const urlMake = vehicleModels.find(
+      (item) => item.make.toLowerCase() === rawMake.toLowerCase()
+    )?.make as MakeKey | undefined;
+    if (!urlMake) return;
+
+    const urlModel = vehicleModels.find(
+      (item) =>
+        item.make === urlMake &&
+        (modelSlug(item.model) === modelSlug(requestedModel) ||
+          modelSlug(item.display_name ?? "") === modelSlug(requestedModel))
+    )?.model as ModelKey | undefined;
+    if (!urlModel) return;
+
+    const trimExists = vehicleTrims.some(
+      (item) =>
+        item.make === urlMake &&
+        item.model === urlModel &&
+        item.trim === requestedTrim
+    );
+    if (!trimExists) return;
+
+    setMake(urlMake);
+    setModel(urlModel);
+    setTrim(requestedTrim);
+    setStyle(normalizeStyle(params.get("style")));
+    setFitmentContext({
+      goal: params.get("goal") === "track" ? "track" : "street",
+      configuration: params.get("configuration") === "square" ? "square" : "staggered",
+    });
+
+    const front = params.get("front");
+    const rear = params.get("rear");
+    const frontTire = params.get("frontTire");
+    const rearTire = params.get("rearTire");
+    const title = params.get("title");
+    const verdict = params.get("verdict");
+
+    setHandoffSetup(
+      front && rear && frontTire && rearTire && title && verdict
+        ? { front, rear, frontTire, rearTire, title, verdict }
+        : null
+    );
+  }, [fitmentDb, vehicleModels, vehicleTrims]);
 
   const makes = useMemo(() => {
     return Array.from(new Set(vehicleModels.map((item) => item.make))).sort((a, b) =>
@@ -50,9 +125,7 @@ export default function ComparePage() {
   const safeModel =
     model && availableModels.includes(model)
       ? model
-      : availableModels.length > 0
-        ? availableModels[0]
-        : null;
+      : null;
 
   const trimsForModel = useMemo(() => {
     if (!make || !safeModel) return [];
@@ -65,7 +138,7 @@ export default function ComparePage() {
   const safeTrim =
     trim && trimsForModel.some((item) => item.trim === trim)
       ? trim
-      : trimsForModel[0]?.trim ?? "";
+      : "";
 
   const trimData = useMemo(() => {
     if (!fitmentDb || !safeModel || !safeTrim) return null;
@@ -77,7 +150,8 @@ export default function ComparePage() {
     );
   }, [fitmentDb, safeModel, safeTrim]);
 
-  const current = trimData?.presets?.[style];
+  const preset = trimData?.presets?.[style];
+  const current = preset && handoffSetup ? { ...preset, ...handoffSetup } : preset;
   const selectedModelLabel =
     vehicleModels.find(
       (vehicle) => vehicle.make === make && vehicle.model === safeModel
@@ -85,6 +159,20 @@ export default function ComparePage() {
 
   const selectedTrimLabel =
     trimsForModel.find((item) => item.trim === safeTrim)?.display_name ?? safeTrim;
+  const fitmentHref = useMemo(() => {
+    if (!make || !safeModel || !safeTrim) return "/fitment";
+
+    const params = new URLSearchParams({
+      make,
+      model: safeModel,
+      trim: safeTrim,
+      style,
+      goal: fitmentContext.goal,
+      configuration: fitmentContext.configuration,
+    });
+
+    return `/fitment?${params.toString()}`;
+  }, [make, safeModel, safeTrim, style, fitmentContext]);
 
   if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     return (
@@ -96,33 +184,20 @@ export default function ComparePage() {
 
   function handleMakeChange(nextMake: string) {
     setMake(nextMake as MakeKey);
-
-    const nextModel = vehicleModels.find(
-      (vehicle) => vehicle.make === nextMake
-    )?.model as ModelKey | undefined;
-
-    if (!nextModel) return;
-    setModel(nextModel);
-
-    const nextTrim =
-      vehicleTrims.find(
-        (vehicleTrim) =>
-          vehicleTrim.make === nextMake && vehicleTrim.model === nextModel
-      )?.trim ?? "";
-
-    setTrim(nextTrim);
+    setModel(null);
+    setTrim("");
+    setHandoffSetup(null);
   }
 
   function handleModelChange(nextModel: ModelKey) {
     setModel(nextModel);
+    setTrim("");
+    setHandoffSetup(null);
+  }
 
-    const nextTrim =
-      vehicleTrims.find(
-        (vehicleTrim) =>
-          vehicleTrim.make === make && vehicleTrim.model === nextModel
-      )?.trim ?? "";
-
+  function handleTrimChange(nextTrim: string) {
     setTrim(nextTrim);
+    setHandoffSetup(null);
   }
 
   return (
@@ -194,7 +269,7 @@ export default function ComparePage() {
               <SelectControl
                 label="Trim"
                 value={safeTrim}
-                onChange={setTrim}
+                onChange={handleTrimChange}
                 disabled={!safeModel}
               >
                 <option value="" disabled>
@@ -220,7 +295,10 @@ export default function ComparePage() {
                     <button
                       key={key}
                       type="button"
-                      onClick={() => setStyle(key)}
+                      onClick={() => {
+                        setStyle(key);
+                        setHandoffSetup(null);
+                      }}
                       className={`rounded-lg px-3 text-xs font-bold transition ${
                         style === key
                           ? "bg-red-500 text-white"
@@ -278,6 +356,12 @@ export default function ComparePage() {
                 )
               )}
             </div>
+            <a
+              href={fitmentHref}
+              className="mt-4 inline-flex text-sm font-bold text-white/55 transition hover:text-red-400"
+            >
+              &lt;- Back to Fitment
+            </a>
 
             <div className="mt-7 grid gap-5 xl:grid-cols-[0.92fr_0.92fr_1.1fr]">
               <FitmentTable

@@ -87,8 +87,8 @@ export function normalizeModel(value: string | null, make: MakeKey = "Tesla"): M
 export function normalizeStyle(value: string | null): StyleKey {
   const input = (value || "").toLowerCase().trim();
   if (input === "oemplus" || input === "oem+") return "oemplus";
-  if (input === "flush") return "flush";
-  return "aggressive";
+  if (input === "aggressive") return "aggressive";
+  return "flush";
 }
 
 export function normalizeMake(value: string | null): MakeKey {
