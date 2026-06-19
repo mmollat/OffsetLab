@@ -669,6 +669,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     safeModel;
   const hasRecommendation = Boolean(make && safeModel && safeTrim && trimData && displayedFitment);
   let compareHref = "/compare";
+  let tunerHref = "/tuner";
 
   if (make && safeModel && safeTrim && displayedFitment) {
     const params = new URLSearchParams({
@@ -687,6 +688,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     });
 
     compareHref = `/compare?${params.toString()}`;
+    tunerHref = `/tuner?${params.toString()}`;
   }
 
   return (
@@ -908,10 +910,15 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
               <SummaryMetric label="Diameter Change" value={displayedFitment.diameter} sub={`${trimData.baseline.boltPattern} bolt pattern`} />
             </div>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <a href={compareHref} className="text-sm font-bold text-white/65 transition hover:text-red-400">
-                Compare against factory -&gt;
-              </a>
+            <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 text-sm font-bold sm:flex-row sm:gap-6">
+                <a href={tunerHref} className="text-red-400 transition hover:text-red-300">
+                  Fine-tune this setup -&gt;
+                </a>
+                <a href={compareHref} className="text-white/65 transition hover:text-red-400">
+                  Compare against factory -&gt;
+                </a>
+              </div>
               <div className="flex gap-3">
                 <button onClick={copyLink} className="rounded-md border border-white/15 px-5 py-2.5 text-xs font-black uppercase tracking-[0.12em] hover:bg-white/5">
                   {copied ? "Link Copied" : "Copy Link"}
