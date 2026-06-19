@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { MakeKey, ModelKey, Preset, TrimData, modelSlug } from "../data/fitment";
 import { compareWheelFitment, parseWheelSpec, WheelSpec } from "../lib/compareMath";
+import { getFitmentData } from "../lib/getFitmentData";
+import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
+import { getVehicleTrims, VehicleTrim } from "../lib/getVehicleTrims";
 
 type PresetKey = "daily" | "aggressive" | "track";
 
@@ -24,12 +28,43 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function readWheel(value: string | null, fallback: WheelSpec) {
-  return (value && parseWheelSpec(value)) || fallback;
+  return (value && parseWheelSpec(value.replace(/\+ET/i, "ET"))) || fallback;
 }
 
 function readTireWidth(value: string | null, fallback: number) {
   const match = value?.match(/^(\d{3})/);
   return match ? Number(match[1]) : fallback;
+}
+
+function parseTire(value?: string | null) {
+  const match = value?.match(/^(\d{3})\/(\d{2})R(\d{2})$/i);
+  return match
+    ? { width: Number(match[1]), ratio: Number(match[2]), diameter: Number(match[3]) }
+    : null;
+}
+
+function setupFromPreset(
+  fitment: Preset | undefined,
+  fallback: TunerState,
+  profile: PresetKey
+) {
+  const wheel = readWheel(fitment?.front ?? null, {
+    width: fallback.width,
+    offset: fallback.offset,
+  });
+  const tire = parseTire(fitment?.frontTire);
+  const profileGeometry = {
+    daily: { camber: -1.2, rideHeight: -10 },
+    aggressive: { camber: -2.1, rideHeight: -25 },
+    track: { camber: -2.7, rideHeight: -20 },
+  }[profile];
+
+  return {
+    width: wheel.width,
+    offset: wheel.offset,
+    tireWidth: tire?.width ?? fallback.tireWidth,
+    ...profileGeometry,
+  };
 }
 
 function formatSigned(value: number, suffix = "") {
@@ -122,6 +157,39 @@ function InsightRow({
         {verdict}
       </span>
     </div>
+  );
+}
+
+function VehicleSelect({
+  label,
+  value,
+  disabled = false,
+  placeholder,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string;
+  disabled?: boolean;
+  placeholder: string;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+        {label}
+      </span>
+      <select
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-12 w-full rounded-lg border border-white/10 bg-black/45 px-4 text-sm font-bold text-white outline-none transition focus:border-red-500/60 disabled:cursor-not-allowed disabled:text-white/25"
+      >
+        <option value="">{placeholder}</option>
+        {children}
+      </select>
+    </label>
   );
 }
 
@@ -249,41 +317,158 @@ export default function TunerPage() {
   const [setup, setSetup] = useState<TunerState>(PRESETS.aggressive);
   const [preset, setPreset] = useState<PresetKey>("aggressive");
   const [modifiedSuspension, setModifiedSuspension] = useState(true);
-  const [vehicle, setVehicle] = useState("Porsche 992 GT3");
   const [baseline, setBaseline] = useState<WheelSpec>({ width: 9.5, offset: 50 });
   const [tireRatio, setTireRatio] = useState(30);
   const [diameter, setDiameter] = useState(20);
   const [context, setContext] = useState<Record<string, string>>({});
+  const [fitmentDb, setFitmentDb] = useState<Record<ModelKey, TrimData[]> | null>(null);
+  const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
+  const [vehicleTrims, setVehicleTrims] = useState<VehicleTrim[]>([]);
+  const [make, setMake] = useState<MakeKey | "">("");
+  const [model, setModel] = useState<ModelKey | "">("");
+  const [trim, setTrim] = useState("");
+  const [urlSetup, setUrlSetup] = useState<{
+    front: string | null;
+    frontTire: string | null;
+  } | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const front = readWheel(params.get("front"), PRESETS.aggressive);
-    const factory = readWheel(params.get("factoryFront"), {
-      width: Math.max(front.width - 1, 8),
-      offset: front.offset + 10,
-    });
-    const tire = params.get("frontTire");
-    const tireMatch = tire?.match(/^(\d{3})\/(\d{2})R(\d{2})$/i);
-    const make = params.get("make");
-    const model = params.get("model");
-    const trim = params.get("trim");
+    async function loadVehicleData() {
+      const [fitment, models, trims] = await Promise.all([
+        getFitmentData(),
+        getVehicleModels(),
+        getVehicleTrims(),
+      ]);
 
-    setSetup((current) => ({
-      ...current,
-      width: front.width,
-      offset: front.offset,
-      tireWidth: readTireWidth(tire, current.tireWidth),
-    }));
-    setBaseline(factory);
-    if (tireMatch) {
-      setTireRatio(Number(tireMatch[2]));
-      setDiameter(Number(tireMatch[3]));
+      setFitmentDb(fitment);
+      setVehicleModels(models);
+      setVehicleTrims(trims);
     }
-    if (make || model || trim) {
-      setVehicle([make, model, trim].filter(Boolean).join(" "));
+
+    loadVehicleData();
+  }, []);
+
+  useEffect(() => {
+    if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const requestedMake = params.get("make");
+    const requestedModel = params.get("model");
+    const requestedTrim = params.get("trim");
+
+    const matchedMake = vehicleModels.find(
+      (item) => item.make.toLowerCase() === requestedMake?.toLowerCase()
+    )?.make as MakeKey | undefined;
+    const matchedModel = vehicleModels.find(
+      (item) =>
+        item.make === matchedMake &&
+        (modelSlug(item.model) === modelSlug(requestedModel ?? "") ||
+          modelSlug(item.display_name ?? "") === modelSlug(requestedModel ?? ""))
+    )?.model;
+    const matchedTrim = vehicleTrims.find(
+      (item) =>
+        item.make === matchedMake &&
+        item.model === matchedModel &&
+        item.trim === requestedTrim
+    )?.trim;
+
+    if (matchedMake && matchedModel && matchedTrim) {
+      setMake(matchedMake);
+      setModel(matchedModel);
+      setTrim(matchedTrim);
+      setUrlSetup({
+        front: params.get("front"),
+        frontTire: params.get("frontTire"),
+      });
     }
     setContext(Object.fromEntries(params.entries()));
-  }, []);
+  }, [fitmentDb, vehicleModels, vehicleTrims]);
+
+  const makes = useMemo(
+    () =>
+      Array.from(new Set(vehicleModels.map((item) => item.make))).sort((a, b) =>
+        a.localeCompare(b)
+      ),
+    [vehicleModels]
+  );
+  const modelsForMake = useMemo(
+    () =>
+      vehicleModels.filter(
+        (item, index, items) =>
+          item.make === make &&
+          items.findIndex(
+            (candidate) =>
+              candidate.make === item.make && candidate.model === item.model
+          ) === index
+      ),
+    [make, vehicleModels]
+  );
+  const trimsForModel = useMemo(
+    () =>
+      vehicleTrims.filter(
+        (item, index, items) =>
+          item.make === make &&
+          item.model === model &&
+          items.findIndex(
+            (candidate) =>
+              candidate.make === item.make &&
+              candidate.model === item.model &&
+              candidate.trim === item.trim
+          ) === index
+      ),
+    [make, model, vehicleTrims]
+  );
+  const trimData = useMemo(
+    () => fitmentDb?.[model]?.find((item) => item.trim === trim) ?? null,
+    [fitmentDb, model, trim]
+  );
+  const selectedModelLabel =
+    vehicleModels.find((item) => item.make === make && item.model === model)
+      ?.display_name ?? model;
+  const selectedTrimLabel =
+    trimsForModel.find((item) => item.trim === trim)?.display_name ?? trim;
+  const hasVehicle = Boolean(make && model && trim && trimData);
+  const vehicleLabel = hasVehicle
+    ? [make, selectedModelLabel, selectedTrimLabel].filter(Boolean).join(" ")
+    : "Choose your vehicle";
+
+  useEffect(() => {
+    if (!trimData || !make || !model || !trim) return;
+
+    const baselineWheel = readWheel(trimData.baseline.front, {
+      width: 8,
+      offset: 40,
+    });
+    const startingPreset = trimData.presets.aggressive ?? trimData.presets.flush ?? trimData.presets.oemplus;
+    const startingSetup = setupFromPreset(
+      startingPreset,
+      PRESETS.aggressive,
+      "aggressive"
+    );
+    const handedWheel = readWheel(urlSetup?.front ?? null, {
+      width: startingSetup.width,
+      offset: startingSetup.offset,
+    });
+    const handedTire = parseTire(urlSetup?.frontTire);
+    const baselineTire = parseTire(trimData.baseline.tire);
+
+    setBaseline(baselineWheel);
+    setSetup({
+      ...startingSetup,
+      width: handedWheel.width,
+      offset: handedWheel.offset,
+      tireWidth: handedTire?.width ?? startingSetup.tireWidth,
+    });
+    setTireRatio(handedTire?.ratio ?? baselineTire?.ratio ?? 35);
+    setDiameter(handedTire?.diameter ?? baselineTire?.diameter ?? 20);
+    setPreset("aggressive");
+    setContext((current) => ({
+      ...current,
+      make,
+      model,
+      trim,
+    }));
+  }, [trimData, make, model, trim, urlSetup]);
 
   const comparison = useMemo(
     () => compareWheelFitment(baseline, { width: setup.width, offset: setup.offset }),
@@ -305,12 +490,30 @@ export default function TunerPage() {
 
   function applyPreset(key: PresetKey) {
     setPreset(key);
-    setSetup(PRESETS[key]);
+    const fitment =
+      key === "daily"
+        ? trimData?.presets.oemplus
+        : key === "track"
+          ? trimData?.presets.flush
+          : trimData?.presets.aggressive;
+    const nextSetup = setupFromPreset(fitment, PRESETS[key], key);
+    const tire = parseTire(fitment?.frontTire);
+
+    setSetup(nextSetup);
+    if (tire) {
+      setTireRatio(tire.ratio);
+      setDiameter(tire.diameter);
+    }
   }
 
   const compareHref = useMemo(() => {
-    const params = new URLSearchParams(context);
-    const wheel = `${diameter}x${setup.width} +ET${setup.offset}`;
+    const params = new URLSearchParams({
+      ...context,
+      make: String(make),
+      model: String(model),
+      trim,
+    });
+    const wheel = `${diameter}x${setup.width} ET${setup.offset}`;
     const tire = `${setup.tireWidth}/${tireRatio}R${diameter}`;
     params.set("front", wheel);
     params.set("rear", params.get("rear") || wheel);
@@ -319,7 +522,7 @@ export default function TunerPage() {
     params.set("title", "Custom Tuned Setup");
     params.set("verdict", `${status.label} live-tuned fitment with ${formatSigned(comparison.outerChangeMm, " mm")} outer movement.`);
     return `/compare?${params.toString()}`;
-  }, [context, diameter, setup, tireRatio, status.label, comparison.outerChangeMm]);
+  }, [context, diameter, setup, tireRatio, status.label, comparison.outerChangeMm, make, model, trim]);
 
   return (
     <main className="min-h-[calc(100vh-73px)] bg-[#050506] text-white">
@@ -337,13 +540,97 @@ export default function TunerPage() {
             </div>
             <div className="rounded-xl border border-white/10 bg-white/[0.035] px-5 py-3">
               <p className="text-[10px] font-black uppercase tracking-[0.17em] text-white/30">Current Platform</p>
-              <p className="mt-1 font-black">{vehicle}</p>
+              <p className="mt-1 font-black">{vehicleLabel}</p>
             </div>
           </div>
         </div>
       </section>
 
+      <section className="border-b border-white/10 bg-[#08080a]">
+        <div className="mx-auto max-w-[1500px] px-5 py-7 lg:px-8">
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-500">
+                Select Your Platform
+              </p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-0.03em]">
+                What are you tuning?
+              </h2>
+            </div>
+            <p className="max-w-lg text-sm leading-6 text-white/35">
+              We use its factory wheel geometry as the baseline for every calculation.
+            </p>
+          </div>
+
+          <div className="grid gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-5 md:grid-cols-3">
+            <VehicleSelect
+              label="Make"
+              value={make}
+              placeholder="Select make"
+              onChange={(value) => {
+                setMake(value);
+                setModel("");
+                setTrim("");
+                setUrlSetup(null);
+              }}
+            >
+              {makes.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </VehicleSelect>
+            <VehicleSelect
+              label="Vehicle"
+              value={model}
+              disabled={!make}
+              placeholder="Select vehicle"
+              onChange={(value) => {
+                setModel(value);
+                setTrim("");
+                setUrlSetup(null);
+              }}
+            >
+              {modelsForMake.map((item) => (
+                <option key={item.model} value={item.model}>
+                  {item.display_name ?? item.model}
+                </option>
+              ))}
+            </VehicleSelect>
+            <VehicleSelect
+              label="Trim"
+              value={trim}
+              disabled={!model}
+              placeholder="Select trim"
+              onChange={(value) => {
+                setTrim(value);
+                setUrlSetup(null);
+              }}
+            >
+              {trimsForModel.map((item) => (
+                <option key={item.trim} value={item.trim}>
+                  {item.display_name ?? item.trim}
+                </option>
+              ))}
+            </VehicleSelect>
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-[1500px] px-5 py-8 lg:px-8 lg:py-10">
+        {!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0 ? (
+          <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.025] px-6 py-16 text-center text-white/45">
+            Loading vehicle data...
+          </div>
+        ) : !hasVehicle ? (
+          <div className="rounded-[1.6rem] border border-dashed border-white/15 bg-white/[0.025] px-6 py-20 text-center">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-red-400/70">
+              Vehicle Required
+            </p>
+            <h2 className="mt-4 text-3xl font-black">Choose your make, vehicle, and trim above.</h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-white/40">
+              The Tuner needs factory wheel geometry before it can calculate poke, inner clearance, or track width accurately.
+            </p>
+          </div>
+        ) : (
         <div className="grid gap-6 xl:grid-cols-[290px_minmax(0,1fr)_300px]">
           <aside className="rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-5">
             <p className="text-xs font-black uppercase tracking-[0.23em] text-white/50">Setup Controls</p>
@@ -441,6 +728,7 @@ export default function TunerPage() {
             </p>
           </aside>
         </div>
+        )}
       </section>
     </main>
   );
