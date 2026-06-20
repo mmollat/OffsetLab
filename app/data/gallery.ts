@@ -52,8 +52,8 @@ export const galleryExamples: Record<ModelKey, Record<StyleKey, GalleryBuild[]>>
     sourceType: "community",
     sourceName: "Offset Lab",
     sourceUrl: "#",
-    wheel: "19x8.5 +35",
-    tire: "245/40R19",
+    wheel: "20x8.5 +35",
+    tire: "235/35R20",
     suspension: "Stock / Mild drop",
     note: "Clean OEM+ Model 3 stance with factory-plus proportions.",
     verificationNote:
