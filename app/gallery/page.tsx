@@ -182,7 +182,13 @@ function BuildCard({
   const isReference = build.sourceType === "reference";
 
   return (
-    <article className="group overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#090a0d] text-white shadow-2xl shadow-black/30 transition hover:-translate-y-1 hover:border-white/20">
+    <article className="group relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#090a0d] text-white shadow-2xl shadow-black/30 transition hover:-translate-y-1 hover:border-white/20">
+      <button
+        type="button"
+        onClick={() => onOpen(build)}
+        className="absolute inset-0 z-10 cursor-pointer"
+        aria-label={`View ${build.label} build details`}
+      />
       <div className="aspect-[4/3] overflow-hidden bg-white/[0.03]">
         <img
           src={build.imageUrl}
@@ -244,7 +250,7 @@ function BuildCard({
               href={build.sourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="truncate transition hover:text-white"
+              className="relative z-20 truncate transition hover:text-white"
             >
               {build.sourceName}
             </a>
@@ -256,14 +262,10 @@ function BuildCard({
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={() => onOpen(build)}
-          className="mt-5 flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-left text-[10px] font-black uppercase tracking-[0.16em] text-white/65 transition hover:border-red-500/40 hover:bg-red-500/[0.07] hover:text-red-300"
-        >
+        <div className="mt-5 flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-left text-[10px] font-black uppercase tracking-[0.16em] text-white/65 transition group-hover:border-red-500/40 group-hover:bg-red-500/[0.07] group-hover:text-red-300">
           View Build Details
           <span className="text-red-400">-&gt;</span>
-        </button>
+        </div>
       </div>
     </article>
   );
