@@ -329,10 +329,17 @@ function BuildDetail({
           <div className="relative min-h-[360px] overflow-hidden bg-black lg:min-h-[680px]">
             <img
               src={build.imageUrl}
-              alt={build.label}
-              className="absolute inset-0 h-full w-full object-cover"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/15" />
+            <div className="absolute inset-0 bg-black/30" />
+            <img
+              src={build.imageUrl}
+              alt={build.label}
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/10" />
             <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400">
                 {styleLabels[build.style]} Fitment
