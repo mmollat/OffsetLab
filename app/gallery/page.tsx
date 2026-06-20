@@ -14,6 +14,7 @@ const styleLabels: Record<StyleKey, string> = {
 
 type GalleryBuild = {
   id: string;
+  year?: string;
   label: string;
   imageUrl: string;
   sourceType: "community" | "reference";
@@ -26,11 +27,18 @@ type GalleryBuild = {
   match: string;
   make: string;
   model: string;
+  trim?: string;
+  frontWheel: string;
+  rearWheel: string;
+  frontTire: string;
+  rearTire: string;
+  suspension?: string;
   style: StyleKey;
 };
 
 type SubmissionRow = {
   id: string | number;
+  year: string | number | null;
   make: string | null;
   model: string | null;
   trim: string | null;
@@ -39,6 +47,7 @@ type SubmissionRow = {
   rear_wheel: string | null;
   front_tire: string | null;
   rear_tire: string | null;
+  suspension: string | null;
   image_url: string | null;
   notes: string | null;
   instagram_handle: string | null;
@@ -62,6 +71,19 @@ function combineFitment(front: string | null, rear: string | null) {
   return `${frontValue} / ${rearValue}`;
 }
 
+function normalizeTireSpec(value: string | null) {
+  const spec = String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+  const match = spec.match(/^(\d{3})\/(\d{2})\/?R?(\d{2})$/);
+  return match ? `${match[1]}/${match[2]}R${match[3]}` : spec || "Not provided";
+}
+
+function normalizeWheelSpec(value: string | null) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/\s*\+\s*(-?\d+)\s*$/, " +$1") || "Not provided";
+}
+
 function mapSubmission(row: SubmissionRow): GalleryBuild {
   const make = String(row.make || "").trim();
   const model = String(row.model || "").trim();
@@ -70,18 +92,31 @@ function mapSubmission(row: SubmissionRow): GalleryBuild {
 
   return {
     id: String(row.id),
+    year: String(row.year || "").trim() || undefined,
     label: `${model}${trim ? ` ${trim}` : ""}`,
     imageUrl: String(row.image_url || ""),
     sourceType: "community",
     sourceName: handle ? `@${handle}` : "Offset Lab Community",
     sourceUrl: handle ? `https://instagram.com/${handle}` : undefined,
-    wheel: combineFitment(row.front_wheel, row.rear_wheel),
-    tire: combineFitment(row.front_tire, row.rear_tire),
+    wheel: combineFitment(
+      normalizeWheelSpec(row.front_wheel),
+      normalizeWheelSpec(row.rear_wheel)
+    ),
+    tire: combineFitment(
+      normalizeTireSpec(row.front_tire),
+      normalizeTireSpec(row.rear_tire)
+    ),
     note: String(row.notes || "").trim() || undefined,
     tags: [make, model, trim].filter(Boolean),
     match: "Verified Community Build",
     make,
     model,
+    trim,
+    frontWheel: normalizeWheelSpec(row.front_wheel),
+    rearWheel: normalizeWheelSpec(row.rear_wheel),
+    frontTire: normalizeTireSpec(row.front_tire),
+    rearTire: normalizeTireSpec(row.rear_tire),
+    suspension: String(row.suspension || "").trim() || undefined,
     style: normalizeStyle(String(row.fitment_style || "")),
   };
 }
@@ -123,6 +158,12 @@ function getReferenceBuilds(vehicleModels: VehicleModel[]): GalleryBuild[] {
             match: build.match,
             make: vehicle.make,
             model: vehicle.model,
+            trim: "",
+            frontWheel: build.wheel.split(" / ")[0] || build.wheel,
+            rearWheel: build.wheel.split(" / ")[1] || build.wheel,
+            frontTire: build.tire.split(" / ")[0] || build.tire,
+            rearTire: build.tire.split(" / ")[1] || build.tire,
+            suspension: build.suspension,
             style,
           },
         ];
@@ -131,11 +172,17 @@ function getReferenceBuilds(vehicleModels: VehicleModel[]): GalleryBuild[] {
   });
 }
 
-function BuildCard({ build }: { build: GalleryBuild }) {
+function BuildCard({
+  build,
+  onOpen,
+}: {
+  build: GalleryBuild;
+  onOpen: (build: GalleryBuild) => void;
+}) {
   const isReference = build.sourceType === "reference";
 
   return (
-    <article className="group overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#090a0d] text-white shadow-2xl shadow-black/30">
+    <article className="group overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#090a0d] text-white shadow-2xl shadow-black/30 transition hover:-translate-y-1 hover:border-white/20">
       <div className="aspect-[4/3] overflow-hidden bg-white/[0.03]">
         <img
           src={build.imageUrl}
@@ -205,11 +252,201 @@ function BuildCard({ build }: { build: GalleryBuild }) {
             <span className="truncate">{build.sourceName}</span>
           )}
           <span className="shrink-0">
-            {isReference ? "Source Attribution" : "Verified Build"}
+            {isReference ? "Source Attribution" : "Approved Submission"}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={() => onOpen(build)}
+          className="mt-5 flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-left text-[10px] font-black uppercase tracking-[0.16em] text-white/65 transition hover:border-red-500/40 hover:bg-red-500/[0.07] hover:text-red-300"
+        >
+          View Build Details
+          <span className="text-red-400">-&gt;</span>
+        </button>
       </div>
     </article>
+  );
+}
+
+function BuildDetail({
+  build,
+  onClose,
+}: {
+  build: GalleryBuild;
+  onClose: () => void;
+}) {
+  const params = new URLSearchParams({
+    make: build.make,
+    model: build.model,
+    trim: build.trim || "",
+    style: build.style,
+    front: build.frontWheel,
+    rear: build.rearWheel,
+    frontTire: build.frontTire,
+    rearTire: build.rearTire,
+  });
+  const tunerHref = `/tuner?${params.toString()}`;
+  const compareHref = `/compare?${params.toString()}&title=${encodeURIComponent(
+    `${build.label} Gallery Setup`
+  )}&verdict=${encodeURIComponent(
+    `Community-submitted ${styleLabels[build.style]} setup. Verify physical clearances before installation.`
+  )}`;
+
+  return (
+    <div
+      className="fixed inset-0 z-[70] overflow-y-auto bg-black/85 p-3 backdrop-blur-md sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${build.label} build details`}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className="mx-auto my-3 max-w-6xl overflow-hidden rounded-[1.8rem] border border-white/15 bg-[#08090c] shadow-2xl shadow-black sm:my-8">
+        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-7">
+          <div className="flex items-center gap-3">
+          <span className="rounded-full border border-red-500/35 bg-red-500/10 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-red-300">
+              Approved Community Submission
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">
+              Published after review
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-lg text-white/55 transition hover:border-white/30 hover:text-white"
+            aria-label="Close build details"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="grid lg:grid-cols-[1.15fr_.85fr]">
+          <div className="relative min-h-[360px] overflow-hidden bg-black lg:min-h-[680px]">
+            <img
+              src={build.imageUrl}
+              alt={build.label}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/15" />
+            <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400">
+                {styleLabels[build.style]} Fitment
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-0.04em] sm:text-5xl">
+                {build.year ? `${build.year} ` : ""}
+                {build.label}
+              </h2>
+              <p className="mt-3 text-sm text-white/55">
+                {build.make} · {build.sourceName}
+              </p>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/35">
+              Exact Setup
+            </p>
+
+            <div className="mt-5 space-y-3">
+              <AxleSpec
+                axle="Front"
+                wheel={build.frontWheel}
+                tire={build.frontTire}
+              />
+              <AxleSpec
+                axle="Rear"
+                wheel={build.rearWheel}
+                tire={build.rearTire}
+              />
+            </div>
+
+            <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-2">
+              <DetailMetric label="Suspension" value={build.suspension || "Not provided"} />
+              <DetailMetric label="Fitment Style" value={styleLabels[build.style]} />
+            </div>
+
+            <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.025] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/30">
+                Owner Notes
+              </p>
+              <p className="mt-3 text-sm leading-6 text-white/62">
+                {build.note || "No additional installation or clearance notes were provided."}
+              </p>
+            </div>
+
+            <div className="mt-6 rounded-xl border border-amber-400/15 bg-amber-400/[0.045] px-4 py-3 text-xs leading-5 text-amber-100/55">
+              Approved for publication by Offset Lab. Submitted specifications are displayed in a normalized format but are not independently measured. Confirm suspension, alignment, and physical clearances before purchasing.
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <a
+                href={tunerHref}
+                className="flex min-h-14 items-center justify-center rounded-xl bg-red-600 px-4 text-center text-[10px] font-black uppercase tracking-[0.15em] transition hover:bg-red-500"
+              >
+                Use This Setup in Tuner
+              </a>
+              <a
+                href={compareHref}
+                className="flex min-h-14 items-center justify-center rounded-xl border border-white/15 px-4 text-center text-[10px] font-black uppercase tracking-[0.15em] text-white/70 transition hover:border-white/30 hover:text-white"
+              >
+                Compare to Factory
+              </a>
+            </div>
+
+            {build.sourceUrl ? (
+              <a
+                href={build.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-5 inline-flex text-xs font-bold text-white/35 transition hover:text-white"
+              >
+                View original source -&gt;
+              </a>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AxleSpec({
+  axle,
+  wheel,
+  tire,
+}: {
+  axle: string;
+  wheel: string;
+  tire: string;
+}) {
+  return (
+    <div className="grid grid-cols-[70px_1fr] items-center gap-4 rounded-xl border border-white/10 bg-black/30 p-4">
+      <p className="text-[10px] font-black uppercase tracking-[0.17em] text-red-400">
+        {axle}
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-[0.15em] text-white/25">Wheel</p>
+          <p className="mt-1 font-black text-white/85">{wheel}</p>
+        </div>
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-[0.15em] text-white/25">Tire</p>
+          <p className="mt-1 font-black text-white/85">{tire}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-[#0b0c0f] p-4">
+      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/25">{label}</p>
+      <p className="mt-1 text-sm font-bold text-white/70">{value}</p>
+    </div>
   );
 }
 
@@ -224,6 +461,14 @@ export default function GalleryPage() {
   } | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedBuild, setSelectedBuild] = useState<GalleryBuild | null>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = selectedBuild ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedBuild]);
 
   useEffect(() => {
     let cancelled = false;
@@ -234,7 +479,7 @@ export default function GalleryPage() {
         supabase
           .from("build_submissions")
           .select(
-            "id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle"
+            "id, year, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, suspension, image_url, notes, instagram_handle"
           )
           .eq("status", "approved"),
       ]);
@@ -350,7 +595,7 @@ export default function GalleryPage() {
               Fitment.
             </h1>
             <p className="mt-6 max-w-lg text-base leading-7 text-white/60 md:text-lg">
-              Explore verified wheel and tire setups from real community builds.
+              Explore approved wheel and tire setups from real community builds.
             </p>
           </div>
 
@@ -439,7 +684,7 @@ export default function GalleryPage() {
                   ? `${filteredBuilds.length} gallery ${
                       filteredBuilds.length === 1 ? "result" : "results"
                     } found`
-                  : "Real cars, real specifications, approved by Offset Lab."}
+                  : "Real cars and submitted specifications, approved for the Gallery by Offset Lab."}
               </p>
             </div>
 
@@ -469,7 +714,7 @@ export default function GalleryPage() {
           ) : filteredBuilds.length > 0 ? (
             <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {filteredBuilds.map((build) => (
-                <BuildCard key={build.id} build={build} />
+                <BuildCard key={build.id} build={build} onOpen={setSelectedBuild} />
               ))}
             </div>
           ) : (
@@ -493,6 +738,9 @@ export default function GalleryPage() {
           )}
         </div>
       </section>
+      {selectedBuild ? (
+        <BuildDetail build={selectedBuild} onClose={() => setSelectedBuild(null)} />
+      ) : null}
     </main>
   );
 }
