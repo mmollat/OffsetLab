@@ -11,6 +11,11 @@ import {
   TrimData,
 } from "../data/fitment";
 import { getFitmentData } from "../lib/getFitmentData";
+import {
+  ConfigurationKey,
+  DrivingGoalKey,
+  resolveDisplayedFitment,
+} from "../lib/fitmentResolver";
 import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
 import { getVehicleTrims, VehicleTrim } from "../lib/getVehicleTrims";
 
@@ -33,7 +38,10 @@ export default function ComparePage() {
   const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
   const [vehicleTrims, setVehicleTrims] = useState<VehicleTrim[]>([]);
   const [handoffSetup, setHandoffSetup] = useState<HandoffSetup | null>(null);
-  const [fitmentContext, setFitmentContext] = useState({
+  const [fitmentContext, setFitmentContext] = useState<{
+    goal: DrivingGoalKey;
+    configuration: ConfigurationKey;
+  }>({
     goal: "street",
     configuration: "staggered",
   });
@@ -151,7 +159,19 @@ export default function ComparePage() {
   }, [fitmentDb, safeModel, safeTrim]);
 
   const preset = trimData?.presets?.[style];
-  const current = preset && handoffSetup ? { ...preset, ...handoffSetup } : preset;
+  const resolvedPreset = useMemo(
+    () =>
+      resolveDisplayedFitment({
+        preset,
+        model: safeModel,
+        make,
+        style,
+        goal: fitmentContext.goal,
+        configuration: fitmentContext.configuration,
+      }),
+    [preset, safeModel, make, style, fitmentContext]
+  );
+  const current = resolvedPreset && handoffSetup ? { ...resolvedPreset, ...handoffSetup } : resolvedPreset;
   const selectedModelLabel =
     vehicleModels.find(
       (vehicle) => vehicle.make === make && vehicle.model === safeModel

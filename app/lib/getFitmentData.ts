@@ -25,7 +25,24 @@ type FitmentRow = {
   warnings: string[] | null;
   bolt_pattern: string | null;
   center_bore: string | null;
+  factory_front?: string | null;
+  factory_rear?: string | null;
+  factory_tire?: string | null;
 };
+
+function hasFactoryBaseline(row: FitmentRow) {
+  return Boolean(row.factory_front || row.factory_rear || row.factory_tire);
+}
+
+function getBaselineFromRow(row: FitmentRow) {
+  return {
+    front: row.factory_front ?? row.front,
+    rear: row.factory_rear ?? row.rear,
+    tire: row.factory_tire ?? row.front_tire,
+    boltPattern: row.bolt_pattern ?? "",
+    centerBore: row.center_bore ?? "",
+  };
+}
 
 export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
   const pageSize = 1000;
@@ -56,32 +73,24 @@ export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
   }
 
   const grouped: Record<ModelKey, Record<string, TrimData>> = {} as any;
+  const baselineIsFactory: Record<ModelKey, Record<string, boolean>> = {} as any;
 
   allRows.forEach((row) => {
     if (!grouped[row.model]) grouped[row.model] = {};
+    if (!baselineIsFactory[row.model]) baselineIsFactory[row.model] = {};
 
     if (!grouped[row.model][row.trim]) {
       grouped[row.model][row.trim] = {
         trim: row.trim,
-        baseline: {
-          front: row.front,
-          rear: row.rear,
-          tire: row.front_tire,
-          boltPattern: row.bolt_pattern ?? "",
-          centerBore: row.center_bore ?? "",
-        },
+        baseline: getBaselineFromRow(row),
         presets: {} as any,
       };
+      baselineIsFactory[row.model][row.trim] = hasFactoryBaseline(row);
     }
 
-    if (row.style === "oemplus") {
-      grouped[row.model][row.trim].baseline = {
-        front: row.front,
-        rear: row.rear,
-        tire: row.front_tire,
-        boltPattern: row.bolt_pattern ?? "",
-        centerBore: row.center_bore ?? "",
-      };
+    if (hasFactoryBaseline(row) || (row.style === "oemplus" && !baselineIsFactory[row.model][row.trim])) {
+      grouped[row.model][row.trim].baseline = getBaselineFromRow(row);
+      baselineIsFactory[row.model][row.trim] = hasFactoryBaseline(row);
     }
 
     grouped[row.model][row.trim].presets[row.style] = {
