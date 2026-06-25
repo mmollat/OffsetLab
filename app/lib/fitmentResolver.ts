@@ -1,7 +1,13 @@
-import { MakeKey, ModelKey, Preset, StyleKey } from "../data/fitment";
+import {
+  ConfigurationKey,
+  DrivingGoalKey,
+  MakeKey,
+  ModelKey,
+  Preset,
+  StyleKey,
+} from "../data/fitment";
 
-export type ConfigurationKey = "staggered" | "square";
-export type DrivingGoalKey = "street" | "track";
+export type { ConfigurationKey, DrivingGoalKey };
 
 type SquareOverride = {
   front: string;
@@ -289,7 +295,10 @@ export function resolveDisplayedFitment({
   if (!preset || !model || !make) return null;
   if (configuration !== "square") return preset;
 
-  const override = (goal === "track" ? trackOverrides : squareOverrides)[model]?.[style];
+  const variant = preset.variants?.find(
+    (item) => item.goal === goal && item.configuration === configuration
+  );
+  const override = variant ?? (goal === "track" ? trackOverrides : squareOverrides)[model]?.[style];
   const squareWheel = override?.front ?? preset.front;
   const squareRearWheel = override?.rear ?? squareWheel;
   const squareTire = override?.frontTire ?? preset.frontTire;

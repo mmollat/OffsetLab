@@ -1,5 +1,12 @@
 import { supabase } from "./supabase";
-import { ModelKey, StyleKey, TrimData } from "../data/fitment";
+import {
+  ConfigurationKey,
+  DrivingGoalKey,
+  FitmentVariant,
+  ModelKey,
+  StyleKey,
+  TrimData,
+} from "../data/fitment";
 
 type FitmentRow = {
   make: string;
@@ -30,6 +37,21 @@ type FitmentRow = {
   factory_tire?: string | null;
 };
 
+type FitmentVariantRow = {
+  make: string;
+  model: ModelKey;
+  trim: string;
+  style: StyleKey;
+  goal: DrivingGoalKey;
+  configuration: ConfigurationKey;
+  front: string;
+  rear: string;
+  front_tire: string;
+  rear_tire: string;
+  note: string | null;
+  active: boolean;
+};
+
 function hasFactoryBaseline(row: FitmentRow) {
   return Boolean(row.factory_front || row.factory_rear || row.factory_tire);
 }
@@ -44,10 +66,52 @@ function getBaselineFromRow(row: FitmentRow) {
   };
 }
 
+function getVariantKey(row: Pick<FitmentVariantRow, "make" | "model" | "trim" | "style">) {
+  return [row.make, row.model, row.trim, row.style].join("::");
+}
+
+async function getFitmentVariants() {
+  const { data, error } = await supabase
+    .from("fitment_preset_variants")
+    .select("*")
+    .eq("active", true);
+
+  if (error || !data) {
+    const message = error?.message ?? "";
+
+    if (message.includes("fitment_preset_variants")) {
+      console.info("fitment_preset_variants table is not available yet; using fallback fitment variants.");
+    } else {
+      console.error("Error loading fitment variants:", error);
+    }
+
+    return new Map<string, FitmentVariant[]>();
+  }
+
+  return (data as FitmentVariantRow[]).reduce((variants, row) => {
+    const key = getVariantKey(row);
+    const list = variants.get(key) ?? [];
+
+    list.push({
+      goal: row.goal,
+      configuration: row.configuration,
+      front: row.front,
+      rear: row.rear,
+      frontTire: row.front_tire,
+      rearTire: row.rear_tire,
+      note: row.note ?? undefined,
+    });
+
+    variants.set(key, list);
+    return variants;
+  }, new Map<string, FitmentVariant[]>());
+}
+
 export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
   const pageSize = 1000;
   let from = 0;
   let allRows: FitmentRow[] = [];
+  const variantMap = await getFitmentVariants();
 
   while (true) {
     const { data, error } = await supabase
@@ -111,6 +175,7 @@ export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
       verdict: row.verdict,
       warnings: row.warnings ?? [],
       alternate: row.alternate,
+      variants: variantMap.get(getVariantKey(row)) ?? [],
     };
   });
 

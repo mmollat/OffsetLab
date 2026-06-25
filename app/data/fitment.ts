@@ -11,6 +11,20 @@ export type StyleKey = "oemplus" | "flush" | "aggressive";
 
 export type ModelKey = string;
 
+export type ConfigurationKey = "staggered" | "square";
+
+export type DrivingGoalKey = "street" | "track";
+
+export type FitmentVariant = {
+  goal: DrivingGoalKey;
+  configuration: ConfigurationKey;
+  front: string;
+  rear: string;
+  frontTire: string;
+  rearTire: string;
+  note?: string;
+};
+
 export type Preset = {
   title: string;
   subtitle: string;
@@ -29,6 +43,7 @@ export type Preset = {
   verdict: string;
   warnings: string[];
   alternate: string;
+  variants?: FitmentVariant[];
 };
 
 export type TrimData = {
