@@ -1,3 +1,8 @@
+alter table public.fitment_presets
+  add column if not exists factory_front text,
+  add column if not exists factory_rear text,
+  add column if not exists factory_tire text;
+
 create table if not exists public.fitment_factory_baselines (
   id uuid primary key default gen_random_uuid(),
   make text not null,
