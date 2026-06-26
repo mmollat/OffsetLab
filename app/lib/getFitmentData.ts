@@ -52,17 +52,33 @@ type FitmentVariantRow = {
   active: boolean;
 };
 
+type FactoryBaselineRow = {
+  make: string;
+  model: ModelKey;
+  trim: string;
+  front: string;
+  rear: string;
+  tire: string;
+  bolt_pattern: string | null;
+  center_bore: string | null;
+  active: boolean;
+};
+
 function hasFactoryBaseline(row: FitmentRow) {
   return Boolean(row.factory_front || row.factory_rear || row.factory_tire);
 }
 
-function getBaselineFromRow(row: FitmentRow) {
+function getBaselineKey(row: Pick<FitmentRow, "make" | "model" | "trim">) {
+  return [row.make, row.model, row.trim].join("::");
+}
+
+function getBaselineFromRow(row: FitmentRow, factoryBaseline?: FactoryBaselineRow) {
   return {
-    front: row.factory_front ?? row.front,
-    rear: row.factory_rear ?? row.rear,
-    tire: row.factory_tire ?? row.front_tire,
-    boltPattern: row.bolt_pattern ?? "",
-    centerBore: row.center_bore ?? "",
+    front: factoryBaseline?.front ?? row.factory_front ?? row.front,
+    rear: factoryBaseline?.rear ?? row.factory_rear ?? row.rear,
+    tire: factoryBaseline?.tire ?? row.factory_tire ?? row.front_tire,
+    boltPattern: factoryBaseline?.bolt_pattern ?? row.bolt_pattern ?? "",
+    centerBore: factoryBaseline?.center_bore ?? row.center_bore ?? "",
   };
 }
 
@@ -107,10 +123,35 @@ async function getFitmentVariants() {
   }, new Map<string, FitmentVariant[]>());
 }
 
+async function getFactoryBaselines() {
+  const { data, error } = await supabase
+    .from("fitment_factory_baselines")
+    .select("*")
+    .eq("active", true);
+
+  if (error || !data) {
+    const message = error?.message ?? "";
+
+    if (message.includes("fitment_factory_baselines")) {
+      console.info("fitment_factory_baselines table is not available yet; using legacy baseline fields.");
+    } else {
+      console.error("Error loading factory baselines:", error);
+    }
+
+    return new Map<string, FactoryBaselineRow>();
+  }
+
+  return (data as FactoryBaselineRow[]).reduce((baselines, row) => {
+    baselines.set(getBaselineKey(row), row);
+    return baselines;
+  }, new Map<string, FactoryBaselineRow>());
+}
+
 export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
   const pageSize = 1000;
   let from = 0;
   let allRows: FitmentRow[] = [];
+  const factoryBaselineMap = await getFactoryBaselines();
   const variantMap = await getFitmentVariants();
 
   while (true) {
@@ -143,18 +184,24 @@ export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
     if (!grouped[row.model]) grouped[row.model] = {};
     if (!baselineIsFactory[row.model]) baselineIsFactory[row.model] = {};
 
+    const factoryBaseline = factoryBaselineMap.get(getBaselineKey(row));
+
     if (!grouped[row.model][row.trim]) {
       grouped[row.model][row.trim] = {
         trim: row.trim,
-        baseline: getBaselineFromRow(row),
+        baseline: getBaselineFromRow(row, factoryBaseline),
         presets: {} as any,
       };
-      baselineIsFactory[row.model][row.trim] = hasFactoryBaseline(row);
+      baselineIsFactory[row.model][row.trim] = Boolean(factoryBaseline) || hasFactoryBaseline(row);
     }
 
-    if (hasFactoryBaseline(row) || (row.style === "oemplus" && !baselineIsFactory[row.model][row.trim])) {
-      grouped[row.model][row.trim].baseline = getBaselineFromRow(row);
-      baselineIsFactory[row.model][row.trim] = hasFactoryBaseline(row);
+    if (
+      factoryBaseline ||
+      hasFactoryBaseline(row) ||
+      (row.style === "oemplus" && !baselineIsFactory[row.model][row.trim])
+    ) {
+      grouped[row.model][row.trim].baseline = getBaselineFromRow(row, factoryBaseline);
+      baselineIsFactory[row.model][row.trim] = Boolean(factoryBaseline) || hasFactoryBaseline(row);
     }
 
     grouped[row.model][row.trim].presets[row.style] = {
