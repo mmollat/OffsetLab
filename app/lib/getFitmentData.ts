@@ -62,6 +62,7 @@ type FactoryBaselineRow = {
   bolt_pattern: string | null;
   center_bore: string | null;
   active: boolean;
+  is_default?: boolean | null;
 };
 
 function hasFactoryBaseline(row: FitmentRow) {
@@ -127,7 +128,8 @@ async function getFactoryBaselines() {
   const { data, error } = await supabase
     .from("fitment_factory_baselines")
     .select("*")
-    .eq("active", true);
+    .eq("active", true)
+    .eq("is_default", true);
 
   if (error || !data) {
     const message = error?.message ?? "";

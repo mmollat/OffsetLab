@@ -13,6 +13,11 @@ create table if not exists public.fitment_factory_baselines (
   tire text not null,
   bolt_pattern text,
   center_bore text,
+  year_start int,
+  year_end int,
+  package_name text,
+  market text not null default 'US',
+  is_default boolean not null default true,
   source_status text not null default 'needs_review'
     check (source_status in ('verified', 'needs_review')),
   source_note text,
@@ -23,7 +28,7 @@ create table if not exists public.fitment_factory_baselines (
 );
 
 create index if not exists fitment_factory_baselines_lookup_idx
-  on public.fitment_factory_baselines (make, model, trim)
+  on public.fitment_factory_baselines (make, model, trim, is_default)
   where active;
 
 comment on table public.fitment_factory_baselines is
