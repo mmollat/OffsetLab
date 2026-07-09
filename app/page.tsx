@@ -31,6 +31,24 @@ const tools = [
   },
 ] as const;
 
+const verifiedTorquePages = [
+  {
+    title: "Toyota 6th Gen 4Runner wheel torque",
+    spec: "97 ft-lb / 131 Nm",
+    href: "/torque/toyota/6th-gen-4runner",
+  },
+  {
+    title: "Cadillac CT4-V / CT5-V Blackwing wheel torque",
+    spec: "140 ft-lb / 190 Nm",
+    href: "/torque/cadillac/alpha2-ct4-v-ct5-v-blackwing",
+  },
+  {
+    title: "Subaru ZD8 BRZ wheel torque",
+    spec: "89 ft-lb / 120 Nm",
+    href: "/torque/subaru/zn8-zd8-brz",
+  },
+] as const;
+
 export default function Home() {
   return (
     <main className="bg-[#050506] text-white">
@@ -116,6 +134,48 @@ export default function Home() {
               </span>
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-white/10 bg-[#08090c] px-6 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-red-500">
+                Verified Torque Specs
+              </p>
+              <h2 className="mt-4 text-3xl font-black tracking-[-0.03em] sm:text-4xl">
+                Fast answers for high-risk fasteners.
+              </h2>
+            </div>
+            <Link
+              href="/torque"
+              className="text-sm font-bold text-white/65 transition hover:text-red-400"
+            >
+              Open Torque Hub -&gt;
+            </Link>
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {verifiedTorquePages.map((item) => (
+              <Link
+                key={item.href}
+                href={{ pathname: item.href }}
+                className="group rounded-xl border border-white/10 bg-black/35 p-6 transition hover:border-red-400/50 hover:bg-red-500/[0.06]"
+              >
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">
+                  Verified
+                </p>
+                <h3 className="mt-4 text-lg font-black leading-tight">{item.title}</h3>
+                <p className="mt-4 text-3xl font-black tracking-[-0.04em] text-white">
+                  {item.spec}
+                </p>
+                <span className="mt-5 inline-block text-xs font-bold text-red-400 transition group-hover:text-red-300">
+                  View source-backed spec -&gt;
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
     </main>
