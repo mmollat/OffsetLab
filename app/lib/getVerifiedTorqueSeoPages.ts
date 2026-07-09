@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { isSupabaseConfigured, supabase } from "./supabase";
 
 export type VerifiedTorqueSeoSpec = {
   id: string;
@@ -66,6 +66,8 @@ function formatUrlPath(makeSlug: string, generationSlug: string) {
 }
 
 export async function getVerifiedTorqueSeoPages(): Promise<VerifiedTorqueSeoPage[]> {
+  if (!isSupabaseConfigured) return [];
+
   const { data, error } = await supabase
     .from("torque_specs")
     .select(

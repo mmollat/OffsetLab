@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getVerifiedTorqueSeoPages, VerifiedTorqueSeoPage } from "./lib/getVerifiedTorqueSeoPages";
 
 const tools = [
   {
@@ -31,7 +32,7 @@ const tools = [
   },
 ] as const;
 
-const verifiedTorquePages = [
+const fallbackVerifiedTorquePages = [
   {
     title: "Toyota 6th Gen 4Runner wheel torque",
     spec: "97 ft-lb / 131 Nm",
@@ -49,7 +50,48 @@ const verifiedTorquePages = [
   },
 ] as const;
 
-export default function Home() {
+function formatTorquePageCard(page: VerifiedTorqueSeoPage) {
+  const primarySpec = page.specs.find((spec) => spec.categorySlug === "wheels") ?? page.specs[0];
+  const ftLb = primarySpec?.torqueFtLb !== null && primarySpec?.torqueFtLb !== undefined
+    ? `${primarySpec.torqueFtLb} ft-lb`
+    : null;
+  const nm = primarySpec?.torqueNm !== null && primarySpec?.torqueNm !== undefined
+    ? `${primarySpec.torqueNm} Nm`
+    : null;
+
+  return {
+    title: `${page.makeName} ${page.generationName} ${primarySpec?.fastener ?? "torque"}`,
+    spec: [ftLb, nm].filter(Boolean).join(" / ") || "Verified spec",
+    href: page.urlPath,
+  };
+}
+
+async function getHomepageTorqueCards() {
+  const pages = await getVerifiedTorqueSeoPages();
+  const prioritySlugs = [
+    "6th-gen-4runner",
+    "alpha2-ct4-v-ct5-v-blackwing",
+    "zn8-zd8-brz",
+  ];
+
+  const sortedPages = [...pages].sort((a, b) => {
+    const aPriority = prioritySlugs.indexOf(a.generationSlug);
+    const bPriority = prioritySlugs.indexOf(b.generationSlug);
+
+    if (aPriority !== -1 || bPriority !== -1) {
+      return (aPriority === -1 ? 99 : aPriority) - (bPriority === -1 ? 99 : bPriority);
+    }
+
+    return `${a.makeName} ${a.generationName}`.localeCompare(`${b.makeName} ${b.generationName}`);
+  });
+
+  return sortedPages.slice(0, 3).map(formatTorquePageCard);
+}
+
+export default async function Home() {
+  const verifiedTorquePages = await getHomepageTorqueCards();
+  const torqueCards = verifiedTorquePages.length > 0 ? verifiedTorquePages : fallbackVerifiedTorquePages;
+
   return (
     <main className="bg-[#050506] text-white">
       <section className="relative isolate overflow-hidden border-b border-white/10 sm:min-h-[660px] lg:min-h-[calc(100svh-73px)]">
@@ -157,7 +199,7 @@ export default function Home() {
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {verifiedTorquePages.map((item) => (
+            {torqueCards.map((item) => (
               <Link
                 key={item.href}
                 href={{ pathname: item.href }}
