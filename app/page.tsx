@@ -216,10 +216,10 @@ export default async function Home() {
                 </h2>
               </div>
               <Link
-                href="/fitment"
+                href="/fitment/guides"
                 className="text-sm font-bold text-white/65 transition hover:text-red-400"
               >
-                Open Fitment Tool -&gt;
+                Browse Fitment Guides -&gt;
               </Link>
             </div>
 

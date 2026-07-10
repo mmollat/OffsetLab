@@ -4,7 +4,7 @@ import { getVerifiedTorqueSeoPages } from "./lib/getVerifiedTorqueSeoPages";
 
 const siteUrl = "https://offset-lab.com";
 
-const routes = ["", "/fitment", "/compare", "/torque", "/gallery", "/builds"];
+const routes = ["", "/fitment", "/fitment/guides", "/compare", "/torque", "/gallery", "/builds"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
