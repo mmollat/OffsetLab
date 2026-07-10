@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getFitmentSeoPages } from "./lib/getFitmentSeoPages";
 import { getVerifiedTorqueSeoPages } from "./lib/getVerifiedTorqueSeoPages";
 
 const siteUrl = "https://offset-lab.com";
@@ -7,7 +8,10 @@ const routes = ["", "/fitment", "/compare", "/torque", "/gallery", "/builds"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const torquePages = await getVerifiedTorqueSeoPages();
+  const [fitmentPages, torquePages] = await Promise.all([
+    getFitmentSeoPages(),
+    getVerifiedTorqueSeoPages(),
+  ]);
 
   const staticRoutes = routes.map((route) => ({
     url: `${siteUrl}${route}`,
@@ -23,5 +27,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.72,
   }));
 
-  return [...staticRoutes, ...torqueRoutes];
+  const fitmentRoutes = fitmentPages.map((page) => ({
+    url: `${siteUrl}${page.urlPath}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.74,
+  }));
+
+  return [...staticRoutes, ...fitmentRoutes, ...torqueRoutes];
 }

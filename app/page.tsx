@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FitmentSeoPage, getFitmentSeoPages } from "./lib/getFitmentSeoPages";
 import { getVerifiedTorqueSeoPages, VerifiedTorqueSeoPage } from "./lib/getVerifiedTorqueSeoPages";
 
 const tools = [
@@ -66,6 +67,26 @@ function formatTorquePageCard(page: VerifiedTorqueSeoPage) {
   };
 }
 
+function formatFitmentPageCard(page: FitmentSeoPage) {
+  const primaryPreset =
+    page.trims[0]?.presets.find((preset) => preset.style === "flush") ??
+    page.trims[0]?.presets[0];
+
+  return {
+    title: `${page.makeName} ${page.modelName} fitment`,
+    spec: primaryPreset
+      ? `${primaryPreset.front} / ${primaryPreset.rear}`
+      : `${page.trims.length} trim${page.trims.length === 1 ? "" : "s"}`,
+    href: page.urlPath,
+  };
+}
+
+async function getHomepageFitmentCards() {
+  const pages = await getFitmentSeoPages();
+
+  return pages.slice(0, 3).map(formatFitmentPageCard);
+}
+
 async function getHomepageTorqueCards() {
   const pages = await getVerifiedTorqueSeoPages();
   const prioritySlugs = [
@@ -89,7 +110,10 @@ async function getHomepageTorqueCards() {
 }
 
 export default async function Home() {
-  const verifiedTorquePages = await getHomepageTorqueCards();
+  const [fitmentCards, verifiedTorquePages] = await Promise.all([
+    getHomepageFitmentCards(),
+    getHomepageTorqueCards(),
+  ]);
   const torqueCards = verifiedTorquePages.length > 0 ? verifiedTorquePages : fallbackVerifiedTorquePages;
 
   return (
@@ -178,6 +202,50 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {fitmentCards.length > 0 ? (
+        <section className="border-t border-white/10 bg-[#050506] px-6 py-16 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.28em] text-red-500">
+                  Fitment Guides
+                </p>
+                <h2 className="mt-4 text-3xl font-black tracking-[-0.03em] sm:text-4xl">
+                  Popular wheel and tire starting points.
+                </h2>
+              </div>
+              <Link
+                href="/fitment"
+                className="text-sm font-bold text-white/65 transition hover:text-red-400"
+              >
+                Open Fitment Tool -&gt;
+              </Link>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {fitmentCards.map((item) => (
+                <Link
+                  key={item.href}
+                  href={{ pathname: item.href }}
+                  className="group rounded-xl border border-white/10 bg-white/[0.025] p-6 transition hover:border-red-400/50 hover:bg-red-500/[0.06]"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300">
+                    Fitment
+                  </p>
+                  <h3 className="mt-4 text-lg font-black leading-tight">{item.title}</h3>
+                  <p className="mt-4 text-2xl font-black tracking-[-0.03em] text-white">
+                    {item.spec}
+                  </p>
+                  <span className="mt-5 inline-block text-xs font-bold text-red-400 transition group-hover:text-red-300">
+                    View fitment guide -&gt;
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="border-t border-white/10 bg-[#08090c] px-6 py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
