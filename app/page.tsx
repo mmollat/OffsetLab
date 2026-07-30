@@ -1,31 +1,45 @@
 import Link from "next/link";
+import type { Route } from "next";
 import { FitmentSeoPage, getFitmentSeoPages } from "./lib/getFitmentSeoPages";
 import { getVerifiedTorqueSeoPages, VerifiedTorqueSeoPage } from "./lib/getVerifiedTorqueSeoPages";
 
-const tools = [
+const tools: ReadonlyArray<{
+  number: string;
+  title: string;
+  description: string;
+  href: Route;
+  cta: string;
+}> = [
   {
     number: "01",
+    title: "Offset Calculator",
+    description: "Compare stock and aftermarket wheels to estimate poke, inner clearance, and track change.",
+    href: "/wheel-offset-calculator",
+    cta: "Calculate offset",
+  },
+  {
+    number: "02",
     title: "Fitment",
     description: "Vehicle-specific wheel and tire recommendations built around your stance and driving goal.",
     href: "/fitment",
     cta: "Build your setup",
   },
   {
-    number: "02",
+    number: "03",
     title: "Compare",
     description: "See factory specs and your selected setup side by side, including poke and inner clearance.",
     href: "/compare",
     cta: "Compare fitment",
   },
   {
-    number: "03",
+    number: "04",
     title: "Gallery",
     description: "Explore real vehicles and verified builds filtered by the platform you actually drive.",
     href: "/gallery",
     cta: "Browse builds",
   },
   {
-    number: "04",
+    number: "05",
     title: "Torque Hub",
     description: "Look up vehicle-specific wheel torque specs and practical installation guidance.",
     href: "/torque",
@@ -147,10 +161,10 @@ export default async function Home() {
                 Start Fitment
               </Link>
               <Link
-                href="/compare"
+                href="/wheel-offset-calculator"
                 className="inline-flex min-h-12 items-center justify-center rounded-md border border-white/25 bg-black/20 px-7 text-sm font-black uppercase tracking-[0.12em] text-white backdrop-blur transition hover:border-white/50 hover:bg-white/5"
               >
-                Compare Setup
+                Offset Calculator
               </Link>
             </div>
 
