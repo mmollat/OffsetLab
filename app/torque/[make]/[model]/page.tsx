@@ -3,12 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   getVerifiedTorqueSeoPage,
-  getVerifiedTorqueSeoPages,
   VerifiedTorqueSeoSpec,
 } from "../../../lib/getVerifiedTorqueSeoPages";
 
 const siteUrl = "https://offset-lab.com";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 86400;
 
 type PageParams = {
@@ -53,14 +53,6 @@ function isSafeSourceUrl(value: string | null) {
   }
 }
 
-export async function generateStaticParams() {
-  const pages = await getVerifiedTorqueSeoPages();
-
-  return pages.map((page) => ({
-    make: page.makeSlug,
-    model: page.generationSlug,
-  }));
-}
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const page = await getVerifiedTorqueSeoPage(params.make, params.model);

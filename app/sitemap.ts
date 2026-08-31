@@ -4,6 +4,8 @@ import { getVerifiedTorqueSeoPages } from "./lib/getVerifiedTorqueSeoPages";
 
 const siteUrl = "https://offset-lab.com";
 
+export const dynamic = "force-dynamic";
+
 const routes = [
   "",
   "/wheel-offset-calculator",
