@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navigation: ReadonlyArray<{ href: Route; label: string }> = [
-  { href: "/wheel-offset-calculator", label: "Offset Calculator" },
   { href: "/fitment", label: "Fitment" },
   { href: "/tuner", label: "Tuner" },
   { href: "/torque", label: "Torque Hub" },

@@ -96,6 +96,13 @@ export default function WheelOffsetCalculatorPage() {
               Compare stock and aftermarket wheels to estimate outer poke, inner clearance,
               wheel width change, and track width change before you buy wheels for your car.
             </p>
+            <div className="mt-6 max-w-2xl rounded-lg border border-yellow-400/20 bg-yellow-400/[0.06] p-4">
+              <p className="text-sm font-bold leading-6 text-yellow-100/85">
+                This calculator compares wheel dimensions only. It does not confirm vehicle
+                compatibility, tire clearance, brake clearance, or rubbing risk. For a
+                vehicle-specific recommendation, use Fitment.
+              </p>
+            </div>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="#wheel-offset-tool"
@@ -107,7 +114,7 @@ export default function WheelOffsetCalculatorPage() {
                 href="/fitment"
                 className="inline-flex min-h-12 items-center justify-center rounded-md border border-white/20 bg-white/[0.03] px-7 text-sm font-black uppercase tracking-[0.12em] text-white transition hover:border-white/40 hover:bg-white/[0.06]"
               >
-                Find Fitment
+                Check Fitment for Your Vehicle
               </Link>
             </div>
           </div>

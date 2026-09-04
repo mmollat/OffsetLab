@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "../components/GalleryCard";
 import TrustStrip from "../components/TrustStrip";
@@ -637,6 +638,9 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                 <a href={compareHref} className="text-white/65 transition hover:text-red-400">
                   Compare against factory -&gt;
                 </a>
+                <Link href="/wheel-offset-calculator" className="text-white/65 transition hover:text-red-400">
+                  Compare wheel measurements -&gt;
+                </Link>
               </div>
               <div className="flex gap-3">
                 <button onClick={copyLink} className="rounded-md border border-white/15 px-5 py-2.5 text-xs font-black uppercase tracking-[0.12em] hover:bg-white/5">
