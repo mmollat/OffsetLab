@@ -90,14 +90,17 @@ function getVariantKey(row: Pick<FitmentVariantRow, "make" | "model" | "trim" | 
 async function getFitmentVariants() {
   const { data, error } = await supabase
     .from("fitment_preset_variants")
-    .select("*")
+    .select("make,model,trim,style,goal,configuration,front,rear,front_tire,rear_tire,note,active")
     .eq("active", true);
 
   if (error || !data) {
     const message = error?.message ?? "";
 
     if (message.includes("fitment_preset_variants")) {
-      console.info("fitment_preset_variants table is not available yet; using fallback fitment variants.");
+      console.error("Unable to load fitment_preset_variants; using fallback fitment variants.", {
+        code: error?.code,
+        message,
+      });
     } else {
       console.error("Error loading fitment variants:", error);
     }
