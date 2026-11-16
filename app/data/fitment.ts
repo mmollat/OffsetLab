@@ -52,6 +52,9 @@ export type TrimData = {
     front: string;
     rear: string;
     tire: string;
+    frontTire: string;
+    rearTire: string;
+    note?: string;
     boltPattern: string;
     centerBore: string;
   };

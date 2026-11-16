@@ -1,3 +1,4 @@
+import { factoryTireLabel } from "./factoryTires";
 import { modelSlug } from "../data/fitment";
 import { getFitmentData } from "./getFitmentData";
 import { getVehicleModels } from "./getVehicleModels";
@@ -19,6 +20,7 @@ export type FitmentSeoTrim = {
   baselineFront: string;
   baselineRear: string;
   baselineTire: string;
+  baselineNote?: string;
   boltPattern: string;
   centerBore: string;
   presets: FitmentSeoPreset[];
@@ -62,7 +64,8 @@ export async function getFitmentSeoPages(): Promise<FitmentSeoPage[]> {
         trim: trim.trim,
         baselineFront: trim.baseline.front,
         baselineRear: trim.baseline.rear,
-        baselineTire: trim.baseline.tire,
+        baselineNote: trim.baseline.note,
+        baselineTire: factoryTireLabel(trim.baseline.frontTire, trim.baseline.rearTire),
         boltPattern: trim.baseline.boltPattern,
         centerBore: trim.baseline.centerBore,
         presets: Object.entries(trim.presets).map(([style, preset]) => ({

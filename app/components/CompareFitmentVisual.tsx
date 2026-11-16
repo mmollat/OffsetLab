@@ -8,6 +8,7 @@ type Props = {
   selectedFront: string;
   selectedRear?: string;
   baselineTire?: string;
+  baselineRearTire?: string;
   selectedTire?: string;
   selectedRearTire?: string;
   oemFront?: string;
@@ -73,6 +74,7 @@ export default function CompareFitmentVisual({
   selectedFront,
   selectedRear,
   baselineTire,
+  baselineRearTire,
   selectedTire,
   selectedRearTire,
   oemFront,
@@ -104,7 +106,7 @@ export default function CompareFitmentVisual({
     const selectedWheel =
       parseWheel(axle === "rear" ? selectedRear || selectedFront : selectedFront) ??
       baselineWheel;
-    const factoryTire = parseTire(baselineTire);
+    const factoryTire = parseTire(axle === "rear" ? baselineRearTire || baselineTire : baselineTire);
     const newTire = parseTire(
       axle === "rear" ? selectedRearTire || selectedTire : selectedTire
     );
@@ -139,6 +141,7 @@ export default function CompareFitmentVisual({
     baselineFront,
     baselineRear,
     baselineTire,
+    baselineRearTire,
     oemFront,
     selectedFront,
     selectedRear,

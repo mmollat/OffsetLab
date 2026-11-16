@@ -383,13 +383,14 @@ export default function ComparePage() {
               &lt;- Back to Fitment
             </a>
 
+            {trimData.baseline.note && <p className="mt-5 text-sm text-amber-200/80">{trimData.baseline.note}</p>}
             <div className="mt-7 grid gap-5 xl:grid-cols-2">
               <FitmentTable
                 title="Factory Baseline"
                 frontWheel={trimData.baseline.front}
                 rearWheel={trimData.baseline.rear}
-                frontTire={trimData.baseline.tire}
-                rearTire={trimData.baseline.tire}
+                frontTire={trimData.baseline.frontTire}
+                rearTire={trimData.baseline.rearTire}
                 boltPattern={trimData.baseline.boltPattern}
               />
               <FitmentTable
@@ -407,7 +408,8 @@ export default function ComparePage() {
                   baselineRear={trimData.baseline.rear ?? ""}
                   selectedFront={current.front ?? ""}
                   selectedRear={current.rear ?? ""}
-                  baselineTire={trimData.baseline.tire ?? ""}
+                  baselineTire={trimData.baseline.frontTire}
+                  baselineRearTire={trimData.baseline.rearTire}
                   selectedTire={current.frontTire ?? ""}
                   selectedRearTire={current.rearTire ?? ""}
                 />

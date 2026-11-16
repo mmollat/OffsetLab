@@ -1,3 +1,4 @@
+import { model3BaselineNote } from "./model3BaselineNote";
 import { supabase } from "./supabase";
 import {
   ConfigurationKey,
@@ -74,10 +75,21 @@ function getBaselineKey(row: Pick<FitmentRow, "make" | "model" | "trim">) {
 }
 
 function getBaselineFromRow(row: FitmentRow, factoryBaseline?: FactoryBaselineRow) {
+  const front = factoryBaseline?.front ?? row.factory_front ?? row.front;
+  const rear = factoryBaseline?.rear ?? row.factory_rear ?? row.rear;
+  const tire = factoryBaseline?.tire ?? row.factory_tire ?? row.front_tire;
+  // Only the verified newer Model 3 OEM+ fallback is corrected here. Explicit
+  // factory rows and all unrelated vehicle fallbacks retain their old output.
+  const note = !factoryBaseline && !hasFactoryBaseline(row)
+    ? model3BaselineNote(row.make, row.model, row.trim, front, rear)
+    : undefined;
   return {
-    front: factoryBaseline?.front ?? row.factory_front ?? row.front,
-    rear: factoryBaseline?.rear ?? row.factory_rear ?? row.rear,
-    tire: factoryBaseline?.tire ?? row.factory_tire ?? row.front_tire,
+    front,
+    rear,
+    tire,
+    frontTire: tire,
+    rearTire: note ? row.rear_tire : tire,
+    note,
     boltPattern: factoryBaseline?.bolt_pattern ?? row.bolt_pattern ?? "",
     centerBore: factoryBaseline?.center_bore ?? row.center_bore ?? "",
   };

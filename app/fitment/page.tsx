@@ -522,6 +522,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
         </div>
       </section>
 
+      {hasRecommendation && trimData?.baseline.note && <p className="mx-auto max-w-7xl px-5 py-4 text-sm text-amber-200/80">{trimData.baseline.note}</p>}
       {!hasRecommendation || !make || !safeModel || !trimData || !displayedFitment ? (
         <section className="mx-auto max-w-7xl px-5 py-20 text-center lg:px-8">
           <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Choose Your Platform</p>

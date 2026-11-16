@@ -176,6 +176,7 @@ export default async function FitmentSeoPage({ params }: PageParams) {
                   <div className="text-sm leading-6 text-white/45 md:text-right">
                     <p>Factory: {trim.baselineFront}{trim.baselineRear !== trim.baselineFront ? ` / ${trim.baselineRear}` : ""}</p>
                     <p>{trim.baselineTire}</p>
+                    {trim.baselineNote && <p className="mt-2 text-amber-200/80">{trim.baselineNote}</p>}
                     <p>{trim.boltPattern || "Bolt pattern pending"} · {trim.centerBore || "Center bore pending"}</p>
                   </div>
                 </div>
