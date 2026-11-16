@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import FactoryGenerationSelect from "../components/FactoryGenerationSelect";
+import { useFactoryGeneration } from "../hooks/useFactoryGeneration";
+import { hasModel3FactoryChoices, model3FactoryBaseline, type FactoryGeneration } from "../lib/model3Factory";
 import CompareFitmentVisual from "../components/CompareFitmentVisual";
 import {
   MakeKey,
@@ -46,6 +49,8 @@ export default function ComparePage() {
     configuration: "staggered",
   });
 
+  const [factoryGeneration, setFactoryGeneration] = useFactoryGeneration();
+
   useEffect(() => {
     async function loadData() {
       const [fitment, models, trims] = await Promise.all([
@@ -65,17 +70,18 @@ export default function ComparePage() {
   useEffect(() => {
     if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) return;
 
+    const readSelection = () => {
     const params = new URLSearchParams(window.location.search);
     const rawMake = params.get("make");
     const requestedModel = params.get("model");
     const requestedTrim = params.get("trim");
 
-    if (!rawMake || !requestedModel || !requestedTrim) return;
+    if (!rawMake || !requestedModel || !requestedTrim) { setMake(null); setModel(null); setTrim(""); setHandoffSetup(null); return; }
 
     const urlMake = vehicleModels.find(
       (item) => item.make.toLowerCase() === rawMake.toLowerCase()
     )?.make as MakeKey | undefined;
-    if (!urlMake) return;
+    if (!urlMake) { setMake(null); setModel(null); setTrim(""); setHandoffSetup(null); return; }
 
     const urlModel = vehicleModels.find(
       (item) =>
@@ -83,7 +89,7 @@ export default function ComparePage() {
         (modelSlug(item.model) === modelSlug(requestedModel) ||
           modelSlug(item.display_name ?? "") === modelSlug(requestedModel))
     )?.model as ModelKey | undefined;
-    if (!urlModel) return;
+    if (!urlModel) { setMake(null); setModel(null); setTrim(""); setHandoffSetup(null); return; }
 
     const trimExists = vehicleTrims.some(
       (item) =>
@@ -91,7 +97,7 @@ export default function ComparePage() {
         item.model === urlModel &&
         item.trim === requestedTrim
     );
-    if (!trimExists) return;
+    if (!trimExists) { setMake(null); setModel(null); setTrim(""); setHandoffSetup(null); return; }
 
     setMake(urlMake);
     setModel(urlModel);
@@ -114,6 +120,10 @@ export default function ComparePage() {
         ? { front, rear, frontTire, rearTire, title, verdict }
         : null
     );
+    };
+    readSelection();
+    window.addEventListener("popstate", readSelection);
+    return () => window.removeEventListener("popstate", readSelection);
   }, [fitmentDb, vehicleModels, vehicleTrims]);
 
   const makes = useMemo(() => {
@@ -158,6 +168,8 @@ export default function ComparePage() {
     );
   }, [fitmentDb, safeModel, safeTrim]);
 
+  const hasFactoryChoices = hasModel3FactoryChoices(make, safeModel, safeTrim);
+  const baseline = trimData ? (hasFactoryChoices ? model3FactoryBaseline(trimData.baseline, factoryGeneration) : trimData.baseline) : null;
   const preset = trimData?.presets?.[style];
   const resolvedPreset = useMemo(
     () =>
@@ -191,8 +203,9 @@ export default function ComparePage() {
       configuration: fitmentContext.configuration,
     });
 
+    if (hasFactoryChoices) params.set("factoryGeneration", factoryGeneration);
     return `/fitment?${params.toString()}`;
-  }, [make, safeModel, safeTrim, style, fitmentContext]);
+  }, [make, safeModel, safeTrim, style, fitmentContext, hasFactoryChoices, factoryGeneration]);
 
   if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
     return (
@@ -200,6 +213,18 @@ export default function ComparePage() {
         <div className="mx-auto max-w-7xl text-white/60">Loading compare data...</div>
       </main>
     );
+  }
+
+  function changeFactoryGeneration(next: FactoryGeneration) {
+    if (!make || !safeModel || !safeTrim || next === factoryGeneration) return;
+    setFactoryGeneration(next);
+    const params = new URLSearchParams({make, model: safeModel, trim: safeTrim, style,
+      goal: fitmentContext.goal, configuration: fitmentContext.configuration,
+      ...(handoffSetup ?? {}), factoryGeneration: next});
+    const previous = new URLSearchParams(params);
+    previous.set("factoryGeneration", factoryGeneration);
+    window.history.replaceState(null, "", `/compare?${previous.toString()}`);
+    window.history.pushState(null, "", `/compare?${params.toString()}`);
   }
 
   function handleMakeChange(nextMake: string) {
@@ -383,15 +408,16 @@ export default function ComparePage() {
               &lt;- Back to Fitment
             </a>
 
-            {trimData.baseline.note && <p className="mt-5 text-sm text-amber-200/80">{trimData.baseline.note}</p>}
+            {hasFactoryChoices && <div className="mt-5"><FactoryGenerationSelect value={factoryGeneration} onChange={changeFactoryGeneration} /></div>}
+            {baseline!.note && <p className="mt-5 text-sm text-amber-200/80">{baseline!.note}</p>}
             <div className="mt-7 grid gap-5 xl:grid-cols-2">
               <FitmentTable
                 title="Factory Baseline"
-                frontWheel={trimData.baseline.front}
-                rearWheel={trimData.baseline.rear}
-                frontTire={trimData.baseline.frontTire}
-                rearTire={trimData.baseline.rearTire}
-                boltPattern={trimData.baseline.boltPattern}
+                frontWheel={baseline!.front}
+                rearWheel={baseline!.rear}
+                frontTire={baseline!.frontTire}
+                rearTire={baseline!.rearTire}
+                boltPattern={baseline!.boltPattern}
               />
               <FitmentTable
                 title="Selected Fitment"
@@ -399,17 +425,17 @@ export default function ComparePage() {
                 rearWheel={current.rear}
                 frontTire={current.frontTire}
                 rearTire={current.rearTire}
-                boltPattern={trimData.baseline.boltPattern}
+                boltPattern={baseline!.boltPattern}
                 selected
               />
               <div className="xl:col-span-2">
                 <CompareFitmentVisual
-                  baselineFront={trimData.baseline.front ?? ""}
-                  baselineRear={trimData.baseline.rear ?? ""}
+                  baselineFront={baseline!.front ?? ""}
+                  baselineRear={baseline!.rear ?? ""}
                   selectedFront={current.front ?? ""}
                   selectedRear={current.rear ?? ""}
-                  baselineTire={trimData.baseline.frontTire}
-                  baselineRearTire={trimData.baseline.rearTire}
+                  baselineTire={baseline!.frontTire}
+                  baselineRearTire={baseline!.rearTire}
                   selectedTire={current.frontTire ?? ""}
                   selectedRearTire={current.rearTire ?? ""}
                 />

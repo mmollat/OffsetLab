@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import FactoryGenerationSelect from "../components/FactoryGenerationSelect";
+import { useFactoryGeneration } from "../hooks/useFactoryGeneration";
+import { hasModel3FactoryChoices, model3FactoryBaseline, model3ConfigurationHint, type FactoryGeneration } from "../lib/model3Factory";
 import GalleryCard from "../components/GalleryCard";
 import TrustStrip from "../components/TrustStrip";
 import SubmitBuildModal from "../components/SubmitBuildModal";
@@ -54,6 +57,8 @@ export default function FitmentPage() {
   const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
   const [vehicleTrims, setVehicleTrims] = useState<VehicleTrim[]>([]);
   
+  const [factoryGeneration, setFactoryGeneration] = useFactoryGeneration();
+
   useEffect(() => {
   let cancelled = false;
 
@@ -114,15 +119,16 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
   useEffect(() => {
   if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) return;
   
+  const readSelection = () => {
   const params = new URLSearchParams(window.location.search);
   const rawMake = params.get("make");
 
-  if (!rawMake) return;
+  if (!rawMake) { setMake(null); setModel(null); setTrim(""); return; }
 
   const urlMake = vehicleModels.find(
     (item) => item.make.toLowerCase() === rawMake.toLowerCase()
   )?.make as MakeKey | undefined;
-  if (!urlMake) return;
+  if (!urlMake) { setMake(null); setModel(null); setTrim(""); return; }
 
   const requestedModel = params.get("model");
   const urlModel =
@@ -157,6 +163,10 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
 
   const availableTrims = getLoadedTrims(urlModel, urlMake);
   setTrim(urlTrim && availableTrims.includes(urlTrim) ? urlTrim : "");
+  };
+  readSelection();
+  window.addEventListener("popstate", readSelection);
+  return () => window.removeEventListener("popstate", readSelection);
 }, [fitmentDb, vehicleModels, vehicleTrims]);
 
   const availableMakes = useMemo(() => {
@@ -197,6 +207,8 @@ const trimData = useMemo(
   () => (safeModel && safeTrim ? getLoadedTrimData(safeModel, safeTrim) : null),
   [safeModel, safeTrim, fitmentDb]
 );
+  const hasFactoryChoices = hasModel3FactoryChoices(make, safeModel, safeTrim);
+  const baseline = trimData ? (hasFactoryChoices ? model3FactoryBaseline(trimData.baseline, factoryGeneration) : trimData.baseline) : null;
   const current = trimData?.presets?.[style];
 
   const displayedFitment = useMemo(
@@ -260,8 +272,9 @@ const trimData = useMemo(
     params.set("style", style);
     params.set("goal", goal);
     params.set("configuration", configuration);
+    if (hasFactoryChoices) params.set("factoryGeneration", factoryGeneration);
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-  }, [make, safeModel, safeTrim, style, goal, configuration]);
+  }, [make, safeModel, safeTrim, style, goal, configuration, hasFactoryChoices, factoryGeneration]);
 
   useEffect(() => {
     let cancelled = false;
@@ -407,8 +420,17 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
       verdict: displayedFitment.verdict,
     });
 
+    if (hasFactoryChoices) params.set("factoryGeneration", factoryGeneration);
     compareHref = `/compare?${params.toString()}`;
+    params.delete("factoryGeneration");
     tunerHref = `/tuner?${params.toString()}`;
+  }
+
+  function changeFactoryGeneration(next: FactoryGeneration) {
+    if (!make || !safeModel || !safeTrim || next === factoryGeneration) return;
+    setFactoryGeneration(next);
+    const params = new URLSearchParams({make, model: safeModel, trim: safeTrim, style, goal, configuration, factoryGeneration: next});
+    window.history.pushState(null, "", `/fitment?${params.toString()}`);
   }
 
   return (
@@ -522,7 +544,9 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
         </div>
       </section>
 
-      {hasRecommendation && trimData?.baseline.note && <p className="mx-auto max-w-7xl px-5 py-4 text-sm text-amber-200/80">{trimData.baseline.note}</p>}
+      {hasRecommendation && hasFactoryChoices && <div className="mx-auto max-w-7xl px-5 py-4"><FactoryGenerationSelect value={factoryGeneration} onChange={changeFactoryGeneration} /></div>}
+      {hasRecommendation && baseline?.note && <p className="mx-auto max-w-7xl px-5 py-4 text-sm text-amber-200/80">{baseline.note}</p>}
+      {hasRecommendation && hasFactoryChoices && <p className="mx-auto max-w-7xl px-5 pb-4 text-sm text-white/60">Preset stance ratings and the fitment illustration below are general aftermarket guidance, not generation-specific stock deltas. Use Compare against factory for axle-by-axle geometry against your selected stock baseline.</p>}
       {!hasRecommendation || !make || !safeModel || !trimData || !displayedFitment ? (
         <section className="mx-auto max-w-7xl px-5 py-20 text-center lg:px-8">
           <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Choose Your Platform</p>
@@ -567,8 +591,8 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                 </ChoicePanel>
                 <ChoicePanel title="Wheel Configuration">
                   {([
-                    ["staggered", "Staggered", getConfigurationHint(safeModel, "staggered", goal)],
-                    ["square", "Square", getConfigurationHint(safeModel, "square", goal)],
+                    ["staggered", "Staggered", hasFactoryChoices ? model3ConfigurationHint("staggered", factoryGeneration) : getConfigurationHint(safeModel, "staggered", goal)],
+                    ["square", "Square", hasFactoryChoices ? model3ConfigurationHint("square", factoryGeneration) : getConfigurationHint(safeModel, "square", goal)],
                   ] as const).map(([key, label, sub]) => (
                     <ChoiceButton
                       key={key}

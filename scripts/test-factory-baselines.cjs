@@ -26,6 +26,7 @@ let seoPage;
 const react = require('react');
 const originalLoad = Module._load;
 Module._load = function(request, parent, isMain) {
+  if (request.endsWith('/hooks/useFactoryGeneration')) return {useFactoryGeneration: () => ['2024-plus', () => {}]};
   if (request === 'next/link') return ({children, ...props}) => react.createElement('a', props, children);
   if (request.endsWith('/getFitmentSeoPages')) return { getFitmentSeoPage: async () => seoPage };
   if (parent?.filename.endsWith('/fitment/page.tsx') && /components\//.test(request)) return () => null;
@@ -75,12 +76,12 @@ Module._load = function(request, parent, isMain) {
   const compareHtml = renderToStaticMarkup(ComparePage());
   assert.ok(compareHtml.includes('275/30R20'));
   assert.ok(compareHtml.includes('2024+'));
-  assert.ok(compareHtml.includes('not an older-year stock comparison'));
+  assert.ok(compareHtml.includes('2024+ Performance 20-inch factory reference'));
   const FitmentPage = require('../app/fitment/page.tsx').default;
   routeStates = ['Tesla', 'Model 3', 'Performance', 'oemplus', 'street', 'staggered', false, false, [], db, models, trims];
   stateIndex = 0;
   const fitmentHtml = renderToStaticMarkup(FitmentPage());
-  assert.ok(fitmentHtml.includes('not an older-year stock comparison'));
+  assert.ok(fitmentHtml.includes('2024+ Performance 20-inch factory reference'));
   assert.ok(fitmentHtml.includes('/compare?make=Tesla'));
   seoPage = { makeName: 'Tesla', modelName: 'Model 3', makeSlug:'tesla', modelKey:'Model 3', urlPath:'/fitment/tesla/model-3', trims: [{trim:'Performance', baselineFront:trim.baseline.front, baselineRear:trim.baseline.rear, baselineTire: factoryTireLabel(trim.baseline.frontTire,trim.baseline.rearTire), baselineNote:trim.baseline.note, presets:[{...preset, style:'oemplus', label:'OEM+'}]}] };
   const Guide = require('../app/fitment/[make]/[model]/page.tsx').default;
@@ -96,7 +97,7 @@ Module._load = function(request, parent, isMain) {
   assert.equal(trim.baseline.rearTire, trim.baseline.tire, 'unrelated OEM+ fallback unchanged');
   assert.equal(trim.baseline.note, undefined);
   const compare = fs.readFileSync(path.join(__dirname, '../app/compare/page.tsx'), 'utf8');
-  assert.ok(compare.includes('baselineRearTire={trimData.baseline.rearTire}'));
+  assert.ok(compare.includes('baselineRearTire={baseline!.rearTire}'));
   assert.ok(!compare.includes("factoryPackage"));
   console.log('PASS: helper formatting, scoped Model 3 fallback, unrelated/square regressions, both visual axles/generations, legacy loader, unchanged URL wiring; mocked Guide/Fitment/Compare route rendering and scoped year warnings.');
 })().catch(err => { console.error(err); process.exitCode = 1; });
