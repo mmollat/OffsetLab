@@ -114,6 +114,13 @@ export default async function FitmentSeoPage({ params }: PageParams) {
             built from Offset Lab fitment presets and factory baseline data.
           </p>
 
+          {page.makeSlug === "toyota" && page.modelSlug === "5th-gen-4runner" ? (
+            <p className="mt-5 text-sm leading-6 text-white/65">
+              Before installing wheels: <Link href="/torque/toyota/5th-gen-4runner" className="font-bold text-red-400 hover:text-red-300">check the 5th-gen 4Runner lug nut torque reference</Link>.
+              {" "}Verified U.S. 2019 and 2024 factory steel and aluminum wheel values; other years and hardware require separate verification.
+            </p>
+          ) : null}
+
           {primaryPreset && primaryTrim ? (
             <div className="mt-10 rounded-[1.5rem] border border-red-500/25 bg-red-500/[0.08] p-6">
               <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300">

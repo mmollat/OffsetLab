@@ -50,7 +50,14 @@ async function getVerifiedTorqueLinks() {
 }
 
 export default async function TorquePage() {
-  const verifiedTorqueLinks = await getVerifiedTorqueLinks();
+  const verifiedTorqueLinks: VerifiedTorqueLink[] = [
+    {
+      title: "Toyota 5th-gen 4Runner lug nut torque",
+      spec: "2019 & 2024 · By wheel type",
+      href: "/torque/toyota/5th-gen-4runner",
+    },
+    ...(await getVerifiedTorqueLinks()),
+  ];
 
   return <TorqueLookupClient verifiedTorqueLinks={verifiedTorqueLinks} />;
 }

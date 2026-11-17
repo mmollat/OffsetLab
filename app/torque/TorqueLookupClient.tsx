@@ -618,7 +618,7 @@ export default function TorqueLookupClient({
                   </h2>
                 </div>
                 <p className="max-w-xl text-sm leading-6 text-white/45">
-                  These pages are generated from verified Torque Hub rows with attached source details.
+                  These references include source details and applicability notes. Check the model year and wheel hardware before using a specification.
                 </p>
               </div>
 

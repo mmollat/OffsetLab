@@ -13,6 +13,7 @@ const routes = [
   "/fitment/guides",
   "/compare",
   "/torque",
+  "/torque/toyota/5th-gen-4runner",
   "/gallery",
   "/builds",
 ];
