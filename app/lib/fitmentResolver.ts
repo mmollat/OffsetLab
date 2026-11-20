@@ -19,6 +19,47 @@ type SquareOverride = {
 
 type GoalOverrideMap = Partial<Record<ModelKey, Partial<Record<StyleKey, SquareOverride>>>>;
 
+const truckModelPatterns = [
+  "4runner",
+  "tacoma",
+  "tundra",
+  "sequoia",
+  "bronco",
+  "f-150",
+  "f150",
+  "ranger",
+  "silverado",
+  "colorado",
+  "sierra",
+  "canyon",
+  "frontier",
+  "titan",
+  "gladiator",
+  "wrangler",
+];
+
+export function isTruckPlatform(make: MakeKey | null, model: ModelKey | null) {
+  if (!make || !model) return false;
+
+  const normalizedModel = model.toLowerCase();
+  if (truckModelPatterns.some((pattern) => normalizedModel.includes(pattern))) return true;
+
+  // Offset Lab currently stores 4Runner generations as "5th Gen" and "6th Gen".
+  return make === "Toyota" && (model === "5th Gen" || model === "6th Gen");
+}
+
+export function getStyleLabel(style: StyleKey, truckPlatform: boolean) {
+  if (!truckPlatform) {
+    if (style === "oemplus") return "OEM+";
+    if (style === "flush") return "Flush";
+    return "Aggressive";
+  }
+
+  if (style === "oemplus") return "OEM+";
+  if (style === "flush") return "Overland / Trail";
+  return "Aggressive Off-Road";
+}
+
 const squareOverrides: GoalOverrideMap = {
   "Model 3": {
     oemplus: {
@@ -243,8 +284,10 @@ const trackOverrides: GoalOverrideMap = {
 
 export function getRecommendedConfiguration(
   model: ModelKey,
-  goal: DrivingGoalKey = "street"
+  goal: DrivingGoalKey = "street",
+  make: MakeKey | null = null
 ): ConfigurationKey {
+  if (isTruckPlatform(make, model)) return "square";
   if (goal === "track") return "square";
   if (model === "Model 3" || model === "Model Y" || model === "Civic") return "square";
   return "staggered";

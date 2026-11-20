@@ -26,6 +26,8 @@ import {
   getConfigurationHint,
   getGoalMessage,
   getRecommendedConfiguration,
+  getStyleLabel,
+  isTruckPlatform,
   resolveDisplayedFitment,
 } from "../lib/fitmentResolver";
 import { getVehicleModels, VehicleModel } from "../lib/getVehicleModels";
@@ -154,9 +156,12 @@ function getLoadedTrimData(model: ModelKey, trim: string): TrimData | null {
     return;
   }
 
-  const recommendedConfiguration = getRecommendedConfiguration(urlModel, initialGoal);
+  const truckPlatform = isTruckPlatform(urlMake, urlModel);
+  const normalizedGoal: DrivingGoalKey = truckPlatform ? "street" : initialGoal;
+  setGoal(normalizedGoal);
+  const recommendedConfiguration = getRecommendedConfiguration(urlModel, normalizedGoal, urlMake);
   setConfiguration(
-    urlConfiguration === "square" || urlConfiguration === "staggered"
+    !truckPlatform && (urlConfiguration === "square" || urlConfiguration === "staggered")
       ? (urlConfiguration as ConfigurationKey)
       : recommendedConfiguration
   );
@@ -193,6 +198,7 @@ const safeModel =
   make && model && availableModels.includes(model)
     ? model
     : null;
+  const truckPlatform = isTruckPlatform(make, safeModel);
   const trims = useMemo(
   () => (safeModel ? getLoadedTrims(safeModel) : []),
   [safeModel, make, vehicleTrims]
@@ -210,6 +216,12 @@ const trimData = useMemo(
   const hasFactoryChoices = hasModel3FactoryChoices(make, safeModel, safeTrim);
   const baseline = trimData ? (hasFactoryChoices ? model3FactoryBaseline(trimData.baseline, factoryGeneration) : trimData.baseline) : null;
   const current = trimData?.presets?.[style];
+
+  useEffect(() => {
+    if (!truckPlatform) return;
+    if (goal !== "street") setGoal("street");
+    if (configuration !== "square") setConfiguration("square");
+  }, [truckPlatform, goal, configuration]);
 
   const displayedFitment = useMemo(
     () =>
@@ -485,7 +497,9 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                     const nextModel = event.target.value as ModelKey;
                     setModel(nextModel);
                     setTrim("");
-                    setConfiguration(getRecommendedConfiguration(nextModel, goal));
+                    const nextIsTruck = isTruckPlatform(make, nextModel);
+                    if (nextIsTruck) setGoal("street");
+                    setConfiguration(getRecommendedConfiguration(nextModel, nextIsTruck ? "street" : goal, make));
                   }}
                   className="w-full bg-transparent text-sm font-bold outline-none disabled:text-white/30"
                 >
@@ -512,13 +526,11 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
               </Selector>
 
               <div className="bg-[#09090b]/95 px-5 py-4">
-                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/35">Style</p>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
+                  {truckPlatform ? "Build Goal" : "Style"}
+                </p>
                 <div className="grid grid-cols-3 gap-1 rounded-md border border-white/10 bg-black/35 p-1">
-                  {([
-                    ["oemplus", "OEM+"],
-                    ["flush", "Flush"],
-                    ["aggressive", "Aggressive"],
-                  ] as const).map(([key, label]) => (
+                  {(["oemplus", "flush", "aggressive"] as const).map((key) => (
                     <button
                       key={key}
                       onClick={() => setStyle(key)}
@@ -526,7 +538,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                         style === key ? "bg-red-600 text-white" : "text-white/45 hover:text-white"
                       }`}
                     >
-                      {label}
+                      {getStyleLabel(key, truckPlatform)}
                     </button>
                   ))}
                 </div>
@@ -564,13 +576,25 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                   Refine Your Setup
                 </p>
                 <h2 className="mt-3 text-2xl font-black tracking-[-0.03em] sm:text-3xl">
-                  How Do You Want to Drive It?
+                  {truckPlatform ? "Built for Truck Use." : "How Do You Want to Drive It?"}
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
-                  Your driving goal and wheel configuration shape the recommendation below.
+                  {truckPlatform
+                    ? "Truck recommendations use a square setup for consistent clearance, tire rotation, and trail practicality."
+                    : "Your driving goal and wheel configuration shape the recommendation below."}
                 </p>
               </div>
 
+              {truckPlatform ? (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/[0.06] p-6">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-red-400">Square Setup</p>
+                  <p className="mt-2 text-lg font-black">Same wheel and tire size on all four corners</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">
+                    No staggered or track configuration is needed for this platform. Choose OEM+, Overland / Trail,
+                    or Aggressive Off-Road above.
+                  </p>
+                </div>
+              ) : (
               <div className="grid gap-5 lg:grid-cols-2">
                 <ChoicePanel title="Driving Goal">
                   {([
@@ -584,7 +608,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                       sub={sub}
                       onClick={() => {
                         setGoal(key);
-                        setConfiguration(getRecommendedConfiguration(safeModel, key));
+                        setConfiguration(getRecommendedConfiguration(safeModel, key, make));
                       }}
                     />
                   ))}
@@ -609,6 +633,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                   </p>
                 ) : null}
               </div>
+              )}
             </div>
           </section>
 
@@ -622,7 +647,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                 <p className="mt-3 text-sm text-white/45">
                   {make} <span className="px-2 text-white/20">/</span> {selectedModelName}
                   <span className="px-2 text-white/20">/</span> {safeTrim}
-                  <span className="px-2 text-white/20">/</span> {style === "oemplus" ? "OEM+" : style}
+                  <span className="px-2 text-white/20">/</span> {getStyleLabel(style, truckPlatform)}
                 </p>
               </div>
               <span className={`w-fit rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] ${riskPill(displayedFitment.risk)}`}>
@@ -630,23 +655,23 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
               </span>
             </div>
 
-            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+            <div className={`mt-8 grid gap-5 ${truckPlatform ? "" : "lg:grid-cols-2"}`}>
               <WheelRecommendation
-                axle="Front"
+                axle={truckPlatform ? "All Four Corners" : "Front"}
                 wheel={displayedFitment.front}
                 tire={displayedFitment.frontTire}
                 poke={displayedFitment.pokeFront}
                 inner={displayedFitment.innerFront}
                 risk={displayedFitment.risk}
               />
-              <WheelRecommendation
+              {!truckPlatform ? <WheelRecommendation
                 axle="Rear"
                 wheel={displayedFitment.rear}
                 tire={displayedFitment.rearTire}
                 poke={displayedFitment.pokeRear}
                 inner={displayedFitment.innerRear}
                 risk={displayedFitment.risk}
-              />
+              /> : null}
             </div>
 
             <div className="mt-5 grid overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 sm:gap-px">
