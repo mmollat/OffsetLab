@@ -654,6 +654,11 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
                       The verified OEM starting point for this model and trim. Compare the recommended setup below against these stock specifications.
                     </p>
+                    {baseline.applicability ? (
+                      <p className="mt-2 text-sm font-semibold text-white/70">
+                        Applies to: {baseline.applicability}
+                      </p>
+                    ) : null}
                   </div>
                   <a href={compareHref} className="text-sm font-bold text-red-400 transition hover:text-red-300">
                     Compare against factory -&gt;

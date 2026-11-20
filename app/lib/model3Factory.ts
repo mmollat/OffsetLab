@@ -22,6 +22,9 @@ export function model3FactoryBaseline(base: TrimData["baseline"], generation: Fa
     tire: "235/35R20",
     frontTire: "235/35R20",
     rearTire: older ? "235/35R20" : "275/30R20",
+    applicability: older
+      ? "2017-2023 · US · Performance 20-inch factory reference"
+      : "2024-present · US · Performance 20-inch factory setup",
     note: older
       ? "2017–2023 manual · Performance 20-inch factory reference (US): square 20x9 +34 with 235/35R20 on both axles."
       : "2024+ Performance 20-inch factory reference (US): 20x9 +34 with 235/35R20 front; 20x10 +45 with 275/30R20 rear.",

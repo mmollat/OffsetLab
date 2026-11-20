@@ -65,6 +65,10 @@ type FactoryBaselineRow = {
   source_status: string | null;
   active: boolean;
   is_default?: boolean | null;
+  package_name?: string | null;
+  market?: string | null;
+  year_start?: number | null;
+  year_end?: number | null;
 };
 
 function hasFactoryBaseline(row: FitmentRow) {
@@ -84,6 +88,18 @@ function getBaselineFromRow(row: FitmentRow, factoryBaseline?: FactoryBaselineRo
   const note = !factoryBaseline && !hasFactoryBaseline(row)
     ? model3BaselineNote(row.make, row.model, row.trim, front, rear)
     : undefined;
+  const yearRange = factoryBaseline?.year_start
+    ? factoryBaseline.year_end && factoryBaseline.year_end !== factoryBaseline.year_start
+      ? `${factoryBaseline.year_start}-${factoryBaseline.year_end}`
+      : factoryBaseline.year_end === factoryBaseline.year_start
+        ? `${factoryBaseline.year_start}`
+        : `${factoryBaseline.year_start}-present`
+    : undefined;
+  const applicability = factoryBaseline
+    ? [yearRange, factoryBaseline.market, factoryBaseline.package_name]
+        .filter(Boolean)
+        .join(" · ")
+    : undefined;
   return {
     front,
     rear,
@@ -91,6 +107,7 @@ function getBaselineFromRow(row: FitmentRow, factoryBaseline?: FactoryBaselineRo
     frontTire: tire,
     rearTire: note ? row.rear_tire : tire,
     note,
+    applicability,
     verified: factoryBaseline
       ? factoryBaseline.source_status === "verified"
       : hasFactoryBaseline(row),
