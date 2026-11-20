@@ -235,6 +235,11 @@ const trimData = useMemo(
       }),
     [configuration, current, safeModel, style, goal, make]
   );
+  const displayedFitmentTitle = displayedFitment
+    ? truckPlatform
+      ? `${getStyleLabel(style, true)} Setup`
+      : displayedFitment.title
+    : "";
 
   const sourceRank: Record<string, number> = {
     official: 1,
@@ -393,7 +398,7 @@ match: normalize(String(row.fitment_style || "")) === normalizedStyle ? "Close M
 
   const data = {
     title: "Offset Lab",
-    text: `${safeModel} ${safeTrim} • ${displayedFitment.title}`,
+    text: `${safeModel} ${safeTrim} • ${displayedFitmentTitle}`,
     url: window.location.href,
   };
 
@@ -428,7 +433,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
       rear: displayedFitment.rear,
       frontTire: displayedFitment.frontTire,
       rearTire: displayedFitment.rearTire,
-      title: displayedFitment.title,
+      title: displayedFitmentTitle,
       verdict: displayedFitment.verdict,
     });
 
@@ -642,7 +647,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Your Recommended Setup</p>
                 <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] sm:text-5xl">
-                  {displayedFitment.title}
+                  {displayedFitmentTitle}
                 </h2>
                 <p className="mt-3 text-sm text-white/45">
                   {make} <span className="px-2 text-white/20">/</span> {selectedModelName}
@@ -710,7 +715,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
             </div>
 
             <FitmentVisualHero
-              title={displayedFitment.title}
+              title={displayedFitmentTitle}
               subtitle={displayedFitment.subtitle}
               frontWheel={displayedFitment.front}
               rearWheel={displayedFitment.rear}

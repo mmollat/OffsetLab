@@ -38,8 +38,22 @@ const truckModelPatterns = [
   "wrangler",
 ];
 
+// Some database models use chassis/platform codes instead of vehicle names.
+// Keep this allowlist deliberately narrow so road/performance SUVs continue to
+// use the standard street/track fitment experience.
+const truckPlatformCodes = new Set([
+  "Ford::P702", // F-150 / Raptor
+  "Ford::U725", // Bronco
+  "Ford::U725 Raptor", // Bronco Raptor
+  "Jeep::JK", // Wrangler
+  "Jeep::JL", // Wrangler
+  "Jeep::JT", // Gladiator
+]);
+
 export function isTruckPlatform(make: MakeKey | null, model: ModelKey | null) {
   if (!make || !model) return false;
+
+  if (truckPlatformCodes.has(`${make}::${model}`)) return true;
 
   const normalizedModel = model.toLowerCase();
   if (truckModelPatterns.some((pattern) => normalizedModel.includes(pattern))) return true;
