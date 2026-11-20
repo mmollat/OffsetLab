@@ -62,6 +62,7 @@ type FactoryBaselineRow = {
   tire: string;
   bolt_pattern: string | null;
   center_bore: string | null;
+  source_status: string | null;
   active: boolean;
   is_default?: boolean | null;
 };
@@ -90,6 +91,9 @@ function getBaselineFromRow(row: FitmentRow, factoryBaseline?: FactoryBaselineRo
     frontTire: tire,
     rearTire: note ? row.rear_tire : tire,
     note,
+    verified: factoryBaseline
+      ? factoryBaseline.source_status === "verified"
+      : hasFactoryBaseline(row),
     boltPattern: factoryBaseline?.bolt_pattern ?? row.bolt_pattern ?? "",
     centerBore: factoryBaseline?.center_bore ?? row.center_bore ?? "",
   };

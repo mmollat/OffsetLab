@@ -643,6 +643,31 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
           </section>
 
           <section className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+            {baseline?.verified ? (
+              <div className="mb-10 rounded-2xl border border-white/10 bg-white/[0.035] p-6 sm:p-8">
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Factory Baseline</p>
+                    <h2 className="mt-3 text-2xl font-black tracking-[-0.03em] sm:text-3xl">
+                      {selectedModelName} {safeTrim}
+                    </h2>
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
+                      The verified OEM starting point for this model and trim. Compare the recommended setup below against these stock specifications.
+                    </p>
+                  </div>
+                  <a href={compareHref} className="text-sm font-bold text-red-400 transition hover:text-red-300">
+                    Compare against factory -&gt;
+                  </a>
+                </div>
+                <div className="mt-6 grid overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 sm:gap-px">
+                  <SummaryMetric label="Factory Front" value={baseline.front} sub={baseline.frontTire} />
+                  <SummaryMetric label="Factory Rear" value={baseline.rear} sub={baseline.rearTire} />
+                  <SummaryMetric label="Factory Hardware" value={baseline.boltPattern || "OEM"} sub={baseline.centerBore ? `${baseline.centerBore} center bore` : "Verified factory specification"} />
+                </div>
+                {baseline.note ? <p className="mt-5 text-sm text-amber-200/80">{baseline.note}</p> : null}
+              </div>
+            ) : null}
+
             <div className="flex flex-col gap-5 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-red-500">Your Recommended Setup</p>
