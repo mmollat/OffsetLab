@@ -54,7 +54,7 @@ export default function GalleryCard({ build }: { build: GalleryBuild }) {
         <h4 className="text-xl font-bold">{build.label}</h4>
         <p className="mt-2 text-sm leading-6 text-white/60">{build.note}</p>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
             <p className="text-xs uppercase tracking-wide text-white/35">Wheel</p>
             <p className="mt-2 text-sm font-semibold">{build.wheel}</p>
@@ -62,6 +62,10 @@ export default function GalleryCard({ build }: { build: GalleryBuild }) {
           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
             <p className="text-xs uppercase tracking-wide text-white/35">Tire</p>
             <p className="mt-2 text-sm font-semibold">{build.tire}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+            <p className="text-xs uppercase tracking-wide text-white/35">Suspension</p>
+            <p className="mt-2 text-sm font-semibold">{build.suspension}</p>
           </div>
         </div>
 

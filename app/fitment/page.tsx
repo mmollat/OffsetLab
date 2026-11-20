@@ -10,7 +10,7 @@ import TrustStrip from "../components/TrustStrip";
 import SubmitBuildModal from "../components/SubmitBuildModal";
 import FitmentVisualHero from "../components/FitmentVisualHero";
 import { supabase } from "../lib/supabase";
-import { galleryExamples } from "../data/gallery";
+import { galleryExamples, type GalleryBuild } from "../data/gallery";
 import {
   MakeKey,
   ModelKey,
@@ -54,7 +54,7 @@ export default function FitmentPage() {
   const [configuration, setConfiguration] = useState<ConfigurationKey>("staggered");
   const [copied, setCopied] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
-  const [approvedBuilds, setApprovedBuilds] = useState<any[]>([]);
+  const [approvedBuilds, setApprovedBuilds] = useState<GalleryBuild[]>([]);
   const [fitmentDb, setFitmentDb] = useState<Record<ModelKey, TrimData[]> | null>(null);
   const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
   const [vehicleTrims, setVehicleTrims] = useState<VehicleTrim[]>([]);
@@ -264,7 +264,7 @@ const trimData = useMemo(
   })
   : [];
 
-  const communityBuilds: typeof referenceBuilds = [];
+  const communityBuilds = approvedBuilds;
 
   const rawBuilds = [...referenceBuilds, ...communityBuilds];
 
@@ -319,7 +319,7 @@ const trimData = useMemo(
 
         const { data, error } = await supabase
           .from("build_submissions")
-          .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, image_url, notes, instagram_handle")
+          .select("id, make, model, trim, fitment_style, front_wheel, rear_wheel, front_tire, rear_tire, suspension, image_url, notes, instagram_handle")
           .eq("status", "approved")
           .eq("model", safeModel);
 
@@ -352,7 +352,7 @@ const trimData = useMemo(
             sourceUrl: row.instagram_handle ? `https://instagram.com/${String(row.instagram_handle).replace(/^@/, "")}` : "#",
             wheel: `${String(row.front_wheel || "")}${row.rear_wheel && row.rear_wheel !== row.front_wheel ? ` / ${String(row.rear_wheel)}` : ""}`,
             tire: `${String(row.front_tire || "")}${row.rear_tire && row.rear_tire !== row.front_tire ? ` / ${String(row.rear_tire)}` : ""}`,
-            suspension: "User submitted build",
+            suspension: String(row.suspension || "Not provided"),
             note: String(row.notes || "Approved community build"),
             verificationNote:
   normalize(String(row.fitment_style || "")) === normalizedStyle
@@ -752,7 +752,7 @@ if (!fitmentDb || vehicleModels.length === 0 || vehicleTrims.length === 0) {
 
               <div className="grid gap-6">
                 {builds.length > 0 ? (
-                  builds.map((build) => <GalleryCard key={build.label} build={build} />)
+                  builds.map((build) => <GalleryCard key={`${build.label}-${build.imageUrl}`} build={build} />)
                 ) : (
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] p-10 text-center text-white/45">
                     No visual reference available yet for this setup.
