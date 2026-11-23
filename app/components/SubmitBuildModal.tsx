@@ -65,7 +65,7 @@ export default function SubmitBuildModal({ open, onClose, defaults }: Props) {
       }
 
       const { error: insertError } = await supabase.from("build_submissions").insert({
-        status: "pending",
+        status: "approved",
         make: form.make,
         model: form.model,
         trim: form.trim,
@@ -104,7 +104,7 @@ export default function SubmitBuildModal({ open, onClose, defaults }: Props) {
 
         {success ? (
           <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-5 text-emerald-200">
-            Build submitted — we’ll review it before adding it to the gallery.
+            Build published — it’s now available in the Offset Lab gallery.
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
