@@ -1,4 +1,3 @@
-import { model3BaselineNote } from "./model3BaselineNote";
 import { supabase } from "./supabase";
 import {
   ConfigurationKey,
@@ -71,23 +70,17 @@ type FactoryBaselineRow = {
   year_end?: number | null;
 };
 
-function hasFactoryBaseline(row: FitmentRow) {
-  return Boolean(row.factory_front || row.factory_rear || row.factory_tire);
-}
-
 function getBaselineKey(row: Pick<FitmentRow, "make" | "model" | "trim">) {
   return [row.make, row.model, row.trim].join("::");
 }
 
 function getBaselineFromRow(row: FitmentRow, factoryBaseline?: FactoryBaselineRow) {
-  const front = factoryBaseline?.front ?? row.factory_front ?? row.front;
-  const rear = factoryBaseline?.rear ?? row.factory_rear ?? row.rear;
-  const tire = factoryBaseline?.tire ?? row.factory_tire ?? row.front_tire;
-  // Only the verified newer Model 3 OEM+ fallback is corrected here. Explicit
-  // factory rows and all unrelated vehicle fallbacks retain their old output.
-  const note = !factoryBaseline && !hasFactoryBaseline(row)
-    ? model3BaselineNote(row.make, row.model, row.trim, front, rear)
-    : undefined;
+  // Recommendation rows must never masquerade as factory data. If the verified
+  // baseline query fails or has no matching row, leave the baseline blank so
+  // every consumer can hide it instead of falling back to an OEM+ preset.
+  const front = factoryBaseline?.front ?? "";
+  const rear = factoryBaseline?.rear ?? "";
+  const tire = factoryBaseline?.tire ?? "";
   const yearRange = factoryBaseline?.year_start
     ? factoryBaseline.year_end && factoryBaseline.year_end !== factoryBaseline.year_start
       ? `${factoryBaseline.year_start}-${factoryBaseline.year_end}`
@@ -105,12 +98,9 @@ function getBaselineFromRow(row: FitmentRow, factoryBaseline?: FactoryBaselineRo
     rear,
     tire,
     frontTire: tire,
-    rearTire: note ? row.rear_tire : tire,
-    note,
+    rearTire: tire,
     applicability,
-    verified: factoryBaseline
-      ? factoryBaseline.source_status === "verified"
-      : hasFactoryBaseline(row),
+    verified: factoryBaseline?.source_status === "verified",
     boltPattern: factoryBaseline?.bolt_pattern ?? row.bolt_pattern ?? "",
     centerBore: factoryBaseline?.center_bore ?? row.center_bore ?? "",
   };
@@ -165,7 +155,8 @@ async function getFactoryBaselines() {
     .from("fitment_factory_baselines")
     .select("*")
     .eq("active", true)
-    .eq("is_default", true);
+    .eq("is_default", true)
+    .eq("source_status", "verified");
 
   if (error || !data) {
     const message = error?.message ?? "";
@@ -216,11 +207,8 @@ export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
   }
 
   const grouped: Record<ModelKey, Record<string, TrimData>> = {} as any;
-  const baselineIsFactory: Record<ModelKey, Record<string, boolean>> = {} as any;
-
   allRows.forEach((row) => {
     if (!grouped[row.model]) grouped[row.model] = {};
-    if (!baselineIsFactory[row.model]) baselineIsFactory[row.model] = {};
 
     const factoryBaseline = factoryBaselineMap.get(getBaselineKey(row));
 
@@ -230,16 +218,6 @@ export async function getFitmentData(): Promise<Record<ModelKey, TrimData[]>> {
         baseline: getBaselineFromRow(row, factoryBaseline),
         presets: {} as any,
       };
-      baselineIsFactory[row.model][row.trim] = Boolean(factoryBaseline) || hasFactoryBaseline(row);
-    }
-
-    if (
-      factoryBaseline ||
-      hasFactoryBaseline(row) ||
-      (row.style === "oemplus" && !baselineIsFactory[row.model][row.trim])
-    ) {
-      grouped[row.model][row.trim].baseline = getBaselineFromRow(row, factoryBaseline);
-      baselineIsFactory[row.model][row.trim] = Boolean(factoryBaseline) || hasFactoryBaseline(row);
     }
 
     grouped[row.model][row.trim].presets[row.style] = {

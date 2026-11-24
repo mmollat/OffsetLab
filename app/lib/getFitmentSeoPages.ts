@@ -21,6 +21,7 @@ export type FitmentSeoTrim = {
   baselineRear: string;
   baselineTire: string;
   baselineNote?: string;
+  baselineVerified: boolean;
   boltPattern: string;
   centerBore: string;
   presets: FitmentSeoPreset[];
@@ -65,6 +66,7 @@ export async function getFitmentSeoPages(): Promise<FitmentSeoPage[]> {
         baselineFront: trim.baseline.front,
         baselineRear: trim.baseline.rear,
         baselineNote: trim.baseline.note,
+        baselineVerified: trim.baseline.verified === true,
         baselineTire: factoryTireLabel(trim.baseline.frontTire, trim.baseline.rearTire),
         boltPattern: trim.baseline.boltPattern,
         centerBore: trim.baseline.centerBore,

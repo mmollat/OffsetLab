@@ -363,7 +363,7 @@ export default function ComparePage() {
                     .getElementById("comparison")
                     ?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
-                disabled={!make || !safeModel || !safeTrim || !current}
+                disabled={!make || !safeModel || !safeTrim || !current || !baseline?.verified}
                 className="h-14 rounded-xl bg-red-500 px-6 text-xs font-black uppercase tracking-[0.16em] transition hover:bg-red-400 disabled:cursor-not-allowed disabled:bg-red-950 disabled:text-white/35"
               >
                 Compare Setup
@@ -373,7 +373,7 @@ export default function ComparePage() {
         </div>
       </section>
 
-      {make && safeModel && safeTrim && trimData && current ? (
+      {make && safeModel && safeTrim && trimData && current && baseline?.verified ? (
         <section
           id="comparison"
           className="scroll-mt-20 px-5 py-14 md:px-8 md:py-20"

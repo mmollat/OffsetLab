@@ -133,10 +133,12 @@ export default async function FitmentSeoPage({ params }: PageParams) {
                 <SpecBlock label="Front" wheel={primaryPreset.front} tire={primaryPreset.frontTire} />
                 <SpecBlock label="Rear" wheel={primaryPreset.rear} tire={primaryPreset.rearTire} />
               </div>
-              <p className="mt-5 text-sm leading-6 text-white/55">
-                Factory baseline for {primaryTrim.trim}: {primaryTrim.baselineFront}
-                {primaryTrim.baselineRear !== primaryTrim.baselineFront ? ` / ${primaryTrim.baselineRear}` : ""} on {primaryTrim.baselineTire}.
-              </p>
+              {primaryTrim.baselineVerified ? (
+                <p className="mt-5 text-sm leading-6 text-white/55">
+                  Factory baseline for {primaryTrim.trim}: {primaryTrim.baselineFront}
+                  {primaryTrim.baselineRear !== primaryTrim.baselineFront ? ` / ${primaryTrim.baselineRear}` : ""} on {primaryTrim.baselineTire}.
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -180,12 +182,14 @@ export default async function FitmentSeoPage({ params }: PageParams) {
                     </p>
                     <h3 className="mt-2 text-2xl font-black tracking-tight">{trim.trim}</h3>
                   </div>
-                  <div className="text-sm leading-6 text-white/45 md:text-right">
-                    <p>Factory: {trim.baselineFront}{trim.baselineRear !== trim.baselineFront ? ` / ${trim.baselineRear}` : ""}</p>
-                    <p>{trim.baselineTire}</p>
-                    {trim.baselineNote && <p className="mt-2 text-amber-200/80">{trim.baselineNote}</p>}
-                    <p>{trim.boltPattern || "Bolt pattern pending"} · {trim.centerBore || "Center bore pending"}</p>
-                  </div>
+                  {trim.baselineVerified ? (
+                    <div className="text-sm leading-6 text-white/45 md:text-right">
+                      <p>Factory: {trim.baselineFront}{trim.baselineRear !== trim.baselineFront ? ` / ${trim.baselineRear}` : ""}</p>
+                      <p>{trim.baselineTire}</p>
+                      {trim.baselineNote && <p className="mt-2 text-amber-200/80">{trim.baselineNote}</p>}
+                      <p>{trim.boltPattern || "Bolt pattern pending"} · {trim.centerBore || "Center bore pending"}</p>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-3">
